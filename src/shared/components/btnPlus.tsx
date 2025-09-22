@@ -4,9 +4,10 @@ export function ButtonPlus(props: React.ComponentProps<typeof Button>) {
   return (
     <Button
       {...props}
-      className="font-pretendard h-[60px] w-[474px] gap-[10px] rounded-[20px] bg-green-500 px-[30px] py-[16px] text-center text-[20px] leading-[28px] font-bold text-white shadow-md transition-colors duration-200 ease-in-out hover:bg-green-600 active:scale-[0.98] disabled:bg-gray-50"
+      className="font-white sm:rounded-6 h-12 w-12 cursor-pointer rounded-full bg-green-500 p-0 text-center text-xl leading-7 font-bold tracking-[-0.03em] sm:h-16 sm:w-48.5"
     >
-      {props.children}
+      <img src="/ic_plus.svg" alt="plus" className="h-8 w-8" />
+      <span className="hidden sm:inline">모임 만들기</span>
     </Button>
   );
 }
