@@ -1,47 +1,40 @@
 "use client";
 
+import LogInForm from "@/features/auth/components/login-form";
 import { useLoginMutation } from "@/shared/services/auth/use-auth-queries";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 
 export default function SignInPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const router = useRouter();
   const login = useLoginMutation();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    login.mutate(
-      { email, password },
-      {
-        onSuccess: () => {
-          alert("로그인됨~");
-          router.push("/");
-        },
+  const handleSubmit = (values: { email: string; password: string }) => {
+    login.mutate(values, {
+      onSuccess: () => {
+        alert("로그인됨~");
+        router.push("/");
       },
-    );
+      onError: (error) => {
+        alert("로그인 실패: " + (error as Error).message);
+      },
+    });
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mx-auto flex">
-      <input
-        type="email"
-        placeholder="이메일"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        required
+    <div className="flex min-h-[calc(100vh-88px)] flex-col items-center justify-center gap-8 px-4 pt-8 pb-8 md:gap-12 md:px-22 md:pt-10 lg:flex-row lg:items-center">
+      <img
+        src="/image/img_login_sm.svg"
+        alt="로그인이미지(작은 화면)"
+        className="block w-[272px] md:hidden"
       />
 
-      <input
-        type="password"
-        placeholder="비밀번호"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        required
+      <img
+        src="/image/img_login_lg.svg"
+        alt="로그인이미지(큰 화면)"
+        className="hidden w-[451px] md:block lg:w-[533px]"
       />
 
-      <button type="submit">로그인</button>
-    </form>
+      <LogInForm onSubmit={handleSubmit} />
+    </div>
   );
 }
