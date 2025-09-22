@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export default function Home() {
   return (
-    <div className="bg-gradient-100 flex size-full flex-col items-center justify-center">
+    <div className="flex flex-col items-center">
       <p className="font-tenada pt-4 text-5xl font-extrabold text-green-800">
         반갑습니다
       </p>

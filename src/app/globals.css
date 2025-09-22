@@ -82,6 +82,10 @@
 }
 
 @theme {
+  --breakpoint-sm: 375px; /* 모바일 */
+  --breakpoint-md: 744px; /* 태블릿 */
+  --breakpoint-lg: 1280px; /* 데스크톱 */
+
   --text-xs: 12px;
   --leading-xs: 16px;
 
