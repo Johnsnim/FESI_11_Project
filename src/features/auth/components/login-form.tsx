@@ -34,14 +34,16 @@ export default function LogInForm({ onSubmit }: LoginFormProps) {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="w-full rounded-[40px] bg-white px-4 pt-6 pb-8"
+        className="w-full rounded-[40px] bg-white px-4 pt-6 pb-8 md:px-14 md:pt-11 md:pb-11 lg:pt-12"
       >
-        <p className="mb-6 text-center text-base font-semibold">로그인</p>
+        <p className="text-center font-semibold sm:mb-6 sm:text-base md:pb-13 md:text-2xl">
+          로그인
+        </p>
         <FormField
           control={form.control}
           name="email"
           render={({ field }) => (
-            <FormItem className="mb-4 gap-1">
+            <FormItem className="mb-4 gap-1 md:mb-6 md:gap-2">
               <FormLabel className="text-base font-medium">이메일</FormLabel>
               <FormControl>
                 <Input placeholder="이메일을 입력하세요" {...field} />
@@ -55,7 +57,7 @@ export default function LogInForm({ onSubmit }: LoginFormProps) {
           control={form.control}
           name="password"
           render={({ field }) => (
-            <FormItem className="mb-8 gap-1">
+            <FormItem className="mb-8 gap-1 md:mb-10 md:gap-2">
               <FormLabel className="text-base font-medium">비밀번호</FormLabel>
               <FormControl>
                 <Input
@@ -71,7 +73,7 @@ export default function LogInForm({ onSubmit }: LoginFormProps) {
 
         <Button
           type="submit"
-          className="mb-4 h-14 w-full bg-gray-50 px-7.5 py-4 text-xl font-semibold text-slate-500"
+          className="mb-4 h-14 w-full rounded-2xl bg-gray-50 px-7.5 py-4 text-xl font-semibold text-slate-500"
         >
           로그인
         </Button>
