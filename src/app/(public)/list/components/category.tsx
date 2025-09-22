@@ -63,7 +63,14 @@ export default function Category() {
         />
       </div>
 
-      <TabsContent value="dal" className="mt-4">
+      <TabsContent value="dal" className="mt-4 lg:grid lg:grid-cols-2 lg:gap-3">
+        <Card />
+        <Card />
+        <Card />
+        <Card />
+        <Card />
+        <Card />
+        <Card />
         <Card />
       </TabsContent>
       <TabsContent value="wor" className="mt-4">
