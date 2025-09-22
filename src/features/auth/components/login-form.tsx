@@ -14,6 +14,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { LogInSchema } from "../schemas/auth.schema";
+import Link from "next/link";
 
 type LoginFormValues = z.infer<typeof LogInSchema>;
 
@@ -79,7 +80,7 @@ export default function LogInForm({ onSubmit }: LoginFormProps) {
         </Button>
         <p className="text-center text-sm font-medium">
           같이 달램이 처음이신가요?
-          <span className="ml-1 font-semibold text-green-600">회원가입</span>
+          <Link href={'/'} className="ml-1 font-semibold text-green-600">회원가입</Link>
         </p>
       </form>
     </Form>
