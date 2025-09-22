@@ -1,13 +1,15 @@
 "use client";
-
 import { ButtonPlus } from "@/shared/components/btnPlus";
-import { AppButton } from "@/shared/components/button";
+import Banner from "./components/banner";
 
 export default function ListPage() {
   return (
     <>
-      <AppButton>참여하기</AppButton>
-      <ButtonPlus></ButtonPlus>
+      <Banner
+        subtitle="함께할 사람을 찾고 계신가요?"
+        title="지금 모임에 참여해보세요"
+      />
+      <ButtonPlus />
     </>
   );
 }
