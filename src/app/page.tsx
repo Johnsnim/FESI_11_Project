@@ -20,9 +20,9 @@ export default function Home() {
       <Chip variant="stateexp">이용 예정</Chip>
       <Chip variant="statewait">개설대기</Chip>
       <Chip variant="stateused">이용 완료</Chip>
-      <Chip variant="statedone">개설확정</Chip>
-      <Tag variant="md">오늘 21시 마감</Tag>
-      <Tag variant="sm">오늘 21시 마감</Tag>
+      <Chip variant="statedone" icon="/image/ic_check_md.svg">개설확정</Chip>
+      <Tag variant="md" icon="/image/ic_alarm.svg">오늘 21시 마감</Tag>
+      <Tag variant="sm" icon="/image/ic_alarm.svg">오늘 21시 마감</Tag>
     </div>
   );
 }

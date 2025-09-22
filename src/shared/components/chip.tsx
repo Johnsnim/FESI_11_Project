@@ -1,6 +1,7 @@
 import { Badge } from "@/shadcn/badge";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/shadcn/lib/utils";
+import Image from "next/image";
 
 const ChipVariants = cva(
   "h-10 w-15 px-4 py-2 gap-2.5 rounded-xl text-base text-center text-white leading-base font-medium",
@@ -14,7 +15,7 @@ const ChipVariants = cva(
         stateexp:"py-1.5 h-8 w-19 rounded-2xl text-green-600 text-sm font-semibold leading-sm bg-[#DFFAEB]",
         statewait:"py-1.5 h-8 w-18 rounded-2xl text-[#6B7280] text-sm leading-sm bg-[#FFFFFF] border-[#6B7280] border-1px",
         stateused:"py-1.5 h-8 w-19 rounded-2xl text-gray-600 text-sm leading-sm bg-gray-50",
-        statedone:"gradient-border py-1.5 h-8 w-26 rounded-2xl text-green-600 text-sm leading-sm"
+        statedone:"gap-0.5 gradient-border pl-2 pr-3 py-1.5 h-8 w-26 rounded-2xl text-green-600 text-sm leading-sm"
 
       },
     },
@@ -26,14 +27,25 @@ const ChipVariants = cva(
 
 interface ChipProps
   extends Omit<React.ComponentProps<typeof Badge>, 'variant'>,
-    VariantProps<typeof ChipVariants> {}
+    VariantProps<typeof ChipVariants> {
+  icon?: string; // SVG 아이콘 경로
+}
 
-export function Chip({ variant, className, ...props }: ChipProps) {
+export function Chip({ variant, className, icon, ...props }: ChipProps) {
+  const iconSize = variant === "statedone" ? 24:20;
   return (
     <Badge
       {...props}
       className={cn(ChipVariants({ variant }), className)}
     >
+      {icon && (
+        <Image
+          src={icon}
+          alt="아이콘"
+          width={iconSize}
+          height={iconSize}
+        />
+      )}
       {props.children}
     </Badge>
   );
