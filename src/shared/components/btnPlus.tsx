@@ -1,3 +1,4 @@
+//우측 하단 모임 만들기 버튼
 import { Button } from "@/shadcn/button";
 
 export function ButtonPlus(props: React.ComponentProps<typeof Button>) {

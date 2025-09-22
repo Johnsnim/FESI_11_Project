@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/shadcn/tabs";
+import Card from "@/shared/components/card";
 
 export default function Category() {
   const [value, setValue] = React.useState("dal");
@@ -63,9 +64,7 @@ export default function Category() {
       </div>
 
       <TabsContent value="dal" className="mt-4">
-        <div className="h-fit w-full bg-amber-100">
-          <div></div>
-        </div>
+        <Card />
       </TabsContent>
       <TabsContent value="wor" className="mt-4">
         워케이션탭
