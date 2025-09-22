@@ -15,6 +15,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { LogInSchema } from "../schemas/auth.schema";
 import Link from "next/link";
+import { InputEmail, InputPassword } from "@/shared/components/input-auth";
 
 type LoginFormValues = z.infer<typeof LogInSchema>;
 
@@ -47,7 +48,7 @@ export default function LogInForm({ onSubmit }: LoginFormProps) {
             <FormItem className="mb-4 gap-1 md:mb-6 md:gap-2">
               <FormLabel className="text-base font-medium">이메일</FormLabel>
               <FormControl>
-                <Input placeholder="이메일을 입력하세요" {...field} />
+                <InputEmail placeholder="이메일을 입력하세요" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -61,7 +62,7 @@ export default function LogInForm({ onSubmit }: LoginFormProps) {
             <FormItem className="mb-8 gap-1 md:mb-10 md:gap-2">
               <FormLabel className="text-base font-medium">비밀번호</FormLabel>
               <FormControl>
-                <Input
+                <InputPassword
                   type="password"
                   placeholder="비밀번호를 입력하세요"
                   {...field}
@@ -74,13 +75,21 @@ export default function LogInForm({ onSubmit }: LoginFormProps) {
 
         <Button
           type="submit"
-          className="mb-4 h-14 w-full rounded-2xl bg-gray-50 px-7.5 py-4 text-xl font-semibold text-slate-500"
+          disabled={!form.formState.isValid} 
+          className={`mb-4 h-14 w-full rounded-2xl px-7.5 py-4 text-xl font-semibold ${
+            form.formState.isValid
+              ? "bg-green-500 text-white hover:bg-green-600"
+              : "bg-gray-50 text-slate-500"
+          }`}
         >
           로그인
         </Button>
+
         <p className="text-center text-sm font-medium">
           같이 달램이 처음이신가요?
-          <Link href={'/'} className="ml-1 font-semibold text-green-600">회원가입</Link>
+          <Link href={"/"} className="ml-1 font-semibold text-green-600 underline">
+            회원가입
+          </Link>
         </p>
       </form>
     </Form>
