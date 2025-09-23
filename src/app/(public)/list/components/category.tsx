@@ -15,6 +15,7 @@ import {
   Gathering,
   gatheringService,
 } from "@/shared/services/gathering/gathering.service";
+import { CardSkeletonGrid } from "@/shared/components/cardskeleton";
 
 const LOCATIONS = [
   "지역 전체",
@@ -178,16 +179,7 @@ export default function Category() {
         </div>
 
         {/* 로딩 중에 스켈레톤 나오게 */}
-        {isLoading && (
-          <div className="grid gap-3 lg:grid-cols-2">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div
-                key={i}
-                className="h-86.5 animate-pulse rounded-3xl bg-gray-100"
-              />
-            ))}
-          </div>
-        )}
+        {isLoading && <CardSkeletonGrid />}
 
         {isError && (
           <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
