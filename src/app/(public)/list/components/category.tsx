@@ -13,13 +13,24 @@ import {
   DropdownMenuTrigger,
 } from "@/shadcn/dropdown-menu";
 
+const LOCATIONS = [
+  "지역 전체",
+  "홍대입구",
+  "을지로 3가",
+  "신림",
+  "건대입구",
+] as const;
+const SORTS = ["마감임박", "참여 인원 순"] as const;
+
 export default function Category() {
   const [value, setValue] = React.useState("dal");
   const wrapRef = React.useRef<HTMLDivElement>(null);
   const [indicatorStyle, setIndicatorStyle] =
     React.useState<React.CSSProperties>({});
-  const [regionLabel, setRegionLabel] = React.useState("지역 전체");
-  const [sortLabel, setSortLabel] = React.useState("마감임박");
+  const [regionLabel, setRegionLabel] =
+    React.useState<(typeof LOCATIONS)[number]>("지역 전체");
+  const [sortLabel, setSortLabel] =
+    React.useState<(typeof SORTS)[number]>("마감임박");
 
   const recalc = React.useCallback(() => {
     const root = wrapRef.current;
@@ -93,22 +104,17 @@ export default function Category() {
                   />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-40">
-                <DropdownMenuItem onSelect={() => setRegionLabel("지역 전체")}>
-                  지역 전체
-                </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => setRegionLabel("홍대입구")}>
-                  홍대입구
-                </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => setRegionLabel("을지로 3가")}>
-                  을지로 3가
-                </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => setRegionLabel("신림")}>
-                  신림
-                </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => setRegionLabel("건대입구")}>
-                  건대입구
-                </DropdownMenuItem>
+              <DropdownMenuContent className="w-35.5">
+                {LOCATIONS.map((label) => (
+                  <DropdownMenuItem
+                    key={label}
+                    onSelect={() => setRegionLabel(label)}
+                    data-selected={regionLabel === label}
+                    className="rounded-md data-[highlighted]:bg-gray-100 data-[selected=true]:bg-green-100 data-[selected=true]:text-gray-900"
+                  >
+                    {label}
+                  </DropdownMenuItem>
+                ))}
               </DropdownMenuContent>
             </DropdownMenu>
 
@@ -132,13 +138,17 @@ export default function Category() {
                   />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-40">
-                <DropdownMenuItem onSelect={() => setSortLabel("마감임박")}>
-                  마감임박
-                </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => setSortLabel("참여 인원 순")}>
-                  참여 인원 순
-                </DropdownMenuItem>
+              <DropdownMenuContent className="w-35.5">
+                {SORTS.map((label) => (
+                  <DropdownMenuItem
+                    key={label}
+                    onSelect={() => setSortLabel(label)}
+                    data-selected={sortLabel === label}
+                    className="rounded-md data-[highlighted]:bg-gray-100 data-[selected=true]:bg-green-100 data-[selected=true]:text-gray-900"
+                  >
+                    {label}
+                  </DropdownMenuItem>
+                ))}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
