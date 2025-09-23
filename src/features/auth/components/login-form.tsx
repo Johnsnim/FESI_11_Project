@@ -9,29 +9,17 @@ import {
   FormLabel,
   FormMessage,
 } from "@/shadcn/form";
-import { Input } from "@/shadcn/input";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { LogInSchema } from "../schemas/auth.schema";
-import Link from "next/link";
 import { InputEmail, InputPassword } from "@/shared/components/input-auth";
-
-type LoginFormValues = z.infer<typeof LogInSchema>;
+import Link from "next/link";
+import { UseFormReturn } from "react-hook-form";
+import { LogInFormValues } from "../schemas/auth.schema";
 
 interface LoginFormProps {
-  onSubmit: (values: LoginFormValues) => void;
+  form: UseFormReturn<LogInFormValues>;
+  onSubmit: (values: LogInFormValues) => void;
 }
 
-export default function LogInForm({ onSubmit }: LoginFormProps) {
-  const form = useForm<LoginFormValues>({
-    resolver: zodResolver(LogInSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-  });
-
+export default function LogInForm({ form, onSubmit }: LoginFormProps) {
   return (
     <Form {...form}>
       <form
@@ -75,7 +63,7 @@ export default function LogInForm({ onSubmit }: LoginFormProps) {
 
         <Button
           type="submit"
-          disabled={!form.formState.isValid} 
+          disabled={!form.formState.isValid}
           className={`mb-4 h-14 w-full rounded-2xl px-7.5 py-4 text-xl font-semibold ${
             form.formState.isValid
               ? "bg-green-500 text-white hover:bg-green-600"
@@ -87,7 +75,10 @@ export default function LogInForm({ onSubmit }: LoginFormProps) {
 
         <p className="text-center text-sm font-medium">
           같이 달램이 처음이신가요?
-          <Link href={"/"} className="ml-1 font-semibold text-green-600 underline">
+          <Link
+            href={"/"}
+            className="ml-1 font-semibold text-green-600 underline"
+          >
             회원가입
           </Link>
         </p>
