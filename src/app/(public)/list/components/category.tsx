@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/shadcn/tabs";
 import Card from "@/shared/components/card";
+import { Chip } from "@/shared/components/chip";
 
 export default function Category() {
   const [value, setValue] = React.useState("dal");
@@ -63,15 +64,25 @@ export default function Category() {
         />
       </div>
 
-      <TabsContent value="dal" className="mt-4 lg:grid lg:grid-cols-2 lg:gap-3">
-        <Card />
-        <Card />
-        <Card />
-        <Card />
-        <Card />
-        <Card />
-        <Card />
-        <Card />
+      <TabsContent value="dal" className="mt-4">
+        <div className="flex flex-row justify-between">
+          <div className="flex flex-row gap-2">
+            <Chip>전체</Chip>
+            <Chip variant="light">오피스 스트레칭</Chip>
+            <Chip variant="light">마인드풀니스</Chip>
+          </div>
+          <div>asd</div>
+        </div>
+        <div className="lg:grid lg:grid-cols-2 lg:gap-3">
+          <Card />
+          <Card />
+          <Card />
+          <Card />
+          <Card />
+          <Card />
+          <Card />
+          <Card />
+        </div>
       </TabsContent>
       <TabsContent value="wor" className="mt-4">
         워케이션탭
