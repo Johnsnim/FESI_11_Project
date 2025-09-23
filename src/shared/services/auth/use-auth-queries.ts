@@ -1,11 +1,23 @@
-"use client";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { login, getUser, logout } from "./auth.service";
 
-import { useMutation } from "@tanstack/react-query";
-import { authService } from "./auth.service";
-
-export const useLoginMutation = () => {
-  return useMutation({
+// 로그인
+export const useLoginMutation = () =>
+  useMutation({
     mutationFn: ({ email, password }: { email: string; password: string }) =>
-      authService.login(email, password),
+      login(email, password),
   });
-};
+
+// 내 정보
+export const useUserQuery = () =>
+  useQuery({
+    queryKey: ["authUser"],
+    queryFn: getUser,
+    retry: false,
+  });
+
+// 로그아웃
+export const useLogoutMutation = () =>
+  useMutation({
+    mutationFn: logout,
+  });
