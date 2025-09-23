@@ -25,15 +25,15 @@ export default function SignInPage() {
       onSuccess: () => {
         router.push("/");
       },
-      onError: (error: any) => {
-        // 서버 응답 코드 확인
-        if (error?.response?.status === 404) {
+      onError: (error) => {
+        if (error.status === 404) {
           form.setError("email", {
             type: "server",
             message: "존재하지 않는 아이디입니다.",
           });
         }
-        if (error?.response?.status === 401) {
+
+        if (error.status === 401) {
           form.setError("password", {
             type: "server",
             message: "비밀번호가 일치하지 않습니다.",
@@ -50,13 +50,12 @@ export default function SignInPage() {
         alt="로그인이미지(작은 화면)"
         className="block w-[272px] md:hidden"
       />
-
       <img
         src="/image/img_login_lg.svg"
         alt="로그인이미지(큰 화면)"
         className="hidden w-[451px] md:block lg:w-[533px]"
       />
-
+      ㄴ
       <LogInForm form={form} onSubmit={handleSubmit} />
     </div>
   );
