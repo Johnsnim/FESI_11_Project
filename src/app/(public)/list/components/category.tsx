@@ -104,13 +104,13 @@ export default function Category() {
                   />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-35.5">
+              <DropdownMenuContent className="w-35.5 rounded-lg p-1.5 shadow-sm">
                 {LOCATIONS.map((label) => (
                   <DropdownMenuItem
                     key={label}
                     onSelect={() => setRegionLabel(label)}
                     data-selected={regionLabel === label}
-                    className="rounded-md data-[highlighted]:bg-gray-100 data-[selected=true]:bg-green-100 data-[selected=true]:text-gray-900"
+                    className="rounded-lg data-[highlighted]:bg-gray-100 data-[selected=true]:bg-green-100 data-[selected=true]:text-gray-900"
                   >
                     {label}
                   </DropdownMenuItem>
@@ -138,7 +138,7 @@ export default function Category() {
                   />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-35.5">
+              <DropdownMenuContent className="w-35.5 rounded-lg p-1.5 shadow-sm">
                 {SORTS.map((label) => (
                   <DropdownMenuItem
                     key={label}
