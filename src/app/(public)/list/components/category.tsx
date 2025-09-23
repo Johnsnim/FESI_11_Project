@@ -2,13 +2,35 @@
 
 import * as React from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/shadcn/tabs";
+
 import Card from "@/shared/components/card";
+import { Chip } from "@/shared/components/chip";
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/shadcn/dropdown-menu";
+
+const LOCATIONS = [
+  "지역 전체",
+  "홍대입구",
+  "을지로 3가",
+  "신림",
+  "건대입구",
+] as const;
+const SORTS = ["마감임박", "참여 인원 순"] as const;
 
 export default function Category() {
   const [value, setValue] = React.useState("dal");
   const wrapRef = React.useRef<HTMLDivElement>(null);
   const [indicatorStyle, setIndicatorStyle] =
     React.useState<React.CSSProperties>({});
+  const [regionLabel, setRegionLabel] =
+    React.useState<(typeof LOCATIONS)[number]>("지역 전체");
+  const [sortLabel, setSortLabel] =
+    React.useState<(typeof SORTS)[number]>("마감임박");
 
   const recalc = React.useCallback(() => {
     const root = wrapRef.current;
@@ -63,16 +85,87 @@ export default function Category() {
         />
       </div>
 
-      <TabsContent value="dal" className="mt-4 lg:grid lg:grid-cols-2 lg:gap-3">
-        <Card />
-        <Card />
-        <Card />
-        <Card />
-        <Card />
-        <Card />
-        <Card />
-        <Card />
+      {/* 달램핏 */}
+      <TabsContent value="dal" className="mt-4">
+        <div className="mb-3 md:flex md:flex-row md:justify-between">
+          <div className="mb-2 flex flex-row gap-2 md:mb-0">
+            <Chip>전체</Chip>
+            <Chip variant="light">오피스 스트레칭</Chip>
+            <Chip variant="light">마인드풀니스</Chip>
+          </div>
+          <div className="flex flex-row gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex cursor-pointer items-center px-2 py-2 text-sm font-medium text-gray-500">
+                  {regionLabel}
+                  <img
+                    src="/image/ic_arrow_dropdown_down.svg"
+                    alt="dropdown icon"
+                  />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-35.5 rounded-lg p-1.5 shadow-sm">
+                {LOCATIONS.map((label) => (
+                  <DropdownMenuItem
+                    key={label}
+                    onSelect={() => setRegionLabel(label)}
+                    data-selected={regionLabel === label}
+                    className="rounded-lg data-[highlighted]:bg-gray-100 data-[selected=true]:bg-green-100 data-[selected=true]:text-gray-900"
+                  >
+                    {label}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <button
+              className="flex cursor-pointer items-center px-2 py-2 text-sm font-medium text-gray-500"
+              onClick={() => {
+                /* datepicker 추가해야함 */
+              }}
+            >
+              날짜 전체
+            </button>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex cursor-pointer items-center px-2 py-2 text-sm font-medium text-gray-500">
+                  {sortLabel}
+                  <img
+                    src="/image/ic_filter.svg"
+                    alt="filter icon"
+                    className="pl-1"
+                  />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-35.5 rounded-lg p-1.5 shadow-sm">
+                {SORTS.map((label) => (
+                  <DropdownMenuItem
+                    key={label}
+                    onSelect={() => setSortLabel(label)}
+                    data-selected={sortLabel === label}
+                    className="rounded-md data-[highlighted]:bg-gray-100 data-[selected=true]:bg-green-100 data-[selected=true]:text-gray-900"
+                  >
+                    {label}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+        <div className="lg:grid lg:grid-cols-2 lg:gap-3">
+          <Card />
+          <Card />
+          <Card />
+          <Card />
+          <Card />
+          <Card />
+          <Card />
+          <Card />
+        </div>
       </TabsContent>
+
+      {/* 워케이션 */}
       <TabsContent value="wor" className="mt-4">
         워케이션탭
       </TabsContent>

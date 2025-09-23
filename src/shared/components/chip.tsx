@@ -4,12 +4,12 @@ import { cn } from "@/shadcn/lib/utils";
 import Image from "next/image";
 
 const ChipVariants = cva(
-  "h-10 w-15 px-4 py-2 gap-2.5 rounded-xl text-base text-center text-white leading-base font-medium",
+  "h-10 px-4 py-2 gap-2.5 rounded-xl text-base text-center text-white leading-base font-medium",
   {
     variants: {
       variant: {
         dark: "bg-[#333333] font-semibold",
-        light: "text-[#333333] bg-gray-50",
+        light: "text-[#333333] bg-gray-50 ",
         infomd:
           "px-2 py-0.5 h-6 w-13 rounded-md text-gray-600 text-sm leading-sm bg-[#FFFFFF] border-[#DDDDDD]",
         infosm:
