@@ -1,11 +1,22 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+export interface User {
+  teamId: number;
+  id: number;
+  email: string;
+  name: string;
+  companyName: string;
+  image: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 interface AuthState {
   token: string | null;
-  user: any | null;
+  user: User | null;
   setToken: (token: string | null) => void;
-  setUser: (user: any | null) => void;
+  setUser: (user: User | null) => void;
   clearAuth: () => void;
 }
 
