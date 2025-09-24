@@ -1,30 +1,52 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { login, getUser, logout } from "./auth.service";
+import { useAuthStore } from "@/shared/store/auth.store";
 
 interface ApiError {
   code: string;
   message: string;
   status?: number;
 }
+
 // 로그인
-export const useLoginMutation = () =>
-  useMutation<
-    { token?: string; message?: string }, // data
-    ApiError, // error
-    { email: string; password: string } // variables
+export const useLoginMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    { token?: string },
+    ApiError,
+    { email: string; password: string }
   >({
-    mutationFn: ({ email, password }) => login(email, password),
+    mutationFn: login,
+    onSuccess: async (data) => {
+      if (data.token) {
+        const user = await getUser();
+        queryClient.setQueryData(["authUser"], user);
+      }
+    },
   });
+};
+
 // 내 정보
-export const useUserQuery = () =>
-  useQuery({
+export const useUserQuery = () => {
+  const token = useAuthStore((s) => s.token);
+
+  return useQuery({
     queryKey: ["authUser"],
     queryFn: getUser,
+    enabled: !!token,
     retry: false,
   });
+};
 
 // 로그아웃
-export const useLogoutMutation = () =>
-  useMutation({
+export const useLogoutMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
     mutationFn: logout,
+    onSuccess: () => {
+      queryClient.setQueryData(["authUser"], null); // 즉시 반영
+    },
   });
+};

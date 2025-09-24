@@ -6,9 +6,8 @@ export const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  const token =
-    useAuthStore.getState().token || localStorage.getItem("accessToken");
-  if (token) {
+  const token = useAuthStore.getState().token;
+  if (token && !config.url?.includes("signin")) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
