@@ -16,6 +16,7 @@ import {
   gatheringService,
 } from "@/shared/services/gathering/gathering.service";
 import { CardSkeletonGrid } from "@/shared/components/cardskeleton";
+import EmptyBanner from "./emptybanner";
 
 const LOCATIONS = [
   "지역 전체",
@@ -187,28 +188,27 @@ export default function Category() {
           </div>
         )}
 
-        {!isLoading && !isError && (
-          <div className="lg:grid lg:grid-cols-2 lg:gap-3">
-            {items.length === 0 && (
-              <div className="rounded-xl border border-gray-200 p-6 text-center text-gray-500">
-                표시할 모임이 없습니다.
-              </div>
-            )}
-            {items.map((g: Gathering) => (
-              <Card
-                key={g.id}
-                title={g.name}
-                location={g.location}
-                dateTimeISO={g.dateTime}
-                registrationEndISO={g.registrationEnd ?? undefined}
-                participantCount={g.participantCount}
-                capacity={g.capacity}
-                image={g.image ?? undefined}
-                isCanceled={!!g.canceledAt}
-              />
-            ))}
-          </div>
-        )}
+        {!isLoading &&
+          !isError &&
+          (items.length === 0 ? (
+            <EmptyBanner />
+          ) : (
+            <div className="lg:grid lg:grid-cols-2 lg:gap-3">
+              {items.map((g: Gathering) => (
+                <Card
+                  key={g.id}
+                  title={g.name}
+                  location={g.location}
+                  dateTimeISO={g.dateTime}
+                  registrationEndISO={g.registrationEnd ?? undefined}
+                  participantCount={g.participantCount}
+                  capacity={g.capacity}
+                  image={g.image ?? undefined}
+                  isCanceled={!!g.canceledAt}
+                />
+              ))}
+            </div>
+          ))}
       </TabsContent>
 
       <TabsContent value="wor" className="mt-4">
