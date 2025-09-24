@@ -55,7 +55,7 @@ export default function SignInPage() {
         alt="로그인이미지(큰 화면)"
         className="hidden w-[451px] md:block lg:w-[533px]"
       />
-      ㄴ
+
       <LogInForm form={form} onSubmit={handleSubmit} />
     </div>
   );
