@@ -182,11 +182,7 @@ export default function Category() {
         {/* 로딩 중에 스켈레톤 나오게 */}
         {isLoading && <CardSkeletonGrid />}
 
-        {isError && (
-          <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-            데이터를 불러오지 못했습니다.
-          </div>
-        )}
+        {isError && <EmptyBanner />}
 
         {!isLoading &&
           !isError &&
