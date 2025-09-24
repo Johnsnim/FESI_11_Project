@@ -21,6 +21,17 @@ import { CardSkeletonGrid } from "@/shared/components/cardskeleton";
 import EmptyBanner from "./emptybanner";
 import type { GatheringType } from "@/shared/services/gathering/endpoints";
 
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationEllipsis,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/shadcn/pagination";
+import { cn } from "@/shadcn/lib/utils";
+
 const LOCATIONS = [
   "지역 전체",
   "홍대입구",
@@ -31,6 +42,7 @@ const LOCATIONS = [
 const SORTS = ["마감임박", "참여 인원 순"] as const;
 
 type DalCategory = "전체" | "오피스 스트레칭" | "마인드풀니스";
+const LIMIT = 20;
 
 function fmtDateLabel(d: Date | null) {
   if (!d) return "날짜 전체";
@@ -49,12 +61,13 @@ export default function Category() {
     React.useState<(typeof LOCATIONS)[number]>("지역 전체");
   const [sortLabel, setSortLabel] =
     React.useState<(typeof SORTS)[number]>("마감임박");
-
   const [dalCategory, setDalCategory] = React.useState<DalCategory>("전체");
 
   const [date, setDate] = React.useState<Date | null>(null);
   const [tempDate, setTempDate] = React.useState<Date | null>(null);
   const [dateOpen, setDateOpen] = React.useState(false);
+
+  const [page, setPage] = React.useState(1);
 
   const recalc = React.useCallback(() => {
     const root = wrapRef.current;
@@ -79,6 +92,10 @@ export default function Category() {
     return () => window.removeEventListener("resize", onResize);
   }, [recalc]);
 
+  React.useEffect(() => {
+    setPage(1);
+  }, [value, regionLabel, sortLabel, dalCategory, date]);
+
   const locationParam = regionLabel === "지역 전체" ? undefined : regionLabel;
   const sortBy =
     sortLabel === "마감임박" ? "registrationEnd" : "participantCount";
@@ -94,6 +111,8 @@ export default function Category() {
           ? ("MINDFULNESS" as GatheringType)
           : ("DALLAEMFIT" as GatheringType);
 
+  const offset = (page - 1) * LIMIT;
+
   const { data, isLoading, isError } = useQuery({
     queryKey: [
       "gatherings",
@@ -104,6 +123,8 @@ export default function Category() {
         sortBy,
         sortOrder,
         date: dateParam,
+        page,
+        limit: LIMIT,
       },
     ],
     queryFn: () =>
@@ -113,14 +134,91 @@ export default function Category() {
         sortBy,
         sortOrder,
         date: dateParam,
-        limit: 20,
-        offset: 0,
+        limit: LIMIT,
+        offset,
       } as any),
     staleTime: 30_000,
     refetchOnWindowFocus: true,
   });
 
   const items = data ?? [];
+  const hasNextPage = items.length === LIMIT;
+  const hasPrevPage = page > 1;
+
+  function onPageChange(next: number) {
+    if (next < 1) return;
+    if (!hasNextPage && next > page) return;
+    setPage(next);
+
+    if (typeof window !== "undefined")
+      window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function visiblePages(current: number) {
+    const windowSize = 0;
+    const start = Math.max(1, current - windowSize);
+    const end = current + windowSize;
+    const pages: number[] = [];
+    for (let p = start; p <= end; p++) pages.push(p);
+    return pages;
+  }
+
+  function PaginationBar() {
+    const pages = visiblePages(page);
+
+    return (
+      <Pagination className="mt-6 flex justify-center">
+        <PaginationContent className="gap-6 md:gap-12">
+          <PaginationItem>
+            <PaginationPrevious
+              aria-disabled={!hasPrevPage}
+              onClick={() => hasPrevPage && onPageChange(page - 1)}
+              className={cn(
+                "border-0 bg-transparent text-gray-300 hover:bg-transparent hover:text-gray-400",
+                hasPrevPage && "text-gray-500 hover:text-gray-700",
+              )}
+            />
+          </PaginationItem>
+
+          {/* 페이지 번호들 */}
+          {pages.map((p) => (
+            <PaginationItem key={p}>
+              <PaginationLink
+                onClick={() => onPageChange(p)}
+                isActive={p === page}
+                className={cn(
+                  "h-12 w-12 rounded-3xl border-0 bg-transparent text-xl leading-none text-gray-400 hover:text-gray-600",
+                  "flex items-center justify-center",
+                  p === page && "bg-green-100 text-green-600",
+                )}
+              >
+                {p}
+              </PaginationLink>
+            </PaginationItem>
+          ))}
+
+          {hasNextPage && (
+            <>
+              <PaginationItem>
+                <PaginationEllipsis className="text-gray-300" />
+              </PaginationItem>
+            </>
+          )}
+
+          <PaginationItem>
+            <PaginationNext
+              aria-disabled={!hasNextPage}
+              onClick={() => hasNextPage && onPageChange(page + 1)}
+              className={cn(
+                "border-0 bg-transparent hover:bg-transparent",
+                hasNextPage ? "text-slate-900" : "text-gray-300",
+              )}
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
+    );
+  }
 
   return (
     <Tabs value={value} onValueChange={(v) => setValue(v as "dal" | "wor")}>
@@ -148,6 +246,7 @@ export default function Category() {
         />
       </div>
 
+      {/* 달램핏 */}
       <TabsContent value="dal" className="mt-4">
         <div className="mb-3 md:flex md:flex-row md:justify-between">
           <div className="mb-2 flex flex-row gap-2 md:mb-0">
@@ -305,24 +404,28 @@ export default function Category() {
           (items.length === 0 ? (
             <EmptyBanner />
           ) : (
-            <div className="lg:grid lg:grid-cols-2 lg:gap-3">
-              {items.map((g: Gathering) => (
-                <Card
-                  key={g.id}
-                  title={g.name}
-                  location={g.location}
-                  dateTimeISO={g.dateTime}
-                  registrationEndISO={g.registrationEnd ?? undefined}
-                  participantCount={g.participantCount}
-                  capacity={g.capacity}
-                  image={g.image ?? undefined}
-                  isCanceled={!!g.canceledAt}
-                />
-              ))}
-            </div>
+            <>
+              <div className="lg:grid lg:grid-cols-2 lg:gap-3">
+                {items.map((g: Gathering) => (
+                  <Card
+                    key={g.id}
+                    title={g.name}
+                    location={g.location}
+                    dateTimeISO={g.dateTime}
+                    registrationEndISO={g.registrationEnd ?? undefined}
+                    participantCount={g.participantCount}
+                    capacity={g.capacity}
+                    image={g.image ?? undefined}
+                    isCanceled={!!g.canceledAt}
+                  />
+                ))}
+              </div>
+              <PaginationBar />
+            </>
           ))}
       </TabsContent>
 
+      {/* 워케이션 */}
       <TabsContent value="wor" className="mt-4">
         {isLoading && <CardSkeletonGrid />}
         {isError && <EmptyBanner />}
@@ -331,21 +434,24 @@ export default function Category() {
           (items.length === 0 ? (
             <EmptyBanner />
           ) : (
-            <div className="lg:grid lg:grid-cols-2 lg:gap-3">
-              {items.map((g: Gathering) => (
-                <Card
-                  key={g.id}
-                  title={g.name}
-                  location={g.location}
-                  dateTimeISO={g.dateTime}
-                  registrationEndISO={g.registrationEnd ?? undefined}
-                  participantCount={g.participantCount}
-                  capacity={g.capacity}
-                  image={g.image ?? undefined}
-                  isCanceled={!!g.canceledAt}
-                />
-              ))}
-            </div>
+            <>
+              <div className="lg:grid lg:grid-cols-2 lg:gap-3">
+                {items.map((g: Gathering) => (
+                  <Card
+                    key={g.id}
+                    title={g.name}
+                    location={g.location}
+                    dateTimeISO={g.dateTime}
+                    registrationEndISO={g.registrationEnd ?? undefined}
+                    participantCount={g.participantCount}
+                    capacity={g.capacity}
+                    image={g.image ?? undefined}
+                    isCanceled={!!g.canceledAt}
+                  />
+                ))}
+              </div>
+              <PaginationBar />
+            </>
           ))}
       </TabsContent>
     </Tabs>
