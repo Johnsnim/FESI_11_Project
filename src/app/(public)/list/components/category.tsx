@@ -19,6 +19,7 @@ import {
 } from "@/shared/services/gathering/gathering.service";
 import { CardSkeletonGrid } from "@/shared/components/cardskeleton";
 import EmptyBanner from "./emptybanner";
+import type { GatheringType } from "@/shared/services/gathering/endpoints";
 
 const LOCATIONS = [
   "지역 전체",
@@ -29,6 +30,8 @@ const LOCATIONS = [
 ] as const;
 const SORTS = ["마감임박", "참여 인원 순"] as const;
 
+type DalCategory = "전체" | "오피스 스트레칭" | "마인드풀니스";
+
 function fmtDateLabel(d: Date | null) {
   if (!d) return "날짜 전체";
   const y = d.getFullYear();
@@ -38,7 +41,7 @@ function fmtDateLabel(d: Date | null) {
 }
 
 export default function Category() {
-  const [value, setValue] = React.useState("dal");
+  const [value, setValue] = React.useState<"dal" | "wor">("dal");
   const wrapRef = React.useRef<HTMLDivElement>(null);
   const [indicatorStyle, setIndicatorStyle] =
     React.useState<React.CSSProperties>({});
@@ -47,8 +50,9 @@ export default function Category() {
   const [sortLabel, setSortLabel] =
     React.useState<(typeof SORTS)[number]>("마감임박");
 
-  const [date, setDate] = React.useState<Date | null>(null);
+  const [dalCategory, setDalCategory] = React.useState<DalCategory>("전체");
 
+  const [date, setDate] = React.useState<Date | null>(null);
   const [tempDate, setTempDate] = React.useState<Date | null>(null);
   const [dateOpen, setDateOpen] = React.useState(false);
 
@@ -79,14 +83,23 @@ export default function Category() {
   const sortBy =
     sortLabel === "마감임박" ? "registrationEnd" : "participantCount";
   const sortOrder = sortLabel === "마감임박" ? "asc" : "desc";
-
   const dateParam = date ? date.toISOString().slice(0, 10) : undefined;
+
+  const typeParam: GatheringType | undefined =
+    value === "wor"
+      ? ("WORKATION" as GatheringType)
+      : dalCategory === "오피스 스트레칭"
+        ? ("OFFICE_STRETCHING" as GatheringType)
+        : dalCategory === "마인드풀니스"
+          ? ("MINDFULNESS" as GatheringType)
+          : ("DALLAEMFIT" as GatheringType);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: [
       "gatherings",
       {
         tab: value,
+        type: typeParam,
         location: locationParam,
         sortBy,
         sortOrder,
@@ -95,6 +108,7 @@ export default function Category() {
     ],
     queryFn: () =>
       gatheringService.list({
+        type: typeParam,
         location: locationParam,
         sortBy,
         sortOrder,
@@ -109,7 +123,7 @@ export default function Category() {
   const items = data ?? [];
 
   return (
-    <Tabs value={value} onValueChange={setValue}>
+    <Tabs value={value} onValueChange={(v) => setValue(v as "dal" | "wor")}>
       <div ref={wrapRef} className="relative w-full">
         <div className="pointer-events-none absolute right-0 bottom-0 left-0 h-[2px] bg-transparent md:bg-gray-200" />
         <TabsList className="flex h-16 w-full gap-0 bg-transparent p-0 md:w-fit md:gap-6">
@@ -137,9 +151,27 @@ export default function Category() {
       <TabsContent value="dal" className="mt-4">
         <div className="mb-3 md:flex md:flex-row md:justify-between">
           <div className="mb-2 flex flex-row gap-2 md:mb-0">
-            <Chip>전체</Chip>
-            <Chip variant="light">오피스 스트레칭</Chip>
-            <Chip variant="light">마인드풀니스</Chip>
+            <Chip
+              onClick={() => setDalCategory("전체")}
+              variant={dalCategory === "전체" ? "dark" : "light"}
+              className="cursor-pointer"
+            >
+              전체
+            </Chip>
+            <Chip
+              onClick={() => setDalCategory("오피스 스트레칭")}
+              variant={dalCategory === "오피스 스트레칭" ? "dark" : "light"}
+              className="cursor-pointer"
+            >
+              오피스 스트레칭
+            </Chip>
+            <Chip
+              onClick={() => setDalCategory("마인드풀니스")}
+              variant={dalCategory === "마인드풀니스" ? "dark" : "light"}
+              className="cursor-pointer"
+            >
+              마인드풀니스
+            </Chip>
           </div>
 
           <div className="flex flex-row gap-2">
@@ -167,7 +199,6 @@ export default function Category() {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* 날짜 선택 */}
             <Popover
               open={dateOpen}
               onOpenChange={(o) => {
@@ -293,7 +324,29 @@ export default function Category() {
       </TabsContent>
 
       <TabsContent value="wor" className="mt-4">
-        워케이션탭
+        {isLoading && <CardSkeletonGrid />}
+        {isError && <EmptyBanner />}
+        {!isLoading &&
+          !isError &&
+          (items.length === 0 ? (
+            <EmptyBanner />
+          ) : (
+            <div className="lg:grid lg:grid-cols-2 lg:gap-3">
+              {items.map((g: Gathering) => (
+                <Card
+                  key={g.id}
+                  title={g.name}
+                  location={g.location}
+                  dateTimeISO={g.dateTime}
+                  registrationEndISO={g.registrationEnd ?? undefined}
+                  participantCount={g.participantCount}
+                  capacity={g.capacity}
+                  image={g.image ?? undefined}
+                  isCanceled={!!g.canceledAt}
+                />
+              ))}
+            </div>
+          ))}
       </TabsContent>
     </Tabs>
   );
