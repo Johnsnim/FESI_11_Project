@@ -215,7 +215,7 @@ export default function Category() {
                   />
                   <div className="mt-3 flex justify-between">
                     <button
-                      className="h-9 rounded-lg border border-green-600 px-4 text-sm font-semibold text-green-600 hover:bg-green-100"
+                      className="h-9 cursor-pointer rounded-lg border border-green-600 px-4 text-sm font-semibold text-green-600 hover:bg-green-100"
                       onClick={() => {
                         setTempDate(null);
                         setDate(null);
@@ -225,7 +225,7 @@ export default function Category() {
                       초기화
                     </button>
                     <button
-                      className="h-9 rounded-lg bg-green-600 px-4 text-sm font-semibold text-white disabled:opacity-50"
+                      className="h-9 cursor-pointer rounded-lg bg-green-600 px-4 text-sm font-semibold text-white disabled:opacity-50"
                       disabled={!tempDate}
                       onClick={() => {
                         setDate(tempDate);
