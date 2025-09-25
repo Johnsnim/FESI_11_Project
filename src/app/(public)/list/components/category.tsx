@@ -19,7 +19,10 @@ import {
 } from "@/shared/services/gathering/gathering.service";
 import { CardSkeletonGrid } from "@/shared/components/cardskeleton";
 import EmptyBanner from "./emptybanner";
-import type { GatheringType } from "@/shared/services/gathering/endpoints";
+import type {
+  GatheringListParams,
+  GatheringType,
+} from "@/shared/services/gathering/endpoints";
 
 import {
   Pagination,
@@ -136,7 +139,7 @@ export default function Category() {
         date: dateParam,
         limit: LIMIT,
         offset,
-      } as any),
+      } satisfies GatheringListParams),
     staleTime: 30_000,
     refetchOnWindowFocus: true,
   });
@@ -409,6 +412,7 @@ export default function Category() {
                 {items.map((g: Gathering) => (
                   <Card
                     key={g.id}
+                    id={g.id}
                     title={g.name}
                     location={g.location}
                     dateTimeISO={g.dateTime}
@@ -439,6 +443,7 @@ export default function Category() {
                 {items.map((g: Gathering) => (
                   <Card
                     key={g.id}
+                    id={g.id}
                     title={g.name}
                     location={g.location}
                     dateTimeISO={g.dateTime}

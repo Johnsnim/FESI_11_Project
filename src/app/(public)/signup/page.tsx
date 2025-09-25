@@ -1,0 +1,28 @@
+"use client";
+
+import SignUpForm from "@/features/signup/components/signup-form";
+import {
+  SignUpFormValues,
+  SignUpSchema,
+} from "@/features/signup/schemas/signup.schema";
+import AuthBanner from "@/shared/components/ auth-banner";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+
+export default function SignUpPage() {
+  const form = useForm<SignUpFormValues>({
+    resolver: zodResolver(SignUpSchema),
+    mode: "onChange",
+  });
+
+  const handleSubmit = (values: SignUpFormValues) => {
+    console.log("회원가입 요청", values);
+    // signup API 호출
+  };
+  return (
+    <div className="flex min-h-[calc(100vh-88px)] flex-col items-center justify-center gap-8 px-4 pt-8 pb-8 md:gap-12 md:px-22 md:pt-10 lg:flex-row lg:items-center">
+      <AuthBanner />
+      <SignUpForm form={form} onSubmit={handleSubmit} />{" "}
+    </div>
+  );
+}
