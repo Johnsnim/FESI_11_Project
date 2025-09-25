@@ -1,10 +1,12 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { Chip } from "./chip";
 import { Tag } from "./tag";
 import { motion } from "motion/react";
 
 export type CardProps = {
+  id: number;
   title: string;
   location: string;
   dateTimeISO: string;
@@ -16,6 +18,7 @@ export type CardProps = {
 };
 
 export default function Card({
+  id,
   title,
   location,
   dateTimeISO,
@@ -25,6 +28,7 @@ export default function Card({
   image,
   isCanceled,
 }: CardProps) {
+  const router = useRouter();
   const start = new Date(dateTimeISO);
   const dateLabel = `${start.getMonth() + 1}월 ${start.getDate()}일`;
   const timeLabel = start
@@ -138,7 +142,10 @@ export default function Card({
           </div>
 
           <div className="ml-2 flex items-center justify-center rounded-2xl border-1 border-green-500">
-            <p className="px-2.5 py-2 font-semibold whitespace-nowrap text-green-500">
+            <p
+              className="cursor-pointer px-2.5 py-2 font-semibold whitespace-nowrap text-green-500"
+              onClick={() => router.push(`/detail/${id}`)}
+            >
               참여하기
             </p>
           </div>
