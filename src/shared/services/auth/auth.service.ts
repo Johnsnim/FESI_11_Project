@@ -35,3 +35,23 @@ export async function logout() {
   useAuthStore.getState().clearAuth();
   return { message: "로그아웃 성공" };
 }
+
+//회원가입
+export async function signup({
+  email,
+  password,
+  name,
+  companyName,
+}: {
+  email: string;
+  password: string;
+  name: string;
+  companyName: string;
+}) {
+  const { data } = await api.post<{ message: string }>(
+    `/${TEAM_ID}/auths/signup`,
+    { email, password, name, companyName }
+  );
+
+  return data;
+}

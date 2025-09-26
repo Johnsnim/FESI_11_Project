@@ -13,6 +13,7 @@ import { InputEmail, InputPassword } from "@/shared/components/input-auth";
 import Link from "next/link";
 import { UseFormReturn } from "react-hook-form";
 import { LogInFormValues } from "../schemas/auth.schema";
+import { FormInput } from "@/shared/components/form-input";
 
 interface LoginFormProps {
   form: UseFormReturn<LogInFormValues>;
@@ -29,36 +30,21 @@ export default function LogInForm({ form, onSubmit }: LoginFormProps) {
         <p className="text-center font-semibold sm:mb-6 sm:text-base md:pb-13 md:text-2xl">
           로그인
         </p>
-        <FormField
+
+        <FormInput
           control={form.control}
           name="email"
-          render={({ field }) => (
-            <FormItem className="mb-4 gap-1 md:mb-6 md:gap-2">
-              <FormLabel className="text-base font-medium">이메일</FormLabel>
-              <FormControl>
-                <InputEmail placeholder="이메일을 입력하세요" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="이메일"
+          placeholder="이메일을 입력하세요"
+          className="mb-4 gap-1 md:mb-6 md:gap-2"
+          as={InputEmail}
         />
-
-        <FormField
+        <FormInput
           control={form.control}
           name="password"
-          render={({ field }) => (
-            <FormItem className="mb-8 gap-1 md:mb-10 md:gap-2">
-              <FormLabel className="text-base font-medium">비밀번호</FormLabel>
-              <FormControl>
-                <InputPassword
-                  type="password"
-                  placeholder="비밀번호를 입력하세요"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="비밀번호"
+          className="mb-8 gap-1 md:mb-10 md:gap-2"
+          as={InputPassword}
         />
 
         <Button
@@ -76,7 +62,7 @@ export default function LogInForm({ form, onSubmit }: LoginFormProps) {
         <p className="text-center text-sm font-medium">
           같이 달램이 처음이신가요?
           <Link
-            href={"/"}
+            href={"/signup"}
             className="ml-1 font-semibold text-green-600 underline"
           >
             회원가입
