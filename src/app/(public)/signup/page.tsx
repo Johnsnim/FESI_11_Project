@@ -13,8 +13,15 @@ export default function SignUpPage() {
   const form = useForm<SignUpFormValues>({
     resolver: zodResolver(SignUpSchema),
     mode: "onChange",
+    reValidateMode: "onChange",
+    defaultValues: {
+      email: "",
+      password: "",
+      confirmPassword: "",
+      name: "",
+      companyName: "",
+    },
   });
-
   const handleSubmit = (values: SignUpFormValues) => {
     console.log("회원가입 요청", values);
     // signup API 호출
@@ -22,7 +29,7 @@ export default function SignUpPage() {
   return (
     <div className="flex min-h-[calc(100vh-88px)] flex-col items-center justify-center gap-8 px-4 pt-8 pb-8 md:gap-12 md:px-22 md:pt-10 lg:flex-row lg:items-center">
       <AuthBanner />
-      <SignUpForm form={form} onSubmit={handleSubmit} />{" "}
+      <SignUpForm form={form} onSubmit={handleSubmit} />
     </div>
   );
 }
