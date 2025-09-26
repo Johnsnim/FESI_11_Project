@@ -1,5 +1,5 @@
 import React from "react";
-import type { ReviewResponse } from "../types";
+import type { ReviewResponse } from "../../../app/(public)/detail/[id]/types";
 import ReviewItem from "./reviewitem";
 
 export default function ReviewList({

@@ -1,5 +1,5 @@
 import React from "react";
-import type { ReviewItem } from "../types";
+import type { ReviewItem } from "../../../app/(public)/detail/[id]/types";
 import RatingHearts from "./ratings";
 
 function formatDateDots(iso: string) {

@@ -1,5 +1,5 @@
 import React from "react";
-import type { GatheringDetail } from "../types";
+import type { GatheringDetail } from "../../../app/(public)/detail/[id]/types";
 
 export default function Participants({ data }: { data: GatheringDetail }) {
   const ratioPct =

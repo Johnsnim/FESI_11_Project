@@ -1,7 +1,7 @@
 "use client";
 import { ButtonPlus } from "@/shared/components/btnPlus";
-import Banner from "./components/banner";
-import Category from "./components/category";
+import Banner from "../../../features/list/components/banner";
+import Category from "../../../features/list/components/category";
 import Card from "@/shared/components/card";
 
 export default function ListPage() {
