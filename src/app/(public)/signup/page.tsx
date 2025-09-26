@@ -6,10 +6,15 @@ import {
   SignUpSchema,
 } from "@/features/signup/schemas/signup.schema";
 import AuthBanner from "@/shared/components/ auth-banner";
+import { useSignUpMutation } from "@/shared/services/auth/use-auth-queries";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 
 export default function SignUpPage() {
+  const router = useRouter();
+  const signup = useSignUpMutation();
+
   const form = useForm<SignUpFormValues>({
     resolver: zodResolver(SignUpSchema),
     mode: "onChange",
@@ -22,9 +27,20 @@ export default function SignUpPage() {
       companyName: "",
     },
   });
-  const handleSubmit = (values: SignUpFormValues) => {
-    console.log("회원가입 요청", values);
-    // signup API 호출
+  const handleSubmit = (values: {
+    email: string;
+    password: string;
+    name: string;
+    companyName: string;
+  }) => {
+    signup.mutate(values, {
+      onSuccess: (data) => {
+        router.push("/login");
+      },
+      onError: (error) => {
+        console.error(error.message);
+      },
+    });
   };
   return (
     <div className="flex min-h-[calc(100vh-88px)] flex-col items-center justify-center gap-8 px-4 pt-8 pb-8 md:gap-12 md:px-22 md:pt-10 lg:flex-row lg:items-center">

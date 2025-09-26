@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { login, getUser, logout } from "./auth.service";
+import { login, getUser, logout, signup } from "./auth.service";
 import { useAuthStore } from "@/shared/store/auth.store";
 
 interface ApiError {
@@ -50,3 +50,14 @@ export const useLogoutMutation = () => {
     },
   });
 };
+
+// 회원가입
+export const useSignUpMutation = () =>
+  useMutation<{ message: string }, ApiError, {
+    email: string;
+    password: string;
+    name: string;
+    companyName: string;
+  }>({
+    mutationFn: signup,
+  });
