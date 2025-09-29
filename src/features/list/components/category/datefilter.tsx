@@ -1,6 +1,8 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
+
 import { Popover, PopoverContent, PopoverTrigger } from "@/shadcn/popover";
 import { Calendar } from "@/shadcn/calendar";
 import { fmtDateLabel } from "./utils";
@@ -26,7 +28,7 @@ export function DateFilter({
       <PopoverTrigger asChild>
         <button className="flex cursor-pointer items-center px-2 py-2 text-sm font-medium text-gray-500">
           {fmtDateLabel(date)}
-          <img src="/image/ic_arrow_dropdown_down.svg" alt="dropdown icon" />
+          <Image src="/image/ic_arrow_dropdown_down.svg" alt="dropdown icon" />
         </button>
       </PopoverTrigger>
       <PopoverContent align="end" className="rounded-3xl p-3 shadow-sm">
