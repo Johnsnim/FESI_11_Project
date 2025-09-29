@@ -38,7 +38,7 @@ export default function MyPageTabs({
               <motion.div
                 layoutId="underline"
                 className="absolute right-0 bottom-[-6px] left-0 h-[2px] bg-green-600"
-                transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                transition={{ type: "spring", stiffness: 500, damping: 40 }}
               />
             )}
           </TabsTrigger>
