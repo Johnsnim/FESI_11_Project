@@ -10,6 +10,7 @@ import {
 } from "@/shadcn/dropdown-menu";
 import { LOCATIONS, SORTS, DalCategory } from "./constants";
 import { DateFilter } from "./datefilter";
+import Image from "next/image";
 
 export default function FiltersBar({
   regionLabel,
@@ -62,7 +63,7 @@ export default function FiltersBar({
           <DropdownMenuTrigger asChild>
             <button className="flex cursor-pointer items-center px-2 py-2 text-sm font-medium text-gray-500">
               {regionLabel}
-              <img
+              <Image
                 src="/image/ic_arrow_dropdown_down.svg"
                 alt="dropdown icon"
               />
@@ -90,7 +91,7 @@ export default function FiltersBar({
           <DropdownMenuTrigger asChild>
             <button className="flex cursor-pointer items-center px-2 py-2 text-sm font-medium text-gray-500">
               {sortLabel}
-              <img
+              <Image
                 src="/image/ic_filter.svg"
                 alt="filter icon"
                 className="pl-1"
