@@ -5,6 +5,7 @@ import {
   CreateGatheringForm,
   ServiceType,
 } from "@/shared/components/modals/create/types";
+import Image from "next/image";
 import * as React from "react";
 
 export default function StepService({
@@ -38,7 +39,7 @@ export default function StepService({
               ].join(" ")}
             >
               <div className="flex items-center gap-3">
-                <img src={s.icon} alt="" className="h-10 w-10" />
+                <Image src={s.icon} alt="" width={40} height={40} />
                 <div>
                   <div className="font-semibold text-emerald-700">
                     {s.title}

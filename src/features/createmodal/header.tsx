@@ -3,6 +3,7 @@
 import * as React from "react";
 import { DialogTitle, DialogClose } from "@/shadcn/dialog";
 import { cn } from "@/shadcn/lib/utils";
+import Image from "next/image";
 
 type HeaderProps = {
   title: React.ReactNode;
@@ -28,7 +29,7 @@ export function Header({ title, subtitle, className }: HeaderProps) {
           aria-label="닫기"
           className="rounded-full p-1 hover:bg-zinc-100"
         >
-          <img src="/image/ic_delete.svg" alt="" className="h-5 w-5" />
+          <Image src="/image/ic_delete.svg" alt="" width={20} height={20} />
         </button>
       </DialogClose>
     </div>

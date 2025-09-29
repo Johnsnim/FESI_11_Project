@@ -9,6 +9,7 @@ import {
 } from "@/shadcn/dropdown-menu";
 import { CreateGatheringForm } from "@/shared/components/modals/create/types";
 import { LOCATIONS } from "../list/components/category/constants";
+import Image from "next/image";
 
 export default function StepDescription({
   data,
@@ -56,7 +57,12 @@ export default function StepDescription({
           <DropdownMenuTrigger asChild>
             <button className="flex w-full items-center justify-between rounded-lg bg-[#F9FAFB] px-3 py-2 text-left text-sm text-gray-500">
               {data.location || "장소를 선택해주세요"}
-              <img src="/image/ic_arrow_dropdown_down.svg" alt="" />
+              <Image
+                src="/image/ic_arrow_dropdown_down.svg"
+                alt=""
+                width={16}
+                height={16}
+              />
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-56 rounded-lg p-1.5">
@@ -84,9 +90,12 @@ export default function StepDescription({
                 이미지를 첨부해주세요
               </div>
             ) : (
-              <img
+              <Image
                 src={data.imagePreviewUrl}
                 alt="미리보기"
+                width={48}
+                height={48}
+                unoptimized
                 className="h-12 max-w-full rounded object-contain ring-1 ring-zinc-200"
               />
             )}
