@@ -34,6 +34,7 @@ import {
   PaginationPrevious,
 } from "@/shadcn/pagination";
 import { cn } from "@/shadcn/lib/utils";
+import Image from "next/image";
 
 const LOCATIONS = [
   "지역 전체",
@@ -232,14 +233,14 @@ export default function Category() {
             value="dal"
             className="h-auto flex-1 cursor-pointer border-0 px-0 py-2 text-lg leading-6 font-semibold text-gray-400 shadow-none focus-visible:ring-0 focus-visible:outline-none data-[state=active]:bg-transparent data-[state=active]:text-green-600 data-[state=active]:shadow-none md:flex-none md:px-4"
           >
-            <img src="/image/ic_mind_sm.svg" alt="dallem icon" />
+            <Image src="/image/ic_mind_sm.svg" alt="dallem icon" />
             달램핏
           </TabsTrigger>
           <TabsTrigger
             value="wor"
             className="h-auto flex-1 cursor-pointer rounded-none border-0 px-0 py-2 text-lg leading-6 font-semibold text-gray-400 shadow-none focus-visible:ring-0 focus-visible:outline-none data-[state=active]:bg-transparent data-[state=active]:text-green-600 data-[state=active]:shadow-none md:flex-none md:px-4"
           >
-            <img src="/image/ic_ parasol_sm.svg" alt="workcation icon" />
+            <Image src="/image/ic_ parasol_sm.svg" alt="workcation icon" />
             워케이션
           </TabsTrigger>
         </TabsList>
@@ -281,7 +282,7 @@ export default function Category() {
               <DropdownMenuTrigger asChild>
                 <button className="flex cursor-pointer items-center px-2 py-2 text-sm font-medium text-gray-500">
                   {regionLabel}
-                  <img
+                  <Image
                     src="/image/ic_arrow_dropdown_down.svg"
                     alt="dropdown icon"
                   />
@@ -311,7 +312,7 @@ export default function Category() {
               <PopoverTrigger asChild>
                 <button className="flex cursor-pointer items-center px-2 py-2 text-sm font-medium text-gray-500">
                   {fmtDateLabel(date)}
-                  <img
+                  <Image
                     src="/image/ic_arrow_dropdown_down.svg"
                     alt="dropdown icon"
                   />
@@ -376,7 +377,7 @@ export default function Category() {
               <DropdownMenuTrigger asChild>
                 <button className="flex cursor-pointer items-center px-2 py-2 text-sm font-medium text-gray-500">
                   {sortLabel}
-                  <img
+                  <Image
                     src="/image/ic_filter.svg"
                     alt="filter icon"
                     className="pl-1"
