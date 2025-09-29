@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { Tag } from "@/shared/components/tag";
 import { Chip } from "@/shared/components/chip";
 import type { GatheringDetail } from "../types";
+import Image from "next/image";
 
 export default function GatheringInfo({ data }: { data: GatheringDetail }) {
   const { dateLabel, timeLabel, tagText, joinDisabled } = useMemo(() => {
@@ -62,7 +63,7 @@ export default function GatheringInfo({ data }: { data: GatheringDetail }) {
 
       <div className="flex items-center gap-1">
         <div className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border-1 border-gray-100">
-          <img
+          <Image
             src="/image/ic_heart_empty.svg"
             alt="heart button"
             className="h-6 w-6"

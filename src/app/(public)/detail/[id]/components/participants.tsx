@@ -1,5 +1,6 @@
 import React from "react";
 import type { GatheringDetail } from "../types";
+import Image from "next/image";
 
 export default function Participants({ data }: { data: GatheringDetail }) {
   const ratioPct =
@@ -23,7 +24,7 @@ export default function Participants({ data }: { data: GatheringDetail }) {
 
         <div className="flex -space-x-2">
           {avatars.map((src, i) => (
-            <img
+            <Image
               key={i}
               src={src}
               alt="참여자"
@@ -38,7 +39,7 @@ export default function Participants({ data }: { data: GatheringDetail }) {
         </div>
 
         <div className="flex flex-row">
-          <img src="/image/ic_check_sm.svg" alt="check" />
+          <Image src="/image/ic_check_sm.svg" alt="check" />
           <p className="font-medium text-green-600">개설확정</p>
         </div>
       </div>

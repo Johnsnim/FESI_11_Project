@@ -1,6 +1,7 @@
 import React from "react";
 import type { ReviewItem } from "../types";
 import RatingHearts from "./ratings";
+import Image from "next/image";
 
 function formatDateDots(iso: string) {
   const d = new Date(iso);
@@ -14,7 +15,7 @@ export default function ReviewItem({ rv }: { rv: ReviewItem }) {
     <article className="py-4">
       <div className="mb-1 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <img
+          <Image
             src={
               rv.User.image ||
               "https://api.dicebear.com/9.x/thumbs/svg?seed=user"
