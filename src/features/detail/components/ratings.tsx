@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 
 export default function RatingHearts({
   value = 0,
@@ -16,7 +17,7 @@ export default function RatingHearts({
       aria-label={`평점 ${filled}/${USED_MAX}`}
     >
       {Array.from({ length: USED_MAX }, (_, i) => (
-        <img
+        <Image
           key={i}
           src={
             i < filled
