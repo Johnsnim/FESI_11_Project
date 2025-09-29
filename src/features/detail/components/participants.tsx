@@ -1,6 +1,7 @@
 import React from "react";
-import type { GatheringDetail } from "../types";
+
 import Image from "next/image";
+import type { GatheringDetail } from "../../../app/(public)/detail/[id]/types";
 
 export default function Participants({ data }: { data: GatheringDetail }) {
   const ratioPct =

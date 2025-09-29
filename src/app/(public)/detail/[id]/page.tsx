@@ -7,10 +7,10 @@ import { reviewService } from "@/shared/services/review/review.service";
 import { detailService } from "@/shared/services/detail/detail.service";
 
 import type { GatheringDetail, ReviewResponse } from "./types";
-import GatheringImage from "./components/gatheringimage";
-import GatheringInfo from "./components/gatheringinfo";
-import Participants from "./components/participants";
-import ReviewList from "./components/reviewlist";
+import GatheringImage from "../../../../features/detail/components/gatheringimage";
+import GatheringInfo from "../../../../features/detail/components/gatheringinfo";
+import Participants from "../../../../features/detail/components/participants";
+import ReviewList from "../../../../features/detail/components/reviewlist";
 
 function formatDateDots(iso: string) {
   const d = new Date(iso);

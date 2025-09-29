@@ -1,8 +1,9 @@
 import React, { useMemo } from "react";
 import { Tag } from "@/shared/components/tag";
 import { Chip } from "@/shared/components/chip";
-import type { GatheringDetail } from "../types";
+
 import Image from "next/image";
+import type { GatheringDetail } from "../../../app/(public)/detail/[id]/types";
 
 export default function GatheringInfo({ data }: { data: GatheringDetail }) {
   const { dateLabel, timeLabel, tagText, joinDisabled } = useMemo(() => {
