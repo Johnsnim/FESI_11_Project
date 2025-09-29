@@ -1,19 +1,13 @@
 "use client";
 
-import { useLogoutMutation } from "@/shared/services/auth/use-auth-queries";
-import { useAuthStore } from "@/shared/store/auth.store";
+import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 
 export function Header() {
-  const logout = useLogoutMutation();
-  const user = useAuthStore((user) => user.user);
+  const { data: session, status } = useSession();
 
   const handleLogout = () => {
-    logout.mutate(undefined, {
-      onSuccess: () => {
-        alert("로그아웃 완료."); // 추후변경
-      },
-    });
+    signOut();
   };
 
   return (
@@ -26,9 +20,9 @@ export function Header() {
       </Link>
 
       <div className="flex items-center gap-4">
-        {user ? (
+        {status === "authenticated" ? (
           <>
-            {user.name}
+            {session?.user?.name}
 
             <button
               onClick={handleLogout}
