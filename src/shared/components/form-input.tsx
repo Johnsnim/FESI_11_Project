@@ -38,7 +38,7 @@ export function FormInput({
       name={name}
       render={({ field }) => (
         <FormItem className={cn(className)}>
-          <FormLabel className="text-base font-medium">{label}</FormLabel>
+          <FormLabel className="text-sm md:text-base font-medium">{label}</FormLabel>
           <FormControl>
             <Component
               {...field}
