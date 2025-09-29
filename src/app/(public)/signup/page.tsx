@@ -34,7 +34,7 @@ export default function SignUpPage() {
     companyName: string;
   }) => {
     signup.mutate(values, {
-      onSuccess: (data) => {
+      onSuccess: () => {
         router.push("/login");
       },
       onError: (error) => {
