@@ -2,7 +2,6 @@
 import { ButtonPlus } from "@/shared/components/btnPlus";
 import Banner from "../../../features/list/components/banner";
 import Category from "../../../features/list/components/category";
-import Card from "@/shared/components/card";
 
 export default function ListPage() {
   return (
@@ -13,7 +12,6 @@ export default function ListPage() {
       />
 
       <Category />
-
       <ButtonPlus />
     </div>
   );
