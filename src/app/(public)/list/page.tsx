@@ -1,10 +1,13 @@
 "use client";
 import { ButtonPlus } from "@/shared/components/btnPlus";
-import Banner from "./components/banner";
-import Category from "./components/category";
-import Card from "@/shared/components/card";
+import Banner from "../../../features/list/components/banner";
+import Category from "../../../features/list/components/category";
+import CreateGatheringModal from "@/features/createmodal";
+import { useState } from "react";
 
 export default function ListPage() {
+  const [modalOpen, setModalOpen] = useState(false);
+
   return (
     <div className="absolute overflow-x-hidden">
       <Banner
@@ -13,8 +16,15 @@ export default function ListPage() {
       />
 
       <Category />
+      <ButtonPlus onClick={() => setModalOpen(true)} aria-label="모임 만들기" />
 
-      <ButtonPlus />
+      <CreateGatheringModal
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        onComplete={(data) => {
+          console.log("모임 생성 데이터", data);
+        }}
+      />
     </div>
   );
 }
