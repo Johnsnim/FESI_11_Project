@@ -1,4 +1,6 @@
 import React from "react";
+
+import Image from "next/image";
 import type { GatheringDetail } from "../../../app/(public)/detail/[id]/types";
 
 export default function Participants({ data }: { data: GatheringDetail }) {
@@ -23,9 +25,13 @@ export default function Participants({ data }: { data: GatheringDetail }) {
 
         <div className="flex -space-x-2">
           {avatars.map((src, i) => (
-            <img
+            <Image
               key={i}
               src={src}
+              width={0}
+              height={0}
+              unoptimized
+              sizes="100vw"
               alt="참여자"
               className="h-7 w-7 rounded-full ring-2 ring-white"
             />
@@ -38,7 +44,7 @@ export default function Participants({ data }: { data: GatheringDetail }) {
         </div>
 
         <div className="flex flex-row">
-          <img src="/image/ic_check_sm.svg" alt="check" />
+          <Image src="/image/ic_check_sm.svg" alt="check" />
           <p className="font-medium text-green-600">개설확정</p>
         </div>
       </div>

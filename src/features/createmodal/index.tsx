@@ -9,6 +9,7 @@ import StepDate from "./step-date";
 import Footer from "./footer";
 import { Header } from "./header";
 import { CreateGatheringForm } from "@/shared/components/modals/create/types";
+import { gatheringService } from "@/shared/services/gathering/gathering.service";
 
 export default function CreateGatheringModal({
   open,
@@ -52,10 +53,29 @@ export default function CreateGatheringModal({
           ? !!form.date && !!form.registrationEnd && Number(form.capacity) > 0
           : true;
 
-  function handleSubmit() {
-    if (!canNext) return;
-    onComplete?.(form);
-    close();
+  async function handleSubmit() {
+    if (!form.service || !form.date || !form.registrationEnd) {
+      console.error("필수 값이 누락되었습니다");
+      return;
+    }
+
+    try {
+      const res = await gatheringService.create({
+        type: form.service,
+        name: form.name,
+        location: form.location,
+        dateTime: form.date.toISOString(),
+        registrationEnd: form.registrationEnd.toISOString(),
+        capacity: Number(form.capacity),
+        imageFile: form.imageFile ?? undefined,
+      });
+
+      console.log("성공 res>>", res);
+      onComplete?.(form);
+      close();
+    } catch (err) {
+      console.error("실패 err >>>:", err);
+    }
   }
 
   return (

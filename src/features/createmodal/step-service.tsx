@@ -21,7 +21,9 @@ export default function StepService({
 
   return (
     <div className="space-y-3">
-      <p className="text-sm text-gray-700">원하시는 서비스를 선택해주세요</p>
+      <p className="text-sm tracking-[-0.03em] text-gray-700">
+        원하시는 서비스를 선택해주세요
+      </p>
 
       <div className="space-y-3">
         {SERVICES.map((s) => {
@@ -41,11 +43,16 @@ export default function StepService({
               <div className="flex items-center gap-3">
                 <Image src={s.icon} alt="" width={40} height={40} />
                 <div>
-                  <div className="font-semibold text-emerald-700">
+                  <div
+                    className={[
+                      "mb-1 font-semibold",
+                      active ? "text-green-600" : "text-gray-900",
+                    ].join(" ")}
+                  >
                     {s.title}
                   </div>
                   {s.subtitle && (
-                    <div className="text-sm text-gray-500">{s.subtitle}</div>
+                    <div className="text-sm text-slate-600">{s.subtitle}</div>
                   )}
                 </div>
               </div>
