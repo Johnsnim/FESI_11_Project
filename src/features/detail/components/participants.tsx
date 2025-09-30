@@ -28,6 +28,10 @@ export default function Participants({ data }: { data: GatheringDetail }) {
             <Image
               key={i}
               src={src}
+              width={0}
+              height={0}
+              unoptimized
+              sizes="100vw"
               alt="참여자"
               className="h-7 w-7 rounded-full ring-2 ring-white"
             />

@@ -63,8 +63,9 @@ export default function FiltersBar({
           <DropdownMenuTrigger asChild>
             <button className="flex cursor-pointer items-center px-2 py-2 text-sm font-medium text-gray-500">
               {regionLabel}
-              <Image
+              <img
                 src="/image/ic_arrow_dropdown_down.svg"
+                sizes="100vw"
                 alt="dropdown icon"
               />
             </button>
@@ -91,7 +92,7 @@ export default function FiltersBar({
           <DropdownMenuTrigger asChild>
             <button className="flex cursor-pointer items-center px-2 py-2 text-sm font-medium text-gray-500">
               {sortLabel}
-              <Image
+              <img
                 src="/image/ic_filter.svg"
                 alt="filter icon"
                 className="pl-1"

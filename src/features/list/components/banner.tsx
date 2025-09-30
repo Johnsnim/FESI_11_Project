@@ -15,6 +15,10 @@ export default function Banner({ title, subtitle }: BannerProps) {
         <Image
           src="/image/banner_sm.svg"
           alt="banner"
+          width={0}
+          height={0}
+          unoptimized
+          sizes="100vw"
           className="min-h-[192px] w-full object-cover object-center md:h-auto"
         />
       </picture>

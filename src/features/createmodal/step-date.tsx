@@ -35,7 +35,12 @@ export default function StepDate({
           <PopoverTrigger asChild>
             <button className="flex w-full items-center justify-between rounded-xl bg-[#F9FAFB] px-3 py-2 text-left text-sm text-gray-400">
               {fmtDateLabel(data.date)}
-              <img src="/image/ic_calendar_lg.svg" alt="" />
+              <img
+                src="/image/ic_calendar_sm.svg"
+                alt=""
+                width={20}
+                height={20}
+              />
             </button>
           </PopoverTrigger>
           <PopoverContent align="end" className="rounded-3xl p-3 shadow-sm">
@@ -76,7 +81,12 @@ export default function StepDate({
           <PopoverTrigger asChild>
             <button className="flex w-full items-center justify-between rounded-xl bg-[#F9FAFB] px-3 py-2 text-left text-sm text-gray-400">
               {fmtDateLabel(data.registrationEnd)}
-              <img src="/image/ic_calendar_lg.svg" alt="" />
+              <img
+                src="/image/ic_calendar_sm.svg"
+                alt=""
+                width={20}
+                height={20}
+              />
             </button>
           </PopoverTrigger>
           <PopoverContent align="end" className="rounded-3xl p-3 shadow-sm">

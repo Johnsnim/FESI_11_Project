@@ -48,7 +48,7 @@ export function TabsBar({
           onClick={() => onChange("dal")}
           className="h-auto flex-1 cursor-pointer border-0 px-0 py-2 text-lg leading-6 font-semibold text-gray-400 shadow-none focus-visible:ring-0 focus-visible:outline-none data-[state=active]:bg-transparent data-[state=active]:text-green-600 data-[state=active]:shadow-none md:flex-none md:px-4"
         >
-          <Image src="/image/ic_mind_sm.svg" alt="dallem icon" />
+          <img src="/image/ic_mind_sm.svg" alt="dallem icon" />
           달램핏
         </TabsTrigger>
         <TabsTrigger
@@ -56,7 +56,7 @@ export function TabsBar({
           onClick={() => onChange("wor")}
           className="h-auto flex-1 cursor-pointer rounded-none border-0 px-0 py-2 text-lg leading-6 font-semibold text-gray-400 shadow-none focus-visible:ring-0 focus-visible:outline-none data-[state=active]:bg-transparent data-[state=active]:text-green-600 data-[state=active]:shadow-none md:flex-none md:px-4"
         >
-          <Image src="/image/ic_ parasol_sm.svg" alt="workcation icon" />
+          <img src="/image/ic_ parasol_sm.svg" alt="workcation icon" />
           워케이션
         </TabsTrigger>
       </TabsList>
