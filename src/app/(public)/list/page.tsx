@@ -2,8 +2,9 @@
 import { ButtonPlus } from "@/shared/components/btnPlus";
 import Banner from "../../../features/list/components/banner";
 import Category from "../../../features/list/components/category";
-import CreateGatheringModal from "@/features/createmodal";
+
 import { useState } from "react";
+import { CreateGatheringModal } from "@/shared/components/modals";
 
 export default function ListPage() {
   const [modalOpen, setModalOpen] = useState(false);
