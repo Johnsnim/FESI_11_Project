@@ -1,5 +1,5 @@
 export type GatheringType =
-  | "DALLEAMFIT"
+  | "DALLAEMFIT"
   | "OFFICE_STRETCHING"
   | "MINDFULNESS"
   | "WORKATION";

@@ -104,7 +104,7 @@ export default function Card({
           </div>
 
           <div className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border-1 border-gray-100">
-            <Image
+            <img
               src="/image/ic_heart_empty.svg"
               alt="heart button"
               className="h-6 w-6"

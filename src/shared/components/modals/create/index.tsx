@@ -59,9 +59,9 @@ export default function CreateGatheringModal({
       });
       onComplete?.(form);
       close();
-      console.log("gathering created:", res);
+      console.log("res >>", res);
     } catch (e) {
-      console.error("create gathering failed:", e);
+      console.error("err >>", e);
     }
   }
   return (

@@ -32,13 +32,13 @@ export default function ListPage() {
       <Category />
       <ButtonPlus onClick={() => setModalOpen(true)} aria-label="모임 만들기" />
 
-      {/* <CreateGatheringModal
+      <CreateGatheringModal
         open={modalOpen}
         onOpenChange={setModalOpen}
         onComplete={(data) => {
           console.log("모임 생성 데이터", data);
         }}
-      /> */}
+      />
 
       {/* <ProfileModal
         open={modalOpen}
@@ -49,14 +49,14 @@ export default function ListPage() {
         }}
       /> */}
 
-      <RatingModal
+      {/* <RatingModal
         open={modalOpen}
         onOpenChange={setModalOpen}
         defaultValues={{ score: 0, comment: "" } satisfies RatingModalForm}
         onSubmit={async (data) => {
           setModalOpen(false);
         }}
-      />
+      /> */}
     </div>
   );
 }
