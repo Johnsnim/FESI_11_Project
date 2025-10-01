@@ -21,3 +21,40 @@ export async function signup({
   );
   return data;
 }
+
+//내정보
+export async function getUser(accessToken: string) {
+  const { data } = await api.get(`/${process.env.NEXT_PUBLIC_TEAM_ID}/auths/user`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+  return data;
+}
+
+//회
+export async function updateUser(
+  accessToken: string,
+  { companyName, image }: { companyName: string; image?: File }
+) {
+  const formData = new FormData();
+  formData.append("companyName", companyName);
+  if (image) formData.append("image", image);
+
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/${process.env.NEXT_PUBLIC_TEAM_ID}/auths/user`,
+    {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${accessToken}`, 
+      },
+      body: formData,
+    }
+  );
+
+  if (!res.ok) {
+    throw new Error("회원정보 수정 실패");
+  }
+
+  return res.json();
+}
