@@ -21,3 +21,13 @@ export async function signup({
   );
   return data;
 }
+
+//내정보
+export async function getUser(accessToken: string) {
+  const { data } = await api.get(`/${process.env.NEXT_PUBLIC_TEAM_ID}/auths/user`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+  return data;
+}
