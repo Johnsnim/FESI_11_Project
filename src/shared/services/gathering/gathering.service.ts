@@ -46,13 +46,12 @@ export class GatheringService {
     formData.append("capacity", String(payload.capacity));
 
     if (payload.imageFile) {
-      formData.append("image", payload.imageFile);
+      formData.append("image", payload.imageFile, payload.imageFile.name);
     }
 
     const { data } = await api.post<Gathering>(
       GATHERING_API.create(TEAM_ID),
       formData,
-      { headers: { "Content-Type": "multipart/form-data" } },
     );
 
     return data;

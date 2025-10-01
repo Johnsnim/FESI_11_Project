@@ -19,25 +19,51 @@ export default function StepDescription({
   onChange: (d: CreateGatheringForm) => void;
 }) {
   const fileRef = React.useRef<HTMLInputElement | null>(null);
+  const prevUrlRef = React.useRef<string | null>(null);
+
+  function patch(partial: Partial<CreateGatheringForm>) {
+    onChange({ ...data, ...partial });
+  }
 
   function setField<K extends keyof CreateGatheringForm>(
     key: K,
     value: CreateGatheringForm[K],
   ) {
-    onChange({ ...data, [key]: value });
+    patch({ [key]: value } as Pick<CreateGatheringForm, K>);
   }
 
   function onPickFile(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0] ?? null;
+
+    if (fileRef.current) fileRef.current.value = "";
+
+    if (prevUrlRef.current) {
+      URL.revokeObjectURL(prevUrlRef.current);
+      prevUrlRef.current = null;
+    }
+
     if (!f) {
-      setField("imageFile", null);
-      setField("imagePreviewUrl", null);
+      patch({ imageFile: null, imagePreviewUrl: null });
       return;
     }
+
+    if (f.type && !f.type.startsWith("image/")) {
+      console.warn("이미지 파일만 업로드할 수 있습니다.");
+      patch({ imageFile: null, imagePreviewUrl: null });
+      return;
+    }
+
     const url = URL.createObjectURL(f);
-    setField("imageFile", f);
-    setField("imagePreviewUrl", url);
+    prevUrlRef.current = url;
+
+    patch({ imageFile: f, imagePreviewUrl: url });
   }
+
+  React.useEffect(() => {
+    return () => {
+      if (prevUrlRef.current) URL.revokeObjectURL(prevUrlRef.current);
+    };
+  }, []);
 
   return (
     <div className="space-y-5">

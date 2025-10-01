@@ -3,7 +3,6 @@
 import * as React from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/shadcn/tabs";
 import { useQuery } from "@tanstack/react-query";
-import Card from "@/shared/components/card";
 import { Chip } from "@/shared/components/chip";
 import {
   DropdownMenu,
@@ -18,7 +17,7 @@ import {
   gatheringService,
 } from "@/shared/services/gathering/gathering.service";
 import { CardSkeletonGrid } from "@/shared/components/cardskeleton";
-import EmptyBanner from "./emptybanner";
+
 import type {
   GatheringListParams,
   GatheringType,
@@ -35,6 +34,8 @@ import {
 } from "@/shadcn/pagination";
 import { cn } from "@/shadcn/lib/utils";
 import Image from "next/image";
+import EmptyBanner from "@/features/list/components/emptybanner";
+import Card from "@/shared/components/card";
 
 const LOCATIONS = [
   "지역 전체",
@@ -413,6 +414,7 @@ export default function Category() {
                 {items.map((g: Gathering) => (
                   <Card
                     key={g.id}
+                    id={g.id}
                     title={g.name}
                     location={g.location}
                     dateTimeISO={g.dateTime}
@@ -443,6 +445,7 @@ export default function Category() {
                 {items.map((g: Gathering) => (
                   <Card
                     key={g.id}
+                    id={g.id}
                     title={g.name}
                     location={g.location}
                     dateTimeISO={g.dateTime}
