@@ -8,20 +8,31 @@ interface User {
   companyName: string;
   image?: string;
 }
-export default function Info({ user }: { user: User }) {
+
+interface InfoProps {
+  user: User;
+  isModalOpen: () => void;
+}
+export default function Info({ user, isModalOpen }: InfoProps) {
   return (
     <div>
       <div className="mb-1.5 flex items-center justify-between md:mb-6 lg:mb-11">
         <h1 className="ml-2 text-center text-base font-semibold md:ml-0 md:text-3xl lg:ml-2.5 lg:text-[32px]">
           마이페이지
         </h1>
-        <button className="relative block size-7 md:hidden">
+        <button
+          className="relative block size-7 cursor-pointer md:hidden"
+          onClick={isModalOpen}
+        >
           <Image alt="프로필수정버튼" src="/image/ic_edit_lg.svg" fill />
         </button>
       </div>
 
       <div className="flex h-25 w-full items-center rounded-2xl border border-green-300 bg-gradient-to-r from-[#E5FCF0] to-[#D9F6F4] px-4 py-6 md:h-31 md:px-6 lg:h-fit lg:flex-col lg:rounded-3xl lg:pt-5 lg:pb-10">
-        <button className="relative mb-2.5 ml-auto hidden size-10 lg:block">
+        <button
+          className="relative mb-2.5 ml-auto hidden size-10 cursor-pointer lg:block"
+          onClick={isModalOpen}
+        >
           <Image
             alt="프로필수정버튼"
             src="/image/ic_edit_lg.svg"
@@ -35,7 +46,7 @@ export default function Info({ user }: { user: User }) {
               src={user.image || "/image/profile.svg"}
               alt="프로필이미지"
               fill
-              className="object-cover rounded-full"
+              className="rounded-full object-cover"
             />
           </div>
           <p className="text-sm font-semibold md:text-lg">{user.name}</p>
@@ -50,7 +61,10 @@ export default function Info({ user }: { user: User }) {
             <span>{user.email}</span>
           </p>
         </div>
-        <button className="relative ml-auto hidden size-10 self-start md:block lg:hidden">
+        <button
+          className="relative ml-auto hidden size-10 cursor-pointer self-start md:block lg:hidden"
+          onClick={isModalOpen}
+        >
           <Image
             alt="프로필수정버튼"
             src="/image/ic_edit_lg.svg"
@@ -59,7 +73,6 @@ export default function Info({ user }: { user: User }) {
           />
         </button>
       </div>
-      <UserEditModal />
     </div>
   );
 }

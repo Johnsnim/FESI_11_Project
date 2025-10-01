@@ -5,50 +5,119 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/shadcn/dialog";
-import { Button } from "@/shadcn/button";
 import { Input } from "@/shadcn/input";
-import { useState } from "react";
-import { useUpdateUserMutation } from "@/shared/services/auth/use-auth-queries";
+import { Button } from "@/shadcn/button";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/shadcn/form";
+import { UseFormReturn } from "react-hook-form";
+import { EditUserFormValues } from "../schemas/edituser.schema";
 
-export default function UserEditModal() {
-  const [companyName, setCompanyName] = useState("");
-  const [image, setImage] = useState<File | null>(null);
-  const updateUser = useUpdateUserMutation();
-
-  const handleSubmit = () => {
-    updateUser.mutate(
-      { companyName, image: image ?? undefined },
-      {
-        onSuccess: () => alert("수정 완료!"),
-        onError: (e: any) => alert("에러: " + e.message),
-      },
-    );
-  };
-
+export default function UserEditModal({
+  open,
+  onClose,
+  form,
+  onSubmit,
+  isLoading,
+}: {
+  open: boolean;
+  onClose: () => void;
+  form: UseFormReturn<EditUserFormValues>;
+  onSubmit: (data: EditUserFormValues) => void;
+  isLoading?: boolean;
+}) {
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="outline">회원정보 수정</Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>회원정보 수정</DialogTitle>
         </DialogHeader>
-        <div className="flex flex-col gap-4">
-          <Input
-            placeholder="회사명"
-            value={companyName}
-            onChange={(e) => setCompanyName(e.target.value)}
-          />
-          <Input
-            type="file"
-            accept="image/*"
-            onChange={(e) => setImage(e.target.files?.[0] ?? null)}
-          />
-          <Button onClick={handleSubmit}>저장</Button>
-        </div>
+
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex flex-col gap-4"
+          >
+            {/* 이름 */}
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>이름</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="이름을 입력하세요" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* 이메일 */}
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>이메일</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="이메일을 입력하세요" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* 회사명 */}
+            <FormField
+              control={form.control}
+              name="companyName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>회사명</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="회사명을 입력하세요" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* 프로필 이미지 */}
+            <FormField
+              control={form.control}
+              name="image"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>프로필 이미지</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) =>
+                        field.onChange(e.target.files?.[0] ?? undefined)
+                      }
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <Button
+              type="submit"
+              disabled={isLoading || !form.formState.isValid}
+            >
+              {isLoading ? "저장 중..." : "저장"}
+            </Button>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
