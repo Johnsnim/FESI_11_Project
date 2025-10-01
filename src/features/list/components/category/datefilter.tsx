@@ -1,6 +1,8 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
+
 import { Popover, PopoverContent, PopoverTrigger } from "@/shadcn/popover";
 import { Calendar } from "@/shadcn/calendar";
 import { fmtDateLabel } from "./utils";

@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { Chip } from "./chip";
 import { Tag } from "./tag";
 import { motion } from "motion/react";
+import Image from "next/image";
 
 export type CardProps = {
   id: number;
