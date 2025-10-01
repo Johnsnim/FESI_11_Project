@@ -75,7 +75,7 @@ export default function Card({
     <div className="mb-5 box-border h-86.5 w-full justify-center overflow-hidden px-4 md:flex md:h-fit md:flex-row md:items-center md:justify-center md:bg-white">
       <div className="flex h-39 w-full items-center justify-center rounded-t-3xl bg-[#EDEDED] md:aspect-square md:size-42 md:shrink-0 md:rounded-3xl md:rounded-l-3xl">
         {image ? (
-          <Image
+          <img
             src={image}
             alt={title}
             className="h-full w-full rounded-t-3xl object-cover md:rounded-3xl md:rounded-l-3xl"
@@ -122,7 +122,7 @@ export default function Card({
 
         <div className="mt-4 flex flex-row items-center md:mt-1">
           <div className="flex w-full flex-row items-center">
-            <Image
+            <img
               src="/image/ic_person.svg"
               alt="person icon"
               className="mr-2"

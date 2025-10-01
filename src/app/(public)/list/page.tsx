@@ -8,6 +8,8 @@ import { CreateGatheringModal } from "@/shared/components/modals";
 import ProfileModal from "@/features/profilemodal";
 
 import { ProfileModalForm } from "@/features/profilemodal/types";
+import RatingModal from "@/features/ratingmodal";
+import { RatingModalForm } from "@/features/ratingmodal/types";
 
 const defaults: ProfileModalForm = {
   name: "홍길동",
@@ -38,13 +40,20 @@ export default function ListPage() {
         }}
       /> */}
 
-      <ProfileModal
+      {/* <ProfileModal
         open={modalOpen}
         onOpenChange={setModalOpen}
         defaultValues={defaults}
         onSubmit={async (data) => {
-          // TODO: 프로필 수정 API 연동
-          console.log("submit profile", data);
+          setModalOpen(false);
+        }}
+      /> */}
+
+      <RatingModal
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        defaultValues={{ score: 0, comment: "" } satisfies RatingModalForm}
+        onSubmit={async (data) => {
           setModalOpen(false);
         }}
       />
