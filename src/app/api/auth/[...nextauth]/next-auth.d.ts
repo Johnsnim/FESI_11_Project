@@ -1,12 +1,21 @@
+// src/types/next-auth.d.ts
 import "next-auth";
 import "next-auth/jwt";
 
-// Session 타입 확장
 declare module "next-auth" {
+  interface User {
+id?: string | number; 
+    email?: string | null;
+    name?: string | null;
+    companyName?: string;
+    image?: string | null;
+    accessToken?: string;
+  }
+
   interface Session {
     accessToken?: string;
     user?: {
-      id?: number;
+     id?: string | number; 
       email?: string | null;
       name?: string | null;
       companyName?: string;
@@ -15,11 +24,10 @@ declare module "next-auth" {
   }
 }
 
-// JWT 타입 확장
 declare module "next-auth/jwt" {
   interface JWT {
     accessToken?: string;
-    id?: number;
+  id?: string | number; 
     email?: string;
     name?: string;
     companyName?: string;

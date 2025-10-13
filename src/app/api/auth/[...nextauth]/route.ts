@@ -1,5 +1,19 @@
-import NextAuth from "next-auth";
+// ./src/app/api/auth/[...nextauth]/route.ts
+import NextAuth, { type NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import type { User } from "next-auth";
+
+interface SigninResponse {
+  token: string;
+}
+
+interface MeResponse {
+  id: number;
+  email: string;
+  name: string;
+  companyName?: string;
+  image?: string | null;
+}
 
 const handler = NextAuth({
   providers: [
@@ -22,24 +36,23 @@ const handler = NextAuth({
               email: credentials.email,
               password: credentials.password,
             }),
-          }
+          },
         );
 
-        // 상태 코드별 처리
         if (signinRes.status === 404) {
-          return Promise.reject(new Error("USER_NOT_FOUND"));
+          throw new Error("USER_NOT_FOUND");
         }
         if (signinRes.status === 401) {
-          return Promise.reject(new Error("INVALID_PASSWORD"));
+          throw new Error("INVALID_PASSWORD");
         }
         if (!signinRes.ok) {
-          return Promise.reject(new Error("UNKNOWN_ERROR"));
+          throw new Error("UNKNOWN_ERROR");
         }
 
-        const signinData = await signinRes.json();
-        const token = signinData?.token as string | undefined;
+        const signinData = (await signinRes.json()) as SigninResponse;
+        const token = signinData?.token;
         if (!token) {
-          return Promise.reject(new Error("NO_TOKEN"));
+          throw new Error("NO_TOKEN");
         }
 
         // 2) 토큰으로 내 정보 조회
@@ -47,54 +60,59 @@ const handler = NextAuth({
           `${process.env.NEXT_PUBLIC_API_BASE_URL}/${process.env.NEXT_PUBLIC_TEAM_ID}/auths/user`,
           {
             headers: { Authorization: `Bearer ${token}` },
-          }
+          },
         );
         if (!meRes.ok) {
-          return Promise.reject(new Error("USER_FETCH_FAILED"));
+          throw new Error("USER_FETCH_FAILED");
         }
 
-        const me = await meRes.json();
+        const me = (await meRes.json()) as MeResponse;
 
-        // NextAuth로 넘길 유저 객체
-        return {
+        // NextAuth로 넘길 유저 객체 (확장된 User 타입)
+        const user: User = {
           id: me.id,
           email: me.email,
           name: me.name,
           companyName: me.companyName,
-          image: me.image,
-          token,
+          image: me.image ?? null,
+          accessToken: token,
         };
+
+        return user;
       },
     }),
   ],
 
   callbacks: {
     async jwt({ token, user }) {
+      // authorize 직후에는 user가 존재
       if (user) {
-        token.accessToken = (user as any).token;
-        token.id = (user as any).id;
-        token.email = (user as any).email;
-        token.name = (user as any).name;
-        (token as any).companyName = (user as any).companyName;
-        (token as any).image = (user as any).image;
+        // user는 우리가 확장한 User 타입
+        token.accessToken = user.accessToken;
+        token.id = user.id;
+        token.email = user.email ?? undefined;
+        token.name = user.name ?? undefined;
+        token.companyName = user.companyName;
+        token.image = user.image ?? undefined;
       }
       return token;
     },
+
     async session({ session, token }) {
-      session.accessToken = token.accessToken as string | undefined;
+      session.accessToken = token.accessToken;
       session.user = {
         ...session.user,
-        id: token.id as number | undefined,
-        email: token.email as string | null | undefined,
-        name: token.name as string | null | undefined,
-        companyName: (token as any).companyName as string | undefined,
-        image: (token as any).image as string | undefined,
+        id: token.id,
+        email: token.email ?? null,
+        name: token.name ?? null,
+        companyName: token.companyName,
+        image: token.image,
       };
       return session;
     },
   },
 
   secret: process.env.NEXTAUTH_SECRET,
-});
+} satisfies NextAuthOptions);
 
 export { handler as GET, handler as POST };
