@@ -72,8 +72,8 @@ export default function Card({
       : "개설확정";
 
   return (
-    <div className="mb-5 box-border h-86.5 w-full justify-center overflow-hidden px-4 md:flex md:h-fit md:flex-row md:items-center md:justify-center md:bg-white">
-      <div className="flex h-39 w-full items-center justify-center rounded-t-3xl bg-[#EDEDED] md:aspect-square md:size-42 md:shrink-0 md:rounded-3xl md:rounded-l-3xl">
+    <div className="mb-5 box-border h-86.5 w-full justify-center overflow-hidden rounded-3xl px-4 md:flex md:h-fit md:flex-row md:items-center md:justify-center md:bg-white md:p-6">
+      <div className="flex h-full w-full items-center justify-center rounded-t-3xl bg-[#EDEDED] md:aspect-square md:size-45 md:shrink-0 md:rounded-3xl md:rounded-l-3xl">
         {image ? (
           <img
             src={image}
@@ -85,7 +85,7 @@ export default function Card({
         )}
       </div>
 
-      <div className="h-full w-full overflow-hidden rounded-b-3xl bg-white p-4 md:min-w-0 md:flex-1 md:rounded-r-3xl md:rounded-bl-none">
+      <div className="h-full w-full rounded-b-3xl bg-white p-4 md:min-w-0 md:flex-1 md:rounded-r-3xl md:rounded-bl-none md:pr-0 md:pb-0">
         <div className="flex flex-row justify-between">
           <div className="flex flex-col">
             <div className="flex flex-row gap-2 align-middle">
@@ -97,7 +97,7 @@ export default function Card({
               </Chip>
             </div>
 
-            <p className="text-md mt-1.5 leading-7 font-medium tracking-[-0.03em] text-gray-400">
+            <p className="text-md mt-1 leading-7 font-medium tracking-[-0.03em] text-gray-400">
               위치
               <span className="pl-2 text-gray-500">{location}</span>
             </p>
@@ -122,11 +122,21 @@ export default function Card({
 
         <div className="mt-4 flex flex-row items-center md:mt-1">
           <div className="flex w-full flex-row items-center">
-            <img
-              src="/image/ic_person.svg"
-              alt="person icon"
-              className="mr-2"
-            />
+            <svg
+              className="mr-2 h-5 w-5 shrink-0 text-slate-600"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={1.8}
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z
+         M4.5 20.25a8.25 8.25 0 1 1 15 0v.75H4.5v-.75Z"
+              />
+            </svg>
             <div className="relative h-2 min-w-0 flex-1 overflow-hidden rounded-full bg-gray-200">
               <motion.div
                 className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400"

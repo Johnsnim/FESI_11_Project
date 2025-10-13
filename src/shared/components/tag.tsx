@@ -8,30 +8,33 @@ const TagVariants = cva(
   {
     variants: {
       variant: {
-        md: "h-6 w-30",
-        sm: "h-5 w-27 text-xs leading-xs"
+        md: "h-6 w-fit",
+        sm: "h-5 w-fit text-xs leading-xs",
       },
     },
     defaultVariants: {
       variant: "md",
     },
-  }
+  },
 );
 
 interface TagProps
-  extends Omit<React.ComponentProps<typeof Badge>, 'variant'>,
+  extends Omit<React.ComponentProps<typeof Badge>, "variant">,
     VariantProps<typeof TagVariants> {
   icon?: string; // SVG 아이콘 경로
 }
 
-export function Tag({ variant, className, children, icon, ...props }: TagProps) {
+export function Tag({
+  variant,
+  className,
+  children,
+  icon,
+  ...props
+}: TagProps) {
   const iconSize = variant === "sm" ? 16 : 20;
 
   return (
-    <Badge
-      {...props}
-      className={cn(TagVariants({ variant }), className)}
-    >
+    <Badge {...props} className={cn(TagVariants({ variant }), className)}>
       {icon && (
         <Image
           src={icon}
