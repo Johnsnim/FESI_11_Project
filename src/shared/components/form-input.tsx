@@ -8,21 +8,25 @@ import {
   FormMessage,
 } from "@/shadcn/form";
 import { Input } from "@/shadcn/input";
-import { Control } from "react-hook-form";
+import { Control, FieldValues, Path } from "react-hook-form";
 import { cn } from "@/shadcn/lib/utils";
 
-interface FormInputProps {
-  control: Control<any>;
-  name: string;
+interface FormInputProps<T extends FieldValues> {
+  control: Control<T>;
+  name: Path<T>;
   label: string;
   as?: React.ElementType;
   type?: string;
   placeholder?: string;
-  className?: string; // FormItem 전체 스타일
-  inputClassName?: string; // Input 컴포넌트 스타일
+  className?: string;
+  inputClassName?: string;
+  disabled?: boolean;
 }
 
-export function FormInput({
+const defaultInputClass =
+  "h-10 border-none bg-[#f9faf8] focus-visible:ring-green-300 focus-visible:outline-none md:h-12";
+
+export function FormInput<T extends FieldValues>({
   control,
   name,
   label,
@@ -31,20 +35,28 @@ export function FormInput({
   placeholder,
   className,
   inputClassName,
-}: FormInputProps) {
+  disabled = false,
+}: FormInputProps<T>) {
   return (
     <FormField
       control={control}
       name={name}
       render={({ field }) => (
         <FormItem className={cn(className)}>
-          <FormLabel className="text-sm md:text-base font-medium">{label}</FormLabel>
+          <FormLabel className="text-sm font-medium md:text-base">
+            {label}
+          </FormLabel>
           <FormControl>
             <Component
               {...field}
               type={type}
               placeholder={placeholder}
-              className={cn(inputClassName)}
+              disabled={disabled}
+              className={cn(
+                defaultInputClass,
+                inputClassName,
+                disabled && "pointer-events-none select-none",
+              )}
             />
           </FormControl>
           <FormMessage />
