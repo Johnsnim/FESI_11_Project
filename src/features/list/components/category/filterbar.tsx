@@ -10,6 +10,7 @@ import {
 } from "@/shadcn/dropdown-menu";
 import { LOCATIONS, SORTS, DalCategory } from "./constants";
 import { DateFilter } from "./datefilter";
+import Image from "next/image";
 
 export default function FiltersBar({
   regionLabel,
@@ -64,6 +65,7 @@ export default function FiltersBar({
               {regionLabel}
               <img
                 src="/image/ic_arrow_dropdown_down.svg"
+                sizes="100vw"
                 alt="dropdown icon"
               />
             </button>

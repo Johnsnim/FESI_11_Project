@@ -1,63 +1,54 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { login, getUser, logout, signup } from "./auth.service";
-import { useAuthStore } from "@/shared/store/auth.store";
+import { getUser, signup, updateUser } from "./auth.service";
+import { useSession } from "next-auth/react";
 
+//추후 수정해야함
 interface ApiError {
   code: string;
   message: string;
   status?: number;
 }
 
-// 로그인
-export const useLoginMutation = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation<
-    { token?: string },
+// 회원가입
+export const useSignUpMutation = () =>
+  useMutation<
+    { message: string },
     ApiError,
-    { email: string; password: string }
+    {
+      email: string;
+      password: string;
+      name: string;
+      companyName: string;
+    }
   >({
-    mutationFn: login,
-    onSuccess: async (data) => {
-      if (data.token) {
-        const user = await getUser();
-        queryClient.setQueryData(["authUser"], user);
-      }
-    },
+    mutationFn: signup,
   });
-};
 
-// 내 정보
-export const useUserQuery = () => {
-  const token = useAuthStore((s) => s.token);
+// 내정보
+export function useUserQuery() {
+  const { data: session } = useSession();
+  const accessToken = session?.accessToken;
 
   return useQuery({
     queryKey: ["authUser"],
-    queryFn: getUser,
-    enabled: !!token,
+    queryFn: () => getUser(accessToken!),
+    enabled: !!accessToken,
     retry: false,
   });
-};
+}
 
-// 로그아웃
-export const useLogoutMutation = () => {
+// 회원정보 수정
+
+export const useUpdateUserMutation = () => {
   const queryClient = useQueryClient();
+  const { data: session } = useSession();
+  const accessToken = session?.accessToken;
 
   return useMutation({
-    mutationFn: logout,
-    onSuccess: () => {
-      queryClient.setQueryData(["authUser"], null); // 즉시 반영
+    mutationFn: (payload: { companyName: string; image?: File }) =>
+      updateUser(accessToken!, payload),
+    onSuccess: (data) => {
+      queryClient.setQueryData(["authUser"], data); // 최신화
     },
   });
 };
-
-// 회원가입
-export const useSignUpMutation = () =>
-  useMutation<{ message: string }, ApiError, {
-    email: string;
-    password: string;
-    name: string;
-    companyName: string;
-  }>({
-    mutationFn: signup,
-  });

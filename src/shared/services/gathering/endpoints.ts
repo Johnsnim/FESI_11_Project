@@ -1,5 +1,5 @@
 export type GatheringType =
-  | "DALLEAMFIT"
+  | "DALLAEMFIT"
   | "OFFICE_STRETCHING"
   | "MINDFULNESS"
   | "WORKATION";
@@ -43,4 +43,5 @@ const toQueryString = (params?: GatheringListParams) => {
 export const GATHERING_API = {
   list: (teamId: string, params?: GatheringListParams) =>
     `/${teamId}/gatherings${toQueryString(params)}`,
+  create: (teamId: string) => `/${teamId}/gatherings`,
 };

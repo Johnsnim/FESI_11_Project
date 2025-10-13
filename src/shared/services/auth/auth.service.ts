@@ -3,39 +3,6 @@ import { useAuthStore } from "@/shared/store/auth.store";
 
 const TEAM_ID = process.env.NEXT_PUBLIC_TEAM_ID;
 
-// 로그인
-export async function login({
-  email,
-  password,
-}: {
-  email: string;
-  password: string;
-}) {
-  const { data } = await api.post<{ token?: string }>(
-    `/${TEAM_ID}/auths/signin`,
-    { email, password }
-  );
-
-  if (data.token) {
-    useAuthStore.getState().setToken(data.token); // zustand + persist 저장
-  }
-
-  return data;
-}
-
-// 내 정보
-export async function getUser() {
-  const { data } = await api.get(`/${TEAM_ID}/auths/user`);
-  useAuthStore.getState().setUser(data); // zustand 업데이트
-  return data;
-}
-
-// 로그아웃
-export async function logout() {
-  useAuthStore.getState().clearAuth();
-  return { message: "로그아웃 성공" };
-}
-
 //회원가입
 export async function signup({
   email,
@@ -50,8 +17,44 @@ export async function signup({
 }) {
   const { data } = await api.post<{ message: string }>(
     `/${TEAM_ID}/auths/signup`,
-    { email, password, name, companyName }
+    { email, password, name, companyName },
+  );
+  return data;
+}
+
+//내정보
+export async function getUser(accessToken: string) {
+  const { data } = await api.get(`/${process.env.NEXT_PUBLIC_TEAM_ID}/auths/user`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+  return data;
+}
+
+//회
+export async function updateUser(
+  accessToken: string,
+  { companyName, image }: { companyName: string; image?: File }
+) {
+  const formData = new FormData();
+  formData.append("companyName", companyName);
+  if (image) formData.append("image", image);
+
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/${process.env.NEXT_PUBLIC_TEAM_ID}/auths/user`,
+    {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${accessToken}`, 
+      },
+      body: formData,
+    }
   );
 
-  return data;
+  if (!res.ok) {
+    throw new Error("회원정보 수정 실패");
+  }
+
+  return res.json();
 }

@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 type BannerProps = {
   title: string;
   subtitle?: string;
@@ -10,9 +12,13 @@ export default function Banner({ title, subtitle }: BannerProps) {
         <source srcSet="/image/banner_lg.svg" media="(min-width: 1024px)" />
 
         <source srcSet="/image/banner_md.svg" media="(min-width: 640px)" />
-        <img
+        <Image
           src="/image/banner_sm.svg"
           alt="banner"
+          width={0}
+          height={0}
+          unoptimized
+          sizes="100vw"
           className="min-h-[192px] w-full object-cover object-center md:h-auto"
         />
       </picture>
