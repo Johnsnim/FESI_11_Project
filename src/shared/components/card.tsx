@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { Chip } from "./chip";
 import { Tag } from "./tag";
 import { motion } from "motion/react";
-import Image from "next/image";
+import * as React from "react";
 
 export type CardProps = {
   id: number;
@@ -30,6 +30,7 @@ export default function Card({
   isCanceled,
 }: CardProps) {
   const router = useRouter();
+
   const start = new Date(dateTimeISO);
   const dateLabel = `${start.getMonth() + 1}월 ${start.getDate()}일`;
   const timeLabel = start
@@ -42,34 +43,57 @@ export default function Card({
 
   const now = new Date();
   const regEnd = registrationEndISO ? new Date(registrationEndISO) : null;
-  const isToday =
-    regEnd &&
-    now.getFullYear() === regEnd.getFullYear() &&
-    now.getMonth() === regEnd.getMonth() &&
-    now.getDate() === regEnd.getDate();
 
-  const regEndTime = regEnd
-    ? regEnd
-        .toLocaleTimeString("ko-KR", {
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: false,
-        })
-        .replace(/^0/, "")
-    : null;
-
-  const tagText = regEndTime
-    ? `${isToday ? "오늘 " : ""}${regEndTime} 마감`
-    : "마감일 미정";
   const percent =
     capacity > 0
       ? Math.min(100, Math.round((participantCount / capacity) * 100))
       : 0;
+
   const statusText = isCanceled
     ? "취소됨"
     : regEnd && regEnd < now
       ? "마감"
       : "개설확정";
+
+  const tagLabel = React.useMemo(() => {
+    if (!regEnd) return "마감일 미정";
+
+    const now = new Date();
+    if (regEnd.getTime() <= now.getTime()) return null;
+
+    const dayMs = 24 * 60 * 60 * 1000;
+    const diffMs = regEnd.getTime() - now.getTime();
+
+    const isSameDay =
+      regEnd.getFullYear() === now.getFullYear() &&
+      regEnd.getMonth() === now.getMonth() &&
+      regEnd.getDate() === now.getDate();
+
+    if (diffMs >= dayMs) {
+      const days = Math.ceil(diffMs / dayMs);
+      return `${days}일 후 마감`;
+    }
+
+    if (isSameDay) {
+      const hour = regEnd.getHours();
+      return `오늘 ${hour}시 마감`;
+    }
+
+    const tomorrow = new Date(now);
+    tomorrow.setDate(now.getDate() + 1);
+    const isTomorrow =
+      regEnd.getFullYear() === tomorrow.getFullYear() &&
+      regEnd.getMonth() === tomorrow.getMonth() &&
+      regEnd.getDate() === tomorrow.getDate();
+
+    if (isTomorrow) {
+      const hour = regEnd.getHours();
+      return `내일 ${hour}시 마감`;
+    }
+
+    const hour = regEnd.getHours();
+    return `${hour}시 마감`;
+  }, [registrationEndISO]);
 
   return (
     <div className="mb-5 box-border h-86.5 w-full justify-center overflow-hidden rounded-3xl px-4 md:flex md:h-fit md:flex-row md:items-center md:justify-center md:bg-white md:p-6">
@@ -92,9 +116,11 @@ export default function Card({
               <p className="text-xl leading-7 font-semibold tracking-[-0.03em] text-gray-800">
                 {title}
               </p>
-              <Chip variant="statedone" icon="/image/ic_check_md.svg">
-                {statusText}
-              </Chip>
+              {statusText === "개설확정" ? (
+                <Chip variant="statedone" icon="/image/ic_check_md.svg">
+                  {statusText}
+                </Chip>
+              ) : null}
             </div>
 
             <p className="text-md mt-1 leading-7 font-medium tracking-[-0.03em] text-gray-400">
@@ -115,28 +141,16 @@ export default function Card({
         <div className="mt-3.5 flex flex-row items-center gap-2 md:mt-7">
           <Chip variant="infomd">{dateLabel}</Chip>
           <Chip variant="infomd">{timeLabel}</Chip>
-          <Tag variant="md" icon="/image/ic_alarm.svg">
-            {tagText}
-          </Tag>
+          {tagLabel && (
+            <Tag variant="md" icon="/image/ic_alarm.svg">
+              {tagLabel}
+            </Tag>
+          )}
         </div>
 
         <div className="mt-4 flex flex-row items-center md:mt-1">
           <div className="flex w-full flex-row items-center">
-            <svg
-              className="mr-2 h-5 w-5 shrink-0 text-slate-600"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={1.8}
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z
-         M4.5 20.25a8.25 8.25 0 1 1 15 0v.75H4.5v-.75Z"
-              />
-            </svg>
+            <img src="/image/ic_person.svg" alt="person icon" />
             <div className="relative h-2 min-w-0 flex-1 overflow-hidden rounded-full bg-gray-200">
               <motion.div
                 className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400"
