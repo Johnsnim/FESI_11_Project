@@ -45,10 +45,15 @@ export const useUpdateUserMutation = () => {
   const accessToken = session?.accessToken;
 
   return useMutation({
-    mutationFn: (payload: { companyName: string; image?: File }) =>
-      updateUser(accessToken!, payload),
+    mutationFn: (payload: { companyName: string; image?: string | File }) => {
+      const file = payload.image instanceof File ? payload.image : undefined;
+      return updateUser(accessToken!, {
+        companyName: payload.companyName,
+        image: file,
+      });
+    },
     onSuccess: (data) => {
-      queryClient.setQueryData(["authUser"], data); // 최신화
+      queryClient.setQueryData(["authUser"], data);
     },
   });
 };
