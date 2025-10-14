@@ -57,47 +57,39 @@ export default function Card({
 
   const tagLabel = React.useMemo(() => {
     if (!regEnd) return "마감일 미정";
-
     const now = new Date();
     if (regEnd.getTime() <= now.getTime()) return null;
-
     const dayMs = 24 * 60 * 60 * 1000;
     const diffMs = regEnd.getTime() - now.getTime();
-
     const isSameDay =
       regEnd.getFullYear() === now.getFullYear() &&
       regEnd.getMonth() === now.getMonth() &&
       regEnd.getDate() === now.getDate();
-
     if (diffMs >= dayMs) {
       const days = Math.ceil(diffMs / dayMs);
       return `${days}일 후 마감`;
     }
-
     if (isSameDay) {
       const hour = regEnd.getHours();
       return `오늘 ${hour}시 마감`;
     }
-
     const tomorrow = new Date(now);
     tomorrow.setDate(now.getDate() + 1);
     const isTomorrow =
       regEnd.getFullYear() === tomorrow.getFullYear() &&
       regEnd.getMonth() === tomorrow.getMonth() &&
       regEnd.getDate() === tomorrow.getDate();
-
     if (isTomorrow) {
       const hour = regEnd.getHours();
       return `내일 ${hour}시 마감`;
     }
-
     const hour = regEnd.getHours();
     return `${hour}시 마감`;
   }, [registrationEndISO]);
 
   return (
-    <div className="mb-5 box-border h-86.5 w-full justify-center overflow-hidden rounded-3xl px-4 md:flex md:h-fit md:flex-row md:items-center md:justify-center md:bg-white md:p-6">
-      <div className="flex h-full w-full items-center justify-center rounded-t-3xl bg-[#EDEDED] md:aspect-square md:size-45 md:shrink-0 md:rounded-3xl md:rounded-l-3xl">
+    <div className="mb-5 box-border w-full justify-center overflow-hidden rounded-3xl px-4 md:flex md:h-fit md:flex-row md:items-center md:justify-center md:bg-white md:p-6">
+      <div className="flex h-39 w-full items-center justify-center rounded-t-3xl bg-[#EDEDED] md:aspect-square md:size-45 md:shrink-0 md:rounded-3xl md:rounded-l-3xl">
         {image ? (
           <img
             src={image}
@@ -109,7 +101,7 @@ export default function Card({
         )}
       </div>
 
-      <div className="h-full w-full rounded-b-3xl bg-white p-4 md:min-w-0 md:flex-1 md:rounded-r-3xl md:rounded-bl-none md:pr-0 md:pb-0">
+      <div className="w-full rounded-b-3xl bg-white p-4 md:min-w-0 md:flex-1 md:rounded-r-3xl md:rounded-bl-none md:pt-0 md:pr-0 md:pb-0">
         <div className="flex flex-row justify-between">
           <div className="flex flex-col">
             <div className="flex flex-row gap-2 align-middle">
@@ -122,13 +114,11 @@ export default function Card({
                 </Chip>
               ) : null}
             </div>
-
             <p className="text-md mt-1 leading-7 font-medium tracking-[-0.03em] text-gray-400">
               위치
               <span className="pl-2 text-gray-500">{location}</span>
             </p>
           </div>
-
           <div className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border-1 border-gray-100">
             <img
               src="/image/ic_heart_empty.svg"
@@ -138,37 +128,41 @@ export default function Card({
           </div>
         </div>
 
-        <div className="mt-3.5 flex flex-row items-center gap-2 md:mt-7">
-          <Chip variant="infomd">{dateLabel}</Chip>
-          <Chip variant="infomd">{timeLabel}</Chip>
-          {tagLabel && (
-            <Tag variant="md" icon="/image/ic_alarm.svg">
-              {tagLabel}
-            </Tag>
-          )}
-        </div>
-
-        <div className="mt-4 flex flex-row items-center md:mt-1">
-          <div className="flex w-full flex-row items-center">
-            <img src="/image/ic_person.svg" alt="person icon" />
-            <div className="relative h-2 min-w-0 flex-1 overflow-hidden rounded-full bg-gray-200">
-              <motion.div
-                className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400"
-                initial={{ width: 0 }}
-                whileInView={{ width: `${percent}%` }}
-                viewport={{ once: true, amount: 1 }}
-                transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-              />
+        <div className="mt-4 flex flex-row justify-between md:mt-7">
+          <div className="flex flex-1 flex-col">
+            <div className="flex flex-row items-center gap-2">
+              <Chip variant="infomd">{dateLabel}</Chip>
+              <Chip variant="infomd">{timeLabel}</Chip>
+              {tagLabel && (
+                <Tag variant="md" icon="/image/ic_alarm.svg">
+                  {tagLabel}
+                </Tag>
+              )}
             </div>
-            <span className="ml-2 text-sm font-medium text-gray-600 tabular-nums">
-              <span className="text-green-500">{participantCount}</span>/
-              {capacity}
-            </span>
+            <div className="mt-3 flex flex-row items-center">
+              <img
+                src="/image/ic_person.svg"
+                alt="person icon"
+                className="h-4.5 w-4.5"
+              />
+              <div className="relative ml-1 h-2 min-w-0 flex-1 overflow-hidden rounded-full bg-[#EAEAEA]">
+                <motion.div
+                  className="absolute bottom-0 left-0 rounded-full bg-gradient-to-r from-[#17DA71] to-[#08DDF0]"
+                  initial={{ width: 0 }}
+                  whileInView={{ width: `${percent}%` }}
+                  viewport={{ once: true, amount: 1 }}
+                  transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+                />
+              </div>
+              <span className="ml-2 text-sm font-medium text-gray-600 tabular-nums md:ml-3">
+                <span className="text-green-500">{participantCount}</span>/
+                {capacity}
+              </span>
+            </div>
           </div>
-
-          <div className="ml-2 flex items-center justify-center rounded-2xl border-1 border-green-500">
+          <div className="ml-5 flex items-center justify-center rounded-2xl border-1 border-green-500">
             <p
-              className="cursor-pointer px-2.5 py-2 font-semibold whitespace-nowrap text-green-500"
+              className="cursor-pointer px-2.5 py-2 font-semibold whitespace-nowrap text-green-500 md:px-6 md:py-2.5"
               onClick={() => router.push(`/detail/${id}`)}
             >
               참여하기

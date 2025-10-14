@@ -32,7 +32,7 @@ export default function FiltersBar({
   setDate: (d: Date | null) => void;
 }) {
   return (
-    <div className="mb-3 md:flex md:flex-row md:justify-between">
+    <div className="mx-4 mb-3 md:mx-0 md:flex md:flex-row md:justify-between">
       <div className="mb-2 flex flex-row gap-2 md:mb-0">
         <Chip
           onClick={() => setDalCategory("전체")}

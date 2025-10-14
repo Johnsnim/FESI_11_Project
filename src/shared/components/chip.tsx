@@ -21,7 +21,7 @@ const ChipVariants = cva(
         stateused:
           "py-1.5 h-8 w-19 rounded-2xl text-gray-600 text-sm leading-sm bg-gray-50",
         statedone:
-          "gap-0.5 bg-transparent pl-2 pr-3 py-1.5 h-8 w-26 text-green-600 text-sm leading-sm p-0 w-fit ",
+          "gap-0.5 bg-transparent pl-2 pr-3 py-1.5 h-8 w-26 text-green-600 text-sm leading-sm p-0 w-fit",
       },
     },
     defaultVariants: {
