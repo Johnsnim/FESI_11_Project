@@ -77,7 +77,7 @@ export default function ProfileEditModal({
           <button
             type="button"
             onClick={() => fileRef.current?.click()}
-            className="absolute -bottom-2 right-0 rounded-full border border-emerald-500 bg-white px-3 py-1 text-xs font-semibold text-emerald-600 shadow-sm hover:bg-emerald-50"
+            className="absolute right-0 -bottom-2 rounded-full border border-emerald-500 bg-white px-3 py-1 text-xs font-semibold text-emerald-600 shadow-sm hover:bg-emerald-50"
           >
             변경
           </button>
@@ -89,7 +89,7 @@ export default function ProfileEditModal({
           <input
             value={form.name}
             onChange={(e) => setField("name", e.target.value)}
-            className="w-full rounded-lg bg-[#F9FAFB] px-3 py-2 text-sm outline-none ring-2 ring-transparent focus:ring-emerald-200"
+            className="w-full rounded-lg bg-[#F9FAFB] px-3 py-2 text-sm ring-2 ring-transparent outline-none focus:ring-emerald-200"
             placeholder="이름을 입력해주세요"
           />
         </div>
@@ -98,7 +98,7 @@ export default function ProfileEditModal({
           <input
             value={form.companyName}
             onChange={(e) => setField("companyName", e.target.value)}
-            className="w-full rounded-lg bg-[#F9FAFB] px-3 py-2 text-sm outline-none ring-2 ring-transparent focus:ring-emerald-200"
+            className="w-full rounded-lg bg-[#F9FAFB] px-3 py-2 text-sm ring-2 ring-transparent outline-none focus:ring-emerald-200"
             placeholder="회사명을 입력해주세요"
           />
         </div>

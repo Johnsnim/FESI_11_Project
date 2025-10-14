@@ -32,22 +32,22 @@ export default function ListPage() {
       <Category />
       <ButtonPlus onClick={() => setModalOpen(true)} aria-label="모임 만들기" />
 
-      <CreateGatheringModal
+      {/* <CreateGatheringModal
         open={modalOpen}
         onOpenChange={setModalOpen}
         onComplete={(data) => {
           console.log("모임 생성 데이터", data);
         }}
-      />
+      /> */}
 
-      {/* <ProfileModal
+      <ProfileModal
         open={modalOpen}
         onOpenChange={setModalOpen}
         defaultValues={defaults}
         onSubmit={async (data) => {
           setModalOpen(false);
         }}
-      /> */}
+      />
 
       {/* <RatingModal
         open={modalOpen}
