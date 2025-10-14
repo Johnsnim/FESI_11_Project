@@ -118,7 +118,18 @@ export default function Card({
               위치
               <span className="pl-2 text-gray-500">{location}</span>
             </p>
+
+            <div className="mt-3 flex items-center gap-2 md:hidden">
+              <Chip variant="infomd">{dateLabel}</Chip>
+              <Chip variant="infomd">{timeLabel}</Chip>
+              {tagLabel && (
+                <Tag variant="md" icon="/image/ic_alarm.svg">
+                  {tagLabel}
+                </Tag>
+              )}
+            </div>
           </div>
+
           <div className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border-1 border-gray-100">
             <img
               src="/image/ic_heart_empty.svg"
@@ -128,9 +139,9 @@ export default function Card({
           </div>
         </div>
 
-        <div className="mt-4 flex flex-row justify-between md:mt-7">
-          <div className="flex flex-1 flex-col">
-            <div className="flex flex-row items-center gap-2">
+        <div className="mt-4 flex flex-col gap-3 md:mt-7 md:flex-row md:items-center md:justify-between">
+          <div className="flex-1">
+            <div className="hidden items-center gap-2 md:flex">
               <Chip variant="infomd">{dateLabel}</Chip>
               <Chip variant="infomd">{timeLabel}</Chip>
               {tagLabel && (
@@ -139,35 +150,44 @@ export default function Card({
                 </Tag>
               )}
             </div>
-            <div className="mt-3 flex flex-row items-center">
-              <img
-                src="/image/ic_person.svg"
-                alt="person icon"
-                className="h-4.5 w-4.5"
-              />
-              <div className="relative ml-1 h-2 min-w-0 flex-1 overflow-hidden rounded-full bg-[#EAEAEA]">
-                <motion.div
-                  className="absolute bottom-0 left-0 rounded-full bg-gradient-to-r from-[#17DA71] to-[#08DDF0]"
-                  initial={{ width: 0 }}
-                  whileInView={{ width: `${percent}%` }}
-                  viewport={{ once: true, amount: 1 }}
-                  transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+
+            <div className="mt-3 flex items-center gap-3">
+              <div className="flex min-w-0 flex-1 items-center">
+                <img
+                  src="/image/ic_person.svg"
+                  alt="person icon"
+                  className="h-4.5 w-4.5"
                 />
+                <div className="relative ml-1 h-2 min-w-0 flex-1 overflow-hidden rounded-full bg-[#EAEAEA]">
+                  <motion.div
+                    className="absolute bottom-0 left-0 rounded-full bg-gradient-to-r from-[#17DA71] to-[#08DDF0]"
+                    initial={{ width: 0 }}
+                    whileInView={{ width: `${percent}%` }}
+                    viewport={{ once: true, amount: 1 }}
+                    transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+                  />
+                </div>
+                <span className="ml-2 text-sm font-medium text-gray-600 tabular-nums md:ml-3">
+                  <span className="text-green-500">{participantCount}</span>/
+                  {capacity}
+                </span>
               </div>
-              <span className="ml-2 text-sm font-medium text-gray-600 tabular-nums md:ml-3">
-                <span className="text-green-500">{participantCount}</span>/
-                {capacity}
-              </span>
+
+              <button
+                onClick={() => router.push(`/detail/${id}`)}
+                className="shrink-0 rounded-2xl border-1 border-green-500 px-6 py-2.5 font-semibold whitespace-nowrap text-green-500 md:hidden"
+              >
+                참여하기
+              </button>
             </div>
           </div>
-          <div className="ml-5 flex items-center justify-center rounded-2xl border-1 border-green-500">
-            <p
-              className="cursor-pointer px-2.5 py-2 font-semibold whitespace-nowrap text-green-500 md:px-6 md:py-2.5"
-              onClick={() => router.push(`/detail/${id}`)}
-            >
-              참여하기
-            </p>
-          </div>
+
+          <button
+            onClick={() => router.push(`/detail/${id}`)}
+            className="hidden rounded-2xl border-1 border-green-500 px-6 py-2.5 font-semibold whitespace-nowrap text-green-500 md:block"
+          >
+            참여하기
+          </button>
         </div>
       </div>
     </div>
