@@ -139,9 +139,9 @@ export default function Card({
           </div>
         </div>
 
-        <div className="mt-4 flex flex-col gap-3 md:mt-7 md:flex-row md:items-center md:justify-between">
-          <div className="flex-1">
-            <div className="hidden items-center gap-2 md:flex">
+        <div className="mt-4 flex flex-col gap-3 md:mt-7 md:flex-row md:items-end md:justify-between">
+          <div className="flex flex-1 flex-col">
+            <div className="hidden items-center gap-2 md:mt-2 md:mb-3 md:flex">
               <Chip variant="infomd">{dateLabel}</Chip>
               <Chip variant="infomd">{timeLabel}</Chip>
               {tagLabel && (
@@ -151,7 +151,7 @@ export default function Card({
               )}
             </div>
 
-            <div className="mt-3 flex items-center gap-3">
+            <div className="flex items-center gap-3">
               <div className="flex min-w-0 flex-1 items-center">
                 <img
                   src="/image/ic_person.svg"
@@ -184,7 +184,7 @@ export default function Card({
 
           <button
             onClick={() => router.push(`/detail/${id}`)}
-            className="hidden rounded-2xl border-1 border-green-500 px-6 py-2.5 font-semibold whitespace-nowrap text-green-500 md:block"
+            className="hidden rounded-2xl border-1 border-green-500 px-6 py-2.5 font-semibold whitespace-nowrap text-green-500 md:block md:self-end"
           >
             참여하기
           </button>
