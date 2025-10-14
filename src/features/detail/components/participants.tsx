@@ -44,7 +44,7 @@ export default function Participants({ data }: { data: GatheringDetail }) {
         </div>
 
         <div className="flex flex-row">
-          <Image src="/image/ic_check_sm.svg" alt="check" />
+          <img src="/image/ic_check_sm.svg" alt="check" />
           <p className="font-medium text-green-600">개설확정</p>
         </div>
       </div>
