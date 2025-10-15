@@ -7,6 +7,7 @@ import StepService from "@/features/createmodal/step-service";
 import StepDescription from "@/features/createmodal/step-description";
 import StepDate from "@/features/createmodal/step-date";
 import Footer from "@/features/createmodal/footer";
+import { validateAndBuildPayload } from "./validation";
 
 export default function CreateGatheringModal({
   open,
@@ -43,28 +44,43 @@ export default function CreateGatheringModal({
   const next = () => setStep((s) => Math.min(maxStep, s + 1));
   const prev = () => setStep((s) => Math.max(0, s - 1));
   const close = () => onOpenChange(false);
-
   async function handleSubmit() {
-    if (!form.service || !form.date || !form.registrationEnd) return;
+    const result = validateAndBuildPayload(form);
+    if (!result.ok) {
+      const issue = result.error.issues?.[0];
+      const field = (issue?.path?.[0] as string) || "";
+      const msg = issue?.message || "입력값을 확인해주세요.";
+
+      if (field === "service") setStep(0);
+      else if (
+        ["name", "location", "imageFile", "imagePreviewUrl"].includes(field)
+      )
+        setStep(1);
+      else if (["date", "registrationEnd", "capacity"].includes(field))
+        setStep(2);
+
+      alert(msg);
+      return;
+    }
+
     try {
-      const res = await gatheringService.create({
-        type: form.service,
-        name: form.name,
-        location: form.location,
-        dateTime:
-          typeof form.date === "string" ? form.date : form.date.toISOString(),
-        registrationEnd:
-          typeof form.registrationEnd === "string"
-            ? form.registrationEnd
-            : form.registrationEnd.toISOString(),
-        capacity: Number(form.capacity),
-        imageFile: form.imageFile ?? undefined,
-      });
+      await gatheringService.create(result.payload);
       onComplete?.(form);
       close();
-      console.log("res >>", res);
     } catch (e) {
-      console.error("err >>", e);
+      const err = e as {
+        response?: { status?: number; data?: { message?: string } };
+        message?: string;
+      };
+      const status = err.response?.status;
+      const msg =
+        err.response?.data?.message ?? err.message ?? "요청에 실패했습니다.";
+
+      if (status === 401) {
+        alert(msg);
+        return;
+      }
+      alert(msg);
     }
   }
 
