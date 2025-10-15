@@ -59,3 +59,68 @@ export class GatheringService {
 }
 
 export const gatheringService = new GatheringService();
+
+export type ALLGATHERINGTYPES = "DALLAEMFIT" | "OFFICE_STRETCHING" | "MINDFULNESS" | "WORKATION";
+
+export interface JoinedGathering {
+  teamId: number;
+  id: number;
+  type: ALLGATHERINGTYPES;
+  name: string;
+  dateTime: string;
+  registrationEnd: string;
+  location: string;
+  participantCount: number;
+  capacity: number;
+  image: string;
+  createdBy: number;
+  canceledAt: string | null;
+  joinedAt: string;
+  isCompleted: boolean;
+  isReviewed: boolean;
+}
+
+export interface JoinedGatheringsParams {
+  completed?: boolean;
+  reviewed?: boolean;
+  limit?: number;
+  offset?: number;
+  sortBy?: "dateTime" | "registrationEnd" | "joinedAt";
+  sortOrder?: "asc" | "desc";
+}
+export async function getJoinedGatherings(
+  accessToken: string,
+  params?: JoinedGatheringsParams
+): Promise<JoinedGathering[]> {
+  const searchParams = new URLSearchParams();
+
+  if (params?.completed !== undefined) {
+    searchParams.append("completed", String(params.completed));
+  }
+  if (params?.reviewed !== undefined) {
+    searchParams.append("reviewed", String(params.reviewed));
+  }
+  if (params?.limit !== undefined) {
+    searchParams.append("limit", String(params.limit));
+  }
+  if (params?.offset !== undefined) {
+    searchParams.append("offset", String(params.offset));
+  }
+  if (params?.sortBy) {
+    searchParams.append("sortBy", params.sortBy);
+  }
+  if (params?.sortOrder) {
+    searchParams.append("sortOrder", params.sortOrder);
+  }
+
+  const queryString = searchParams.toString();
+  const url = `/${TEAM_ID}/gatherings/joined${queryString ? `?${queryString}` : ""}`;
+
+  const { data } = await api.get<JoinedGathering[]>(url, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  return data;
+}
