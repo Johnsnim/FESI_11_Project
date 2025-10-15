@@ -34,7 +34,7 @@ import {
 } from "@/shadcn/pagination";
 import { cn } from "@/shadcn/lib/utils";
 import Image from "next/image";
-import EmptyBanner from "@/features/list/components/emptybanner";
+import EmptyBanner from "@/features/main/components/emptybanner";
 import Card from "@/shared/components/card";
 
 const LOCATIONS = [
