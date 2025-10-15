@@ -7,7 +7,7 @@ import StepService from "@/features/createmodal/step-service";
 import StepDescription from "@/features/createmodal/step-description";
 import StepDate from "@/features/createmodal/step-date";
 import Footer from "@/features/createmodal/footer";
-import { validateAndBuildPayload } from "./validation";
+import { validateAndBuildPayload } from "./schemas/createModal.schema";
 
 export default function CreateGatheringModal({
   open,

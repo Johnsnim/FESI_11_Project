@@ -1,12 +1,25 @@
 import React, { useMemo } from "react";
 import { Tag } from "@/shared/components/tag";
 import { Chip } from "@/shared/components/chip";
+import type { Gathering } from "@/shared/services/gathering/gathering.service";
 
-import type { GatheringDetail } from "../../../app/(public)/detail/[id]/types";
+type Props = {
+  data: Gathering;
+  isJoined: boolean; // ✅ 추가
+  onJoin: () => void; // ✅ 추가
+  onLeave: () => void; // ✅ 추가
+  joining?: boolean; // 선택: 로딩표시
+  leaving?: boolean; // 선택: 로딩표시
+};
 
-export default function GatheringInfo({ data }: { data: GatheringDetail }) {
-  const isMadeByMe = true;
-
+export default function GatheringInfo({
+  data,
+  isJoined,
+  onJoin,
+  onLeave,
+  joining = false,
+  leaving = false,
+}: Props) {
   const { dateLabel, timeLabel, tagText, joinDisabled } = useMemo(() => {
     const start = new Date(data.dateTime);
     const dateLabel = `${start.getMonth() + 1}월 ${start.getDate()}일`;
@@ -45,6 +58,8 @@ export default function GatheringInfo({ data }: { data: GatheringDetail }) {
     return { dateLabel, timeLabel, tagText, joinDisabled };
   }, [data]);
 
+  const isMadeByMe = false; // 필요시 실제 사용자 id 비교 로직으로 교체
+
   return (
     <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-zinc-100">
       <div className="mb-3 flex flex-wrap items-center gap-2">
@@ -76,7 +91,7 @@ export default function GatheringInfo({ data }: { data: GatheringDetail }) {
           <div className="flex h-full w-full gap-2 pl-2">
             <button
               disabled={joinDisabled}
-              className={`inline-flex h-11 w-full items-center justify-center rounded-xl border border-slate-200 bg-transparent px-5 text-slate-600`}
+              className="inline-flex h-11 w-full items-center justify-center rounded-xl border border-slate-200 bg-transparent px-5 text-slate-600"
             >
               취소하기
             </button>
@@ -91,16 +106,25 @@ export default function GatheringInfo({ data }: { data: GatheringDetail }) {
               공유하기
             </button>
           </div>
+        ) : isJoined ? (
+          <button
+            disabled={leaving}
+            onClick={onLeave}
+            className="ml-4 inline-flex h-11 w-full items-center justify-center rounded-xl border border-green-500 bg-transparent px-5 font-semibold text-green-500"
+          >
+            {leaving ? "취소 중..." : "참여 취소하기"}
+          </button>
         ) : (
           <button
-            disabled={joinDisabled}
+            disabled={joinDisabled || joining}
+            onClick={onJoin}
             className={`ml-4 inline-flex h-11 w-full items-center justify-center rounded-xl px-5 text-white ${
-              joinDisabled
+              joinDisabled || joining
                 ? "cursor-not-allowed bg-zinc-300"
                 : "bg-emerald-500 hover:bg-emerald-600"
             }`}
           >
-            참여하기
+            {joining ? "참여 중..." : "참여하기"}
           </button>
         )}
       </div>
