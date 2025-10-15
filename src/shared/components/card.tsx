@@ -49,11 +49,9 @@ export default function Card({
       ? Math.min(100, Math.round((participantCount / capacity) * 100))
       : 0;
 
-  const statusText = isCanceled
-    ? "취소됨"
-    : regEnd && regEnd < now
-      ? "마감"
-      : "개설확정";
+  const isClosed = !!(isCanceled || (regEnd && regEnd < now));
+
+  const statusText = isCanceled ? "취소됨" : isClosed ? "마감" : "개설확정";
 
   const tagLabel = React.useMemo(() => {
     if (!regEnd) return "마감일 미정";
@@ -87,9 +85,14 @@ export default function Card({
     return `${hour}시 마감`;
   }, [registrationEndISO]);
 
+  function handleJoin() {
+    if (isClosed) return;
+    router.push(`/detail/${id}`);
+  }
+
   return (
     <div className="mb-5 box-border w-full justify-center overflow-hidden rounded-3xl px-4 md:flex md:h-fit md:flex-row md:items-center md:justify-center md:bg-white md:p-6">
-      <div className="flex h-39 w-full items-center justify-center rounded-t-3xl bg-[#EDEDED] md:aspect-square md:size-45 md:shrink-0 md:rounded-3xl md:rounded-l-3xl">
+      <div className="relative flex h-39 w-full items-center justify-center rounded-t-3xl bg-[#EDEDED] md:aspect-square md:size-45 md:shrink-0 md:rounded-3xl md:rounded-l-3xl">
         {image ? (
           <img
             src={image}
@@ -98,6 +101,17 @@ export default function Card({
           />
         ) : (
           "이미지 들어갈 자리"
+        )}
+
+        {isClosed && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/70 md:rounded-3xl">
+            <span
+              className="text-2xl leading-[30px] font-extrabold tracking-[-0.03em] text-white"
+              style={{ fontFamily: "Tenada, sans-serif" }}
+            >
+              모집 마감
+            </span>
+          </div>
         )}
       </div>
 
@@ -174,8 +188,15 @@ export default function Card({
               </div>
 
               <button
-                onClick={() => router.push(`/detail/${id}`)}
-                className="shrink-0 rounded-2xl border-1 border-green-500 px-6 py-2.5 font-semibold whitespace-nowrap text-green-500 md:hidden"
+                onClick={handleJoin}
+                disabled={isClosed}
+                aria-disabled={isClosed}
+                className={[
+                  "shrink-0 rounded-2xl px-6 py-2.5 font-semibold whitespace-nowrap md:hidden",
+                  isClosed
+                    ? "cursor-not-allowed border-0 bg-slate-100 text-slate-500"
+                    : "border-1 border-green-500 text-green-500",
+                ].join(" ")}
               >
                 참여하기
               </button>
@@ -183,8 +204,15 @@ export default function Card({
           </div>
 
           <button
-            onClick={() => router.push(`/detail/${id}`)}
-            className="hidden rounded-2xl border-1 border-green-500 px-6 py-2.5 font-semibold whitespace-nowrap text-green-500 md:block md:self-end"
+            onClick={handleJoin}
+            disabled={isClosed}
+            aria-disabled={isClosed}
+            className={[
+              "hidden rounded-2xl px-6 py-2.5 font-semibold whitespace-nowrap md:block md:self-end",
+              isClosed
+                ? "cursor-not-allowed border-0 bg-slate-100 text-slate-500"
+                : "border-1 border-green-500 text-green-500",
+            ].join(" ")}
           >
             참여하기
           </button>
