@@ -50,7 +50,6 @@ export default function Card({
       : 0;
 
   const isClosed = !!(isCanceled || (regEnd && regEnd < now));
-
   const statusText = isCanceled ? "취소됨" : isClosed ? "마감" : "개설확정";
 
   const tagLabel = React.useMemo(() => {
@@ -92,7 +91,14 @@ export default function Card({
 
   return (
     <div className="mb-5 box-border w-full justify-center overflow-hidden rounded-3xl px-4 md:flex md:h-fit md:flex-row md:items-center md:justify-center md:bg-white md:p-6">
-      <div className="relative flex h-39 w-full items-center justify-center rounded-t-3xl bg-[#EDEDED] md:aspect-square md:size-45 md:shrink-0 md:rounded-3xl md:rounded-l-3xl">
+      <div
+        onClick={handleJoin}
+        aria-disabled={isClosed}
+        className={[
+          "relative flex h-39 w-full items-center justify-center rounded-t-3xl bg-[#EDEDED] md:aspect-square md:size-45 md:shrink-0 md:rounded-3xl md:rounded-l-3xl",
+          !isClosed ? "cursor-pointer" : "cursor-default",
+        ].join(" ")}
+      >
         {image ? (
           <img
             src={image}
@@ -118,7 +124,14 @@ export default function Card({
       <div className="w-full rounded-b-3xl bg-white p-4 md:min-w-0 md:flex-1 md:rounded-r-3xl md:rounded-bl-none md:pt-0 md:pr-0 md:pb-0">
         <div className="flex flex-row justify-between">
           <div className="flex flex-col">
-            <div className="flex flex-row gap-2 align-middle">
+            <div
+              onClick={handleJoin}
+              aria-disabled={isClosed}
+              className={[
+                "flex flex-row gap-2 align-middle",
+                !isClosed ? "cursor-pointer" : "cursor-default",
+              ].join(" ")}
+            >
               <p className="text-xl leading-7 font-semibold tracking-[-0.03em] text-gray-800">
                 {title}
               </p>
@@ -128,6 +141,7 @@ export default function Card({
                 </Chip>
               ) : null}
             </div>
+
             <p className="text-md mt-1 leading-7 font-medium tracking-[-0.03em] text-gray-400">
               위치
               <span className="pl-2 text-gray-500">{location}</span>
@@ -144,7 +158,7 @@ export default function Card({
             </div>
           </div>
 
-          <div className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border-1 border-gray-100">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full border-1 border-gray-100">
             <img
               src="/image/ic_heart_empty.svg"
               alt="heart button"
@@ -195,7 +209,7 @@ export default function Card({
                   "shrink-0 rounded-2xl px-6 py-2.5 font-semibold whitespace-nowrap md:hidden",
                   isClosed
                     ? "cursor-not-allowed border-0 bg-slate-100 text-slate-500"
-                    : "border-1 border-green-500 text-green-500",
+                    : "cursor-pointer border-1 border-green-500 text-green-500",
                 ].join(" ")}
               >
                 참여하기
@@ -211,7 +225,7 @@ export default function Card({
               "hidden rounded-2xl px-6 py-2.5 font-semibold whitespace-nowrap md:block md:self-end",
               isClosed
                 ? "cursor-not-allowed border-0 bg-slate-100 text-slate-500"
-                : "border-1 border-green-500 text-green-500",
+                : "cursor-pointer border-1 border-green-500 text-green-500",
             ].join(" ")}
           >
             참여하기
