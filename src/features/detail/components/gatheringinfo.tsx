@@ -2,10 +2,11 @@ import React, { useMemo } from "react";
 import { Tag } from "@/shared/components/tag";
 import { Chip } from "@/shared/components/chip";
 
-import Image from "next/image";
 import type { GatheringDetail } from "../../../app/(public)/detail/[id]/types";
 
 export default function GatheringInfo({ data }: { data: GatheringDetail }) {
+  const isMadeByMe = true;
+
   const { dateLabel, timeLabel, tagText, joinDisabled } = useMemo(() => {
     const start = new Date(data.dateTime);
     const dateLabel = `${start.getMonth() + 1}월 ${start.getDate()}일`;
@@ -71,16 +72,37 @@ export default function GatheringInfo({ data }: { data: GatheringDetail }) {
           />
         </div>
 
-        <button
-          disabled={joinDisabled}
-          className={`ml-auto inline-flex h-10 w-66 items-center justify-center rounded-xl px-5 text-white ${
-            joinDisabled
-              ? "cursor-not-allowed bg-zinc-300"
-              : "bg-emerald-500 hover:bg-emerald-600"
-          }`}
-        >
-          참여하기
-        </button>
+        {isMadeByMe ? (
+          <div className="flex h-full w-full gap-2 pl-2">
+            <button
+              disabled={joinDisabled}
+              className={`inline-flex h-11 w-full items-center justify-center rounded-xl border border-slate-200 bg-transparent px-5 text-slate-600`}
+            >
+              취소하기
+            </button>
+            <button
+              disabled={joinDisabled}
+              className={`inline-flex h-11 w-full items-center justify-center rounded-xl px-5 text-white ${
+                joinDisabled
+                  ? "cursor-not-allowed bg-zinc-300"
+                  : "bg-emerald-500 hover:bg-emerald-600"
+              }`}
+            >
+              공유하기
+            </button>
+          </div>
+        ) : (
+          <button
+            disabled={joinDisabled}
+            className={`ml-4 inline-flex h-11 w-full items-center justify-center rounded-xl px-5 text-white ${
+              joinDisabled
+                ? "cursor-not-allowed bg-zinc-300"
+                : "bg-emerald-500 hover:bg-emerald-600"
+            }`}
+          >
+            참여하기
+          </button>
+        )}
       </div>
     </div>
   );
