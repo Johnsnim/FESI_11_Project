@@ -4,14 +4,14 @@ import { cn } from "@/shadcn/lib/utils";
 import Image from "next/image";
 
 const ChipVariants = cva(
-  "h-10 px-4 py-2 gap-2.5 rounded-xl text-base text-center text-white leading-base font-medium",
+  "h-10 px-4 py-2 gap-2.5 rounded-xl text-base text-center text-white leading-base font-medium inline-flex items-center",
   {
     variants: {
       variant: {
         dark: "bg-[#333333] font-semibold",
         light: "text-[#333333] bg-gray-50 ",
         infomd:
-          "px-2 py-0.5 h-6 w-13 rounded-md text-gray-600 text-sm leading-sm bg-[#FFFFFF] border-[#DDDDDD]",
+          "px-2 py-0.5 h-6 w-fit rounded-md text-gray-600 text-sm leading-sm bg-[#FFFFFF] border-[#DDDDDD]",
         infosm:
           "px-2 py-0.5 h-5 w-11.5 rounded-sm text-gray-600 text-xs leading-xs bg-[#FFFFFF] border-[#DDDDDD]",
         stateexp:
@@ -21,7 +21,7 @@ const ChipVariants = cva(
         stateused:
           "py-1.5 h-8 w-19 rounded-2xl text-gray-600 text-sm leading-sm bg-gray-50",
         statedone:
-          "gap-0.5 gradient-border pl-2 pr-3 py-1.5 h-8 w-26 rounded-2xl text-green-600 text-sm leading-sm",
+          "gap-0.5 bg-transparent pl-2 pr-3 py-1.5 h-8 w-26 text-green-600 text-sm leading-sm p-0 w-fit",
       },
     },
     defaultVariants: {

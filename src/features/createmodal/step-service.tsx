@@ -20,7 +20,7 @@ export default function StepService({
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-5">
       <p className="text-sm tracking-[-0.03em] text-gray-700">
         원하시는 서비스를 선택해주세요
       </p>
