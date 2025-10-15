@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/shadcn/dropdown-menu";
 import { CreateGatheringForm } from "@/shared/components/modals/create/types";
-import { LOCATIONS } from "../list/components/category/constants";
+import { LOCATIONS } from "../main/components/category/constants";
 import Image from "next/image";
 
 export default function StepDescription({
