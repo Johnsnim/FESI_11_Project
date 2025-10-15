@@ -7,6 +7,7 @@ import StepService from "@/features/createmodal/step-service";
 import StepDescription from "@/features/createmodal/step-description";
 import StepDate from "@/features/createmodal/step-date";
 import Footer from "@/features/createmodal/footer";
+
 export default function CreateGatheringModal({
   open,
   onOpenChange,
@@ -18,6 +19,7 @@ export default function CreateGatheringModal({
 }) {
   const [step, setStep] = React.useState(0);
   const maxStep = 2;
+
   const [form, setForm] = React.useState<CreateGatheringForm>({
     service: null,
     name: "",
@@ -28,6 +30,7 @@ export default function CreateGatheringModal({
     registrationEnd: null,
     capacity: "",
   });
+
   const canNext =
     step === 0
       ? !!form.service
@@ -36,11 +39,11 @@ export default function CreateGatheringModal({
         : step === 2
           ? !!form.date && !!form.registrationEnd && Number(form.capacity) > 0
           : true;
+
   const next = () => setStep((s) => Math.min(maxStep, s + 1));
   const prev = () => setStep((s) => Math.max(0, s - 1));
-  function close() {
-    onOpenChange(false);
-  }
+  const close = () => onOpenChange(false);
+
   async function handleSubmit() {
     if (!form.service || !form.date || !form.registrationEnd) return;
     try {
@@ -64,6 +67,7 @@ export default function CreateGatheringModal({
       console.error("err >>", e);
     }
   }
+
   return (
     <ModalShell
       open={open}
@@ -71,19 +75,21 @@ export default function CreateGatheringModal({
       title="모임 만들기"
       subtitle={`${step + 1}/3`}
       contentClassName="h-134 w-85.5 md:h-173 md:w-full"
+      footer={
+        <Footer
+          step={step}
+          maxStep={maxStep}
+          canNext={canNext}
+          onPrev={prev}
+          onNext={next}
+          onClose={close}
+          onSubmit={handleSubmit}
+        />
+      }
     >
       {step === 0 && <StepService data={form} onChange={setForm} />}
       {step === 1 && <StepDescription data={form} onChange={setForm} />}
       {step === 2 && <StepDate data={form} onChange={setForm} />}
-      <Footer
-        step={step}
-        maxStep={maxStep}
-        canNext={canNext}
-        onPrev={prev}
-        onNext={next}
-        onClose={close}
-        onSubmit={handleSubmit}
-      />
     </ModalShell>
   );
 }
