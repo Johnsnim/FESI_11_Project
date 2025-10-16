@@ -1,16 +1,24 @@
 import React from "react";
-import Image from "next/image";
+import type { Gathering } from "@/shared/services/gathering/gathering.service";
 
-import type { GatheringDetail } from "../../../app/(public)/detail/[id]/types";
+export default function GatheringImage({ data }: { data: Gathering }) {
+  const hasImage = !!data.image;
 
-export default function GatheringImage({ data }: { data: GatheringDetail }) {
   return (
-    <div className="aspect-auto flex-1 overflow-hidden rounded-2xl md:items-stretch">
-      <img
-        src={data.image || "/placeholder-image.jpg"}
-        alt={data.name}
-        className="h-fit max-h-85 w-full rounded-2xl object-cover"
-      />
+    <div className="relative flex-1 overflow-hidden rounded-2xl bg-[#9DEBCD]">
+      {hasImage ? (
+        <img
+          src={data.image as string}
+          alt={data.name}
+          className="h-full w-full object-cover"
+        />
+      ) : (
+        <img
+          src="/image/img_banner_lg.svg"
+          alt="배너"
+          className="absolute top-16 right-0 max-h-full w-[90%] object-contain"
+        />
+      )}
     </div>
   );
 }

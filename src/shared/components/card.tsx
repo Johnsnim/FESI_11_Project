@@ -95,8 +95,9 @@ export default function Card({
         onClick={handleJoin}
         aria-disabled={isClosed}
         className={[
-          "relative flex h-39 w-full items-center justify-center rounded-t-3xl bg-[#EDEDED] md:aspect-square md:size-45 md:shrink-0 md:rounded-3xl md:rounded-l-3xl",
-          !isClosed ? "cursor-pointer" : "cursor-default",
+          "relative flex h-39 w-full items-center justify-center rounded-t-3xl md:aspect-square md:size-45 md:shrink-0 md:rounded-3xl md:rounded-l-3xl",
+          image ? "bg-[#EDEDED]" : "bg-[#9DEBCD]",
+          isClosed ? "cursor-default" : "cursor-pointer",
         ].join(" ")}
       >
         {image ? (
@@ -106,7 +107,11 @@ export default function Card({
             className="h-full w-full rounded-t-3xl object-cover md:rounded-3xl md:rounded-l-3xl"
           />
         ) : (
-          "이미지 들어갈 자리"
+          <img
+            src="/image/img_banner_lg.svg"
+            alt="배너"
+            className="absolute right-0 bottom-0 max-h-full w-[90%] object-contain"
+          />
         )}
 
         {isClosed && (
