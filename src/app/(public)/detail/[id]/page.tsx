@@ -1,18 +1,27 @@
 "use client";
 
 import * as React from "react";
-import { useParams, useRouter } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
+import { useParams } from "next/navigation";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+
+import {
+  gatheringService,
+  type Gathering,
+  type GatheringParticipant,
+  type JoinedGathering,
+} from "@/shared/services/gathering/gathering.service";
 import { reviewService } from "@/shared/services/review/review.service";
-import { detailService } from "@/shared/services/detail/detail.service";
 
-import type { GatheringDetail, ReviewResponse } from "./types";
-import GatheringImage from "../../../../features/detail/components/gatheringimage";
-import GatheringInfo from "../../../../features/detail/components/gatheringinfo";
-import Participants from "../../../../features/detail/components/participants";
-import ReviewList from "../../../../features/detail/components/reviewlist";
+import type { ReviewResponse } from "./types";
 
-function formatDateDots(iso: string) {
+// ✅ 누락된 경우 반드시 import
+import GatheringImage from "@/features/detail/components/gatheringimage";
+import GatheringInfo from "@/features/detail/components/gatheringinfo";
+import Participants from "@/features/detail/components/participants";
+import ReviewList from "@/features/detail/components/reviewlist";
+
+function formatDateDots(iso: string | null | undefined) {
+  if (!iso) return "-";
   const d = new Date(iso);
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, "0");
@@ -21,16 +30,61 @@ function formatDateDots(iso: string) {
 }
 
 export default function DetailPage() {
-  const router = useRouter();
   const params = useParams<{ id: string }>();
   const idNum = Number(params?.id);
+  const qc = useQueryClient();
 
-  const { data, isLoading, isError, error, refetch } =
-    useQuery<GatheringDetail>({
-      queryKey: ["gathering-detail", idNum],
-      queryFn: () => detailService.get(idNum),
-      enabled: Number.isFinite(idNum),
-    });
+  const { data, isLoading, isError, error, refetch } = useQuery<Gathering>({
+    queryKey: ["gathering-detail", idNum],
+    queryFn: () => gatheringService.get(idNum),
+    enabled: Number.isFinite(idNum),
+    retry: false,
+  });
+
+  const { data: participants = [], isLoading: pLoading } = useQuery<
+    GatheringParticipant[]
+  >({
+    queryKey: ["gathering-participants", idNum],
+    queryFn: () =>
+      gatheringService.participants(idNum, {
+        limit: 10,
+        offset: 0,
+        sortBy: "joinedAt",
+        sortOrder: "desc",
+      }),
+    enabled: Number.isFinite(idNum),
+  });
+
+  const { data: myJoined = [] } = useQuery<JoinedGathering[]>({
+    queryKey: ["my-joined-list"],
+    queryFn: () =>
+      gatheringService.joinedList({
+        limit: 100,
+        offset: 0,
+      }),
+    staleTime: 30_000,
+    refetchOnWindowFocus: false,
+  });
+
+  const isJoined = !!myJoined.find((g) => g.id === idNum);
+
+  const { mutate: join, isPending: joining } = useMutation({
+    mutationFn: () => gatheringService.join(idNum),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["gathering-detail", idNum] });
+      qc.invalidateQueries({ queryKey: ["gathering-participants", idNum] });
+      qc.invalidateQueries({ queryKey: ["my-joined-list"] });
+    },
+  });
+
+  const { mutate: leave, isPending: leaving } = useMutation({
+    mutationFn: () => gatheringService.leave(idNum),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["gathering-detail", idNum] });
+      qc.invalidateQueries({ queryKey: ["gathering-participants", idNum] });
+      qc.invalidateQueries({ queryKey: ["my-joined-list"] });
+    },
+  });
 
   const [page, setPage] = React.useState(1);
   const LIMIT = 10;
@@ -80,11 +134,22 @@ export default function DetailPage() {
 
       {data && (
         <>
-          <section className="flex flex-col gap-6 md:w-full md:flex-row">
+          <section className="md:w/full flex flex-col gap-6 md:flex-row">
             <GatheringImage data={data} />
             <div className="flex-1">
-              <GatheringInfo data={data} />
-              <Participants data={data} />
+              <GatheringInfo
+                data={data}
+                isJoined={isJoined}
+                onJoin={() => join()}
+                onLeave={() => leave()}
+                joining={joining}
+                leaving={leaving}
+              />
+              <Participants
+                data={data}
+                participants={participants}
+                loading={pLoading}
+              />
             </div>
           </section>
 

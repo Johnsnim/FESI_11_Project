@@ -1,17 +1,5 @@
-export type GatheringDetail = {
-  teamId: number;
-  id: number;
-  type: string;
-  name: string;
-  dateTime: string;
-  registrationEnd: string;
-  location: string;
-  participantCount: number;
-  capacity: number;
-  image: string;
-  createdBy: number;
-  canceledAt: string | null;
-};
+import type { Gathering } from "@/shared/services/gathering/gathering.service";
+export type GatheringDetail = Gathering;
 
 export type ReviewItem = {
   teamId: number;

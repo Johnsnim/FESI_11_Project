@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { CreateGatheringForm, ServiceType } from "./types";
+import type { CreateGatheringForm, ServiceType } from "../types";
 
 export const createGatheringSchema = z
   .object({
