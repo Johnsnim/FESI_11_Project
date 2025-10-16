@@ -9,7 +9,7 @@ export default function GatheringImage({ data }: { data: GatheringDetail }) {
       <img
         src={data.image || "/placeholder-image.jpg"}
         alt={data.name}
-        className="h-fit max-h-85 w-full object-cover"
+        className="h-fit max-h-85 w-full rounded-2xl object-cover"
       />
     </div>
   );

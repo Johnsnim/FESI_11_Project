@@ -1,19 +1,16 @@
 "use client";
 
 import * as React from "react";
-import type {
-  Gathering,
-  GatheringParticipant,
+import Image from "next/image";
+import { useQuery } from "@tanstack/react-query";
+import {
+  gatheringService,
+  type Gathering,
 } from "@/shared/services/gathering/gathering.service";
 
-type Props = {
-  data: Gathering;
-  participants?: GatheringParticipant[];
-  loading?: boolean;
-};
-
-function Initials({ name }: { name: string }) {
-  const text = name?.trim() || "";
+// 유저 이미지 없을 때 그냥 닉네임 첫글자 이니셜 따서 보여주는 로직
+function InitialsBubble({ name }: { name: string }) {
+  const text = (name ?? "").trim();
   const initials =
     text.length === 0
       ? "?"
@@ -24,99 +21,99 @@ function Initials({ name }: { name: string }) {
           .join("")
           .toUpperCase();
   return (
-    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-200 text-xs font-semibold text-slate-600 ring-2 ring-white">
+    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-zinc-200 text-[10px] font-semibold text-slate-600 ring-1 ring-slate-300">
       {initials}
     </div>
   );
 }
 
-export default function Participants({
-  data,
-  participants = [],
-  loading = false,
-}: Props) {
-  const { participantCount, capacity } = data;
-  const percent =
-    capacity > 0
-      ? Math.min(100, Math.round((participantCount / capacity) * 100))
+export default function Participants({ data }: { data: Gathering }) {
+  const ratioPct =
+    data.capacity > 0
+      ? Math.round((data.participantCount / data.capacity) * 100)
       : 0;
 
-  const maxAvatars = 8;
-  const visible = participants.slice(0, maxAvatars);
-  const extra = Math.max(0, participantCount - visible.length);
+  const { data: participants = [], isLoading } = useQuery({
+    queryKey: ["gathering", "participants", data.id],
+    queryFn: () =>
+      gatheringService.participants(data.id, {
+        limit: 12,
+        sortBy: "joinedAt",
+        sortOrder: "desc",
+      }),
+    staleTime: 30_000,
+  });
+
+  const visible = participants.slice(0, 4);
+
+  // 보여주는 프로필 이미지 외에 추가 참여자 수 계산
+  const extra = Math.max(0, data.participantCount - visible.length);
 
   return (
-    <div className="mt-4 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-zinc-100">
-      <div className="flex items-center justify-between">
-        <h2 className="text-base font-semibold text-gray-800">참여자</h2>
-        <span className="text-sm font-medium text-gray-600 tabular-nums">
-          <span className="text-green-600">{participantCount}</span>/{capacity}
-        </span>
-      </div>
+    <div className="mt-5 rounded-xl bg-gradient-to-r from-[#DEF8EA] to-[#e5f9f8] p-5">
+      <div className="mb-3 flex items-center justify-between text-sm">
+        <div className="flex flex-row items-center gap-2">
+          <p className="font-medium">
+            <span className="font-medium text-emerald-700">
+              {data.participantCount}
+            </span>
+            명 참여
+          </p>
 
-      {/* 아바타 리스트 */}
-      <div className="mt-3">
-        {loading ? (
           <div className="flex -space-x-2">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div
-                key={i}
-                className="h-9 w-9 animate-pulse rounded-full bg-zinc-200 ring-2 ring-white"
-              />
-            ))}
+            {isLoading ? (
+              Array.from({ length: 4 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="h-7 w-7 animate-pulse rounded-full bg-zinc-200 ring-2 ring-white"
+                />
+              ))
+            ) : (
+              <>
+                {visible.map((p) => {
+                  const key = `${p.userId}-${p.joinedAt}`;
+                  const img = p.User.image;
+                  const name = p.User.name || p.User.email || "참여자";
+                  return img ? (
+                    <Image
+                      key={key}
+                      src={img}
+                      alt={name}
+                      width={28}
+                      height={28}
+                      unoptimized
+                      className="h-7 w-7 rounded-full object-cover ring-white"
+                    />
+                  ) : (
+                    <InitialsBubble key={key} name={name} />
+                  );
+                })}
+                {extra > 0 && (
+                  <div className="flex h-7 w-7 items-center justify-center rounded-full bg-zinc-200 text-xs font-medium ring-2 ring-white">
+                    +{extra}
+                  </div>
+                )}
+              </>
+            )}
           </div>
-        ) : participantCount === 0 ? (
-          <p className="text-sm text-gray-500">아직 참여자가 없어요.</p>
-        ) : (
-          <div className="flex items-center gap-2">
-            <div className="flex -space-x-2">
-              {visible.map((p) => {
-                const img = p.User.image;
-                const name = p.User.name || p.User.email || "참여자";
-                return img ? (
-                  <img
-                    key={`${p.userId}-${p.joinedAt}`}
-                    src={img}
-                    alt={name}
-                    className="h-9 w-9 rounded-full object-cover ring-2 ring-white"
-                  />
-                ) : (
-                  <Initials key={`${p.userId}-${p.joinedAt}`} name={name} />
-                );
-              })}
-              {extra > 0 && (
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-xs font-semibold text-slate-600 ring-2 ring-white">
-                  +{extra}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
+        </div>
+
+        <div className="flex flex-row">
+          <img src="/image/ic_check_sm.svg" alt="check" />
+          <p className="font-medium text-green-600">개설확정</p>
+        </div>
       </div>
 
-      {/* 진행 바 */}
-      <div className="mt-4 flex w-full items-center">
-        <svg
-          className="mr-2 h-5 w-5 shrink-0 text-slate-600"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={1.8}
-          aria-hidden="true"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z
-               M4.5 20.25a8.25 8.25 0 1 1 15 0v.75H4.5v-.75Z"
-          />
-        </svg>
-        <div className="relative h-2 min-w-0 flex-1 overflow-hidden rounded-full bg-gray-200">
-          <div
-            className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 transition-[width] duration-700"
-            style={{ width: `${percent}%` }}
-          />
-        </div>
+      <div className="mt-4 mb-2 flex items-center justify-between text-xs text-gray-500">
+        <span>최소 {data.capacity}명</span>
+        <span>최대 {data.capacity}명</span>
+      </div>
+
+      <div className="p-0.1 w-full rounded-full bg-[#DAE4E0]">
+        <div
+          className="h-2 rounded-full bg-gradient-to-r from-[#17DA71] to-[#08DDF0] transition-[width]"
+          style={{ width: `${ratioPct}%` }}
+        />
       </div>
     </div>
   );
