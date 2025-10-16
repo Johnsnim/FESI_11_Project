@@ -1,11 +1,34 @@
+"use client";
+
 import React, { useMemo } from "react";
+import { useSession } from "next-auth/react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Tag } from "@/shared/components/tag";
 import { Chip } from "@/shared/components/chip";
+import { gatheringService } from "@/shared/services/gathering/gathering.service";
+import type { Gathering } from "@/shared/services/gathering/gathering.service";
 
-import Image from "next/image";
-import type { GatheringDetail } from "../../../app/(public)/detail/[id]/types";
+type Props = {
+  data: Gathering;
+  isJoined: boolean;
+  onJoin: () => void;
+  onLeave: () => void;
+  joining?: boolean;
+  leaving?: boolean;
+};
 
-export default function GatheringInfo({ data }: { data: GatheringDetail }) {
+export default function GatheringInfo({
+  data,
+  isJoined,
+  onJoin,
+  onLeave,
+  joining = false,
+  leaving = false,
+}: Props) {
+  const { data: session } = useSession();
+  const myId = Number((session?.user as any)?.id);
+  const isMadeByMe = Number.isFinite(myId) && data.createdBy === myId;
+
   const { dateLabel, timeLabel, tagText, joinDisabled } = useMemo(() => {
     const start = new Date(data.dateTime);
     const dateLabel = `${start.getMonth() + 1}월 ${start.getDate()}일`;
@@ -44,6 +67,35 @@ export default function GatheringInfo({ data }: { data: GatheringDetail }) {
     return { dateLabel, timeLabel, tagText, joinDisabled };
   }, [data]);
 
+  const queryClient = useQueryClient();
+  const [canceling, setCanceling] = React.useState(false);
+
+  async function handleCancel() {
+    if (canceling) return;
+    const ok = window.confirm(
+      "정말로 이 모임을 취소하시겠어요? 취소 후에는 되돌릴 수 없어요.",
+    );
+    if (!ok) return;
+
+    try {
+      setCanceling(true);
+      await gatheringService.cancel(data.id);
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ["gathering-detail", data.id],
+        }),
+        queryClient.invalidateQueries({ queryKey: ["gathering-list"] }),
+        queryClient.invalidateQueries({ queryKey: ["joined-list"] }),
+      ]);
+    } catch (e: any) {
+      const msg =
+        e?.response?.data?.message || e?.message || "모임 취소에 실패했습니다.";
+      alert(msg);
+    } finally {
+      setCanceling(false);
+    }
+  }
+
   return (
     <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-zinc-100">
       <div className="mb-3 flex flex-wrap items-center gap-2">
@@ -71,16 +123,47 @@ export default function GatheringInfo({ data }: { data: GatheringDetail }) {
           />
         </div>
 
-        <button
-          disabled={joinDisabled}
-          className={`ml-auto inline-flex h-10 w-66 items-center justify-center rounded-xl px-5 text-white ${
-            joinDisabled
-              ? "cursor-not-allowed bg-zinc-300"
-              : "bg-emerald-500 hover:bg-emerald-600"
-          }`}
-        >
-          참여하기
-        </button>
+        {isMadeByMe ? (
+          <div className="flex h-full w-full gap-2 pl-2">
+            <button
+              disabled={joinDisabled || canceling}
+              onClick={handleCancel}
+              className="inline-flex h-11 w-full cursor-pointer items-center justify-center rounded-xl border border-slate-200 bg-transparent px-5 text-slate-600 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {canceling ? "취소 중..." : "취소하기"}
+            </button>
+            <button
+              disabled={joinDisabled}
+              className={`inline-flex h-11 w-full items-center justify-center rounded-xl px-5 text-white ${
+                joinDisabled
+                  ? "cursor-not-allowed bg-zinc-300"
+                  : "bg-emerald-500 hover:bg-emerald-600"
+              }`}
+            >
+              공유하기
+            </button>
+          </div>
+        ) : isJoined ? (
+          <button
+            disabled={leaving}
+            onClick={onLeave}
+            className="ml-4 inline-flex h-11 w-full cursor-pointer items-center justify-center rounded-xl border border-green-500 bg-transparent px-5 font-semibold text-green-500 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {leaving ? "취소 중..." : "참여 취소하기"}
+          </button>
+        ) : (
+          <button
+            disabled={joinDisabled || joining}
+            onClick={onJoin}
+            className={`ml-4 inline-flex h-11 w-full cursor-pointer items-center justify-center rounded-xl px-5 text-white ${
+              joinDisabled || joining
+                ? "cursor-not-allowed bg-zinc-300"
+                : "bg-green-500 hover:bg-green-600"
+            }`}
+          >
+            {joining ? "참여 중..." : "참여하기"}
+          </button>
+        )}
       </div>
     </div>
   );
