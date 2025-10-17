@@ -1,5 +1,4 @@
 "use client";
-import { ButtonPlus } from "@/shared/components/btnPlus";
 
 import { useState } from "react";
 import { CreateGatheringModal } from "@/shared/components/modals";
@@ -10,6 +9,7 @@ import RatingModal from "@/features/ratingmodal";
 import { RatingModalForm } from "@/features/ratingmodal/types";
 import Banner from "@/features/main/components/banner";
 import Category from "@/features/main/components/category";
+import ButtonPlus from "@/shared/components/btnPlus";
 
 const defaults: ProfileModalForm = {
   name: "홍길동",

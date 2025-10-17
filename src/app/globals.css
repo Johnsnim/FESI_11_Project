@@ -210,3 +210,36 @@
     -webkit-mask-composite: xor;
   }
 }
+
+/* 모달 안에서 쓸 얇은 스크롤바 */
+
+/*파이어폭스 css*/
+.scroll-modal {
+  scrollbar-width: thin;
+  scrollbar-color: #d9d9d9 transparent;
+}
+
+/* 크롬, 엣지, 사파리 */
+.scroll-modal::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scroll-modal::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scroll-modal::-webkit-scrollbar-thumb {
+  background-color: #d9d9d9;
+  border-radius: 9999px;
+}
+
+.scroll-modal::-webkit-scrollbar-thumb:hover {
+  background-color: #bfbfbf;
+}
+
+.scroll-modal::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
