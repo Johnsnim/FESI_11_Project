@@ -126,7 +126,7 @@ export default function Card({
         )}
       </div>
 
-      <div className="w-full rounded-b-3xl bg-white p-4 md:min-w-0 md:flex-1 md:rounded-r-3xl md:rounded-bl-none md:pt-0 md:pr-0 md:pb-0">
+      <div className="h-full w-full rounded-b-3xl pl-4 md:min-w-0 md:flex-1 md:rounded-r-3xl md:rounded-bl-none md:pt-0 md:pr-0 md:pb-0">
         <div className="flex flex-row justify-between">
           <div className="flex flex-col">
             <div
