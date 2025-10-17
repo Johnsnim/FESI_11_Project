@@ -163,9 +163,9 @@ export default function Card({
             </div>
           </div>
 
-          <div className="flex h-12 w-12 items-center justify-center rounded-full border-1 border-gray-100">
+          <div className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border-1 border-gray-100 transition-colors duration-200 hover:bg-gray-50">
             <img
-              src="/image/ic_heart_empty.svg"
+              src="/image/ic_heart.svg"
               alt="heart button"
               className="h-6 w-6"
             />
@@ -228,9 +228,10 @@ export default function Card({
             aria-disabled={isClosed}
             className={[
               "hidden rounded-2xl px-6 py-2.5 font-semibold whitespace-nowrap md:block md:self-end",
+              "transition-colors duration-200",
               isClosed
                 ? "cursor-not-allowed border-0 bg-slate-100 text-slate-500"
-                : "cursor-pointer border-1 border-green-500 text-green-500",
+                : "cursor-pointer border-1 border-green-500 text-green-500 hover:bg-green-100",
             ].join(" ")}
           >
             참여하기
