@@ -124,3 +124,22 @@ export async function getJoinedGatherings(
 
   return data;
 }
+
+export async function leaveGathering(accessToken: string, gatheringId: number) {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/${TEAM_ID}/gatherings/${gatheringId}/leave`,
+    {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  );
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err?.message || "모임 취소 실패");
+  }
+
+  return res.json();
+}

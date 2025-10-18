@@ -1,5 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
-import { getJoinedGatherings } from "./gathering.service";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { getJoinedGatherings, leaveGathering } from "./gathering.service";
 import { useSession } from "next-auth/react";
 import type { JoinedGatheringsParams } from "./gathering.service";
 
@@ -21,5 +21,24 @@ export function useJoinedGatheringsQuery(params?: JoinedGatheringsParams) {
     enabled: !!accessToken,
     retry: false,
     staleTime: 1000 * 60 * 5,
+  });
+}
+
+export function useLeaveGatheringMutation() {
+  const queryClient = useQueryClient();
+  const { data: session } = useSession();
+  const accessToken = session?.accessToken;
+
+  return useMutation({
+    mutationFn: (gatheringId: number) => leaveGathering(accessToken!, gatheringId),
+    onSuccess: async () => {
+      // 참여 목록 최신화
+      await queryClient.invalidateQueries({ queryKey: gatheringKeys.joined() });
+      alert("모임 참여가 취소되었습니다.");
+    },
+    onError: (error: unknown) => {
+      console.error(error);
+      alert(error instanceof Error ? error.message : "모임 취소 중 오류 발생");
+    },
   });
 }
