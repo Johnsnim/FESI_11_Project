@@ -1,5 +1,6 @@
 "use client";
 
+import { CreatedGatherings } from "@/features/mypage/components/created-Gatherings";
 import Info from "@/features/mypage/components/info";
 import JoinedGatherings from "@/features/mypage/components/Joined-Gatherings";
 import MyPageTabs, { TabItem } from "@/features/mypage/components/mypage-tabs";
@@ -13,6 +14,7 @@ import {
   useUserQuery,
 } from "@/shared/services/auth/use-auth-queries";
 import {
+  useCreatedGatheringsQuery,
   useJoinedGatheringsQuery,
   useLeaveGatheringMutation,
 } from "@/shared/services/gathering/use-gathering-queries";
@@ -31,6 +33,9 @@ function MyPageContent() {
 
   const { data: joinedGatherings, isLoading: isJoinedLoading } =
     useJoinedGatheringsQuery();
+
+  const { data: createdGatherings, isLoading: isCreatedLoading } =
+    useCreatedGatheringsQuery();
 
   //훅폼 , 모달 훅
   const form = useForm<EditUserFormValues>({
@@ -109,7 +114,13 @@ function MyPageContent() {
             />
           )}
           {currentTab === "reviews" && <div />}
-          {currentTab === "created" && <div />}
+          {currentTab === "created" && (
+            <CreatedGatherings
+              data={createdGatherings}
+              isLoading={isCreatedLoading}
+              gotoDetailPage={GotoDetailPage}
+            />
+          )}
         </div>
       </div>
       <UserEditModal
