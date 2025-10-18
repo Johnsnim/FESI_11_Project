@@ -62,6 +62,10 @@ function MyPageContent() {
     }
   };
 
+  const GotoDetailPage = (id: number) => {
+    router.push(`/detail/${id}`);
+  };
+
   //탭 훅
   const currentTab = searchParams.get("tab") ?? "meetings";
 
@@ -101,6 +105,7 @@ function MyPageContent() {
               data={joinedGatherings}
               isLoading={isJoinedLoading}
               onCancel={handleCancelGathering}
+              gotoDetailPage={GotoDetailPage}
             />
           )}
           {currentTab === "reviews" && <div />}

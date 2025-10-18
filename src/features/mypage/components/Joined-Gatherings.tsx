@@ -9,19 +9,28 @@ export interface JoinedGatheringsProps {
   isLoading?: boolean;
   onCancel?: (gatheringId: number) => void;
   onWriteReview?: (gatheringId: number) => void;
+  gotoDetailPage?: (gatheringId: number) => void;
 }
 
 export default function JoinedGatherings({
   data,
   isLoading,
+  gotoDetailPage,
   onCancel,
 }: JoinedGatheringsProps) {
   if (isLoading) return <div>롸딩중..</div>;
   if (!data || data.length === 0)
     return (
-      <div className="flex flex-col items-center justify-center w-full my-[180px] md:my-[216px] gap-0.5">
-        <Image src={"/image/img_empty.svg"} alt="empty_image" width={171} height={136}/>
-        <p className="text-lg font-semibold text-[#a4a4a4]">아직 신청한 모임이 없어요.</p>
+      <div className="my-[180px] flex w-full flex-col items-center justify-center gap-0.5 md:my-[216px]">
+        <Image
+          src={"/image/img_empty.svg"}
+          alt="empty_image"
+          width={171}
+          height={136}
+        />
+        <p className="text-lg font-semibold text-[#a4a4a4]">
+          아직 신청한 모임이 없어요.
+        </p>
       </div>
     );
 
@@ -72,11 +81,18 @@ export default function JoinedGatherings({
     onCancel?: (id: number) => void,
     onWriteReview?: (id: number) => void,
   ) => {
+    const stopPropagation = (e: React.MouseEvent) => {
+      e.stopPropagation();
+    };
+
     if (!g.isCompleted) {
       // 이용 전 → 예약취소 버튼
       return (
         <Button
-          onClick={() => onCancel?.(g.id)}
+          onClick={(e) => {
+            stopPropagation(e); // 카드 클릭 이벤트 막기
+            onCancel?.(g.id);
+          }}
           className="h-11 cursor-pointer rounded-2xl border border-green-500 bg-white px-6 py-2.5 text-base font-semibold text-[#54C591] hover:bg-green-50 md:h-12 md:px-[17.5px] md:py-3 lg:px-[35.5px]"
         >
           예약 취소하기
@@ -103,14 +119,15 @@ export default function JoinedGatherings({
       {data.map((g) => (
         <li
           key={g.id}
-          className="flex flex-col overflow-hidden rounded-3xl border bg-white md:flex-row md:items-center md:gap-4 md:p-6"
+          onClick={() => gotoDetailPage?.(g.id)}
+          className="flex cursor-pointer flex-col overflow-hidden rounded-3xl border bg-white transition hover:bg-[#ececec] md:flex-row md:items-center md:gap-4 md:p-6"
         >
           <Image
             src={g.image}
             alt={g.name}
             width={100}
             height={100}
-            className="h-full w-full border-none sm:max-h-44 md:max-h-47 md:w-47 md:rounded-3xl md:border md:border-[#ededed]"
+            className="h-full w-full border-none sm:max-h-44 md:h-47 md:w-47 md:rounded-3xl md:border md:border-[#ededed]"
           />
 
           <div className="px-4 pt-4 pb-4.5 md:flex-1 md:px-0 md:pt-0 md:pb-0">
