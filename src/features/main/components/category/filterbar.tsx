@@ -32,7 +32,7 @@ export default function FiltersBar({
   setDate: (d: Date | null) => void;
 }) {
   return (
-    <div className="mb-3 md:flex md:flex-row md:justify-between">
+    <div className="mx-4 mb-3 md:mx-0 md:flex md:flex-row md:justify-between">
       <div className="mb-2 flex flex-row gap-2 md:mb-0">
         <Chip
           onClick={() => setDalCategory("전체")}
@@ -64,7 +64,7 @@ export default function FiltersBar({
             <button className="flex cursor-pointer items-center px-2 py-2 text-sm font-medium text-gray-500">
               {regionLabel}
               <img
-                src="/image/ic_arrow_dropdown_down.svg"
+                src="/image/ic_arrow.svg"
                 sizes="100vw"
                 alt="dropdown icon"
               />
@@ -91,12 +91,12 @@ export default function FiltersBar({
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="flex cursor-pointer items-center px-2 py-2 text-sm font-medium text-gray-500">
-              {sortLabel}
               <img
                 src="/image/ic_filter.svg"
                 alt="filter icon"
-                className="pl-1"
+                className="h-4.5 w-4.5 pr-1"
               />
+              {sortLabel}
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-35.5 rounded-lg p-1.5 shadow-sm">

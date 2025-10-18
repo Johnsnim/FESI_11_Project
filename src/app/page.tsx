@@ -1,28 +1,44 @@
-import Image from "next/image";
-import { AlertBadge } from "@/shared/components/badge";
-import { Chip } from "@/shared/components/chip";
-import { Tag } from "@/shared/components/tag";
+"use client";
 
-export default function Home() {
+import { useState } from "react";
+import { CreateGatheringModal } from "@/shared/components/modals";
+import ProfileModal from "@/features/profilemodal";
+
+import { ProfileModalForm } from "@/features/profilemodal/types";
+import RatingModal from "@/features/ratingmodal";
+import { RatingModalForm } from "@/features/ratingmodal/types";
+import Banner from "@/features/main/components/banner";
+import Category from "@/features/main/components/category";
+import ButtonPlus from "@/shared/components/btnPlus";
+
+const defaults: ProfileModalForm = {
+  name: "홍길동",
+  companyName: "사명",
+  email: "test@naver.com",
+  imageFile: null,
+  imagePreviewUrl: null,
+};
+
+export default function ListPage() {
+  const [modalOpen, setModalOpen] = useState(false);
+
   return (
-    <div className="flex flex-col items-center">
-      <p className="font-tenada pt-4 text-5xl font-extrabold text-green-800">
-        반갑습니다
-      </p>
-      <p className="font-sans text-6xl font-bold text-blue-400">세준님</p>
-      <p className="text-6xl font-bold text-green-500">다연님</p>
-      <AlertBadge>1</AlertBadge>
-      <AlertBadge variant="sm">1</AlertBadge>
-      <Chip>전체</Chip>
-      <Chip variant="light">전체</Chip>
-      <Chip variant="infomd">17:30</Chip>
-      <Chip variant="infosm">17:30</Chip>
-      <Chip variant="stateexp">이용 예정</Chip>
-      <Chip variant="statewait">개설대기</Chip>
-      <Chip variant="stateused">이용 완료</Chip>
-      <Chip variant="statedone" icon="/image/ic_check_md.svg">개설확정</Chip>
-      <Tag variant="md" icon="/image/ic_alarm.svg">오늘 21시 마감</Tag>
-      <Tag variant="sm" icon="/image/ic_alarm.svg">오늘 21시 마감</Tag>
+    <div className="absolute overflow-x-hidden">
+      <Banner
+        subtitle="함께할 사람을 찾고 계신가요?"
+        title="지금 모임에 참여해보세요"
+      />
+
+      <Category />
+      <ButtonPlus onClick={() => setModalOpen(true)} aria-label="모임 만들기" />
+
+      <CreateGatheringModal
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        onComplete={(data) => {
+          console.log("모임 생성 데이터", data);
+        }}
+      />
     </div>
   );
 }
