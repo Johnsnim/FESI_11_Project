@@ -4,6 +4,7 @@ import { CreatedGatherings } from "@/features/mypage/components/created-Gatherin
 import Info from "@/features/mypage/components/info";
 import JoinedGatherings from "@/features/mypage/components/Joined-Gatherings";
 import MyPageTabs, { TabItem } from "@/features/mypage/components/mypage-tabs";
+import MyReviews from "@/features/mypage/components/myreviews";
 import UserEditModal from "@/features/mypage/components/user-edit-modal";
 import {
   EditUserFormValues,
@@ -18,6 +19,7 @@ import {
   useJoinedGatheringsQuery,
   useLeaveGatheringMutation,
 } from "@/shared/services/gathering/use-gathering-queries";
+import { useMyReviewsQuery } from "@/shared/services/review/user-review-queries";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
@@ -36,6 +38,14 @@ function MyPageContent() {
 
   const { data: createdGatherings, isLoading: isCreatedLoading } =
     useCreatedGatheringsQuery();
+
+  const { data: myReviews, isLoading: isReviewsLoading } = useMyReviewsQuery({
+    limit: 10,
+    offset: 0,
+    sortBy: "createdAt",
+    sortOrder: "desc",
+  });
+
 
   //훅폼 , 모달 훅
   const form = useForm<EditUserFormValues>({
@@ -113,7 +123,9 @@ function MyPageContent() {
               gotoDetailPage={GotoDetailPage}
             />
           )}
-          {currentTab === "reviews" && <div />}
+          {currentTab === "reviews" && (
+            <MyReviews data={myReviews} isLoading={isReviewsLoading} />
+          )}
           {currentTab === "created" && (
             <CreatedGatherings
               data={createdGatherings}
