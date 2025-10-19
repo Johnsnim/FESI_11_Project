@@ -97,7 +97,11 @@ export default function Category() {
   }
 
   return (
-    <Tabs value={value} onValueChange={(v) => setValue(v as "dal" | "wor")}>
+    <Tabs
+      value={value}
+      onValueChange={(v) => setValue(v as "dal" | "wor")}
+      className="mb-7"
+    >
       <TabsBar value={value} onChange={(v) => setValue(v)} />
 
       {/* 달램핏 */}

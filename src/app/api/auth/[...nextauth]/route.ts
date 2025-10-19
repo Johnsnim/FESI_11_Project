@@ -26,7 +26,6 @@ const handler = NextAuth({
       async authorize(credentials) {
         if (!credentials?.email || !credentials.password) return null;
 
-        // 1) 로그인 요청
         const signinRes = await fetch(
           `${process.env.NEXT_PUBLIC_API_BASE_URL}/${process.env.NEXT_PUBLIC_TEAM_ID}/auths/signin`,
           {
@@ -55,7 +54,6 @@ const handler = NextAuth({
           throw new Error("NO_TOKEN");
         }
 
-        // 2) 토큰으로 내 정보 조회
         const meRes = await fetch(
           `${process.env.NEXT_PUBLIC_API_BASE_URL}/${process.env.NEXT_PUBLIC_TEAM_ID}/auths/user`,
           {
@@ -68,7 +66,6 @@ const handler = NextAuth({
 
         const me = (await meRes.json()) as MeResponse;
 
-        // NextAuth로 넘길 유저 객체 (확장된 User 타입)
         const user: User = {
           id: me.id,
           email: me.email,
@@ -85,24 +82,37 @@ const handler = NextAuth({
 
   callbacks: {
     async jwt({ token, user }) {
-      // authorize 직후에는 user가 존재
       if (user) {
-        // user는 우리가 확장한 User 타입
+        const expiresAt = Math.floor(Date.now() / 1000) + 60 * 60;
+        
         token.accessToken = user.accessToken;
         token.id = user.id;
         token.email = user.email ?? undefined;
         token.name = user.name ?? undefined;
         token.companyName = user.companyName;
         token.image = user.image ?? undefined;
+        token.expiresAt = expiresAt;
       }
+
+      // 토큰 만료 체크
+      const now = Math.floor(Date.now() / 1000);
+      if (token.expiresAt && now >= token.expiresAt) {
+        // 토큰 만료 시 에러를 던져서 세션 무효화
+        throw new Error("TOKEN_EXPIRED");
+      }
+
       return token;
     },
 
     async session({ session, token }) {
+      if (!token.accessToken) {
+        throw new Error("TOKEN_EXPIRED");
+      }
+
       session.accessToken = token.accessToken;
       session.user = {
         ...session.user,
-        id: token.id,
+        id: token.id!,
         email: token.email ?? null,
         name: token.name ?? null,
         companyName: token.companyName,
@@ -110,6 +120,23 @@ const handler = NextAuth({
       };
       return session;
     },
+  },
+
+  session: {
+    strategy: "jwt",
+    maxAge: 60 * 60,
+  },
+
+  events: {
+    // 토큰 만료 시 자동 로그아웃 처리
+    async signOut() {
+      // 추가 정리 작업이 필요하면 여기서 수행
+    },
+  },
+
+  pages: {
+    signIn: "/login", // 로그인 페이지 경로
+    error: "/login", // 에러 발생 시 리다이렉트
   },
 
   secret: process.env.NEXTAUTH_SECRET,
