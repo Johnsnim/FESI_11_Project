@@ -39,7 +39,7 @@ export function CreatedGatherings({
           className="flex cursor-pointer flex-col overflow-hidden rounded-3xl border bg-white transition hover:bg-[#ececec] md:flex-row md:items-center md:gap-4 md:p-6"
         >
           <Image
-            src={g.image ?? "/image/default.svg"}
+            src={g.image ?? "/image/img_empty.svg"}
             alt={g.name}
             width={100}
             height={100}
