@@ -135,5 +135,91 @@ export class GatheringService {
 
 export const gatheringService = new GatheringService();
 
-/* 필요 시 그대로 유지 */
+export type ALLGATHERINGTYPES =
+  | "DALLAEMFIT"
+  | "OFFICE_STRETCHING"
+  | "MINDFULNESS"
+  | "WORKATION";
+
+export interface JoinedGathering {
+  teamId: number;
+  id: number;
+  type: ALLGATHERINGTYPES;
+  name: string;
+  dateTime: string;
+  registrationEnd: string;
+  location: string;
+  participantCount: number;
+  capacity: number;
+  image: string;
+  createdBy: number;
+  canceledAt: string | null;
+  joinedAt: string;
+  isCompleted: boolean;
+  isReviewed: boolean;
+}
+
+export interface JoinedGatheringsParams {
+  completed?: boolean;
+  reviewed?: boolean;
+  limit?: number;
+  offset?: number;
+  sortBy?: "dateTime" | "registrationEnd" | "joinedAt";
+  sortOrder?: "asc" | "desc";
+}
+export async function getJoinedGatherings(
+  accessToken: string,
+  params?: JoinedGatheringsParams,
+): Promise<JoinedGathering[]> {
+  const searchParams = new URLSearchParams();
+
+  if (params?.completed !== undefined) {
+    searchParams.append("completed", String(params.completed));
+  }
+  if (params?.reviewed !== undefined) {
+    searchParams.append("reviewed", String(params.reviewed));
+  }
+  if (params?.limit !== undefined) {
+    searchParams.append("limit", String(params.limit));
+  }
+  if (params?.offset !== undefined) {
+    searchParams.append("offset", String(params.offset));
+  }
+  if (params?.sortBy) {
+    searchParams.append("sortBy", params.sortBy);
+  }
+  if (params?.sortOrder) {
+    searchParams.append("sortOrder", params.sortOrder);
+  }
+
+  const queryString = searchParams.toString();
+  const url = `/${TEAM_ID}/gatherings/joined${queryString ? `?${queryString}` : ""}`;
+
+  const { data } = await api.get<JoinedGathering[]>(url, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  return data;
+}
 export type { JoinedListParams } from "./endpoints";
+
+export async function leaveGathering(accessToken: string, gatheringId: number) {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/${TEAM_ID}/gatherings/${gatheringId}/leave`,
+    {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    },
+  );
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err?.message || "모임 취소 실패");
+  }
+
+  return res.json();
+}
