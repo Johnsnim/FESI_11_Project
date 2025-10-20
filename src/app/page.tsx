@@ -1,6 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+
 import { CreateGatheringModal } from "@/shared/components/modals";
 import ProfileModal from "@/features/profilemodal";
 
@@ -21,6 +24,17 @@ const defaults: ProfileModalForm = {
 
 export default function ListPage() {
   const [modalOpen, setModalOpen] = useState(false);
+  const router = useRouter();
+  const { status } = useSession();
+
+  const handleCreateClick = () => {
+    if (status !== "authenticated") {
+      alert("로그인이 필요한 서비스입니다.");
+      router.push("/login");
+      return;
+    }
+    setModalOpen(true);
+  };
 
   return (
     <div className="absolute overflow-x-hidden">
@@ -30,7 +44,7 @@ export default function ListPage() {
       />
 
       <Category />
-      <ButtonPlus onClick={() => setModalOpen(true)} aria-label="모임 만들기" />
+      <ButtonPlus onClick={handleCreateClick} aria-label="모임 만들기" />
 
       <CreateGatheringModal
         open={modalOpen}

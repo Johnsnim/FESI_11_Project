@@ -105,7 +105,6 @@ export default function StepDate({
     onChange({ ...data, [key]: value });
   }
 
-  // any 대신 키를 한정하고, null이면 새 Date로 대체
   function ensureBase(key: DateKey): Date {
     const cur = data[key];
     return (cur ?? new Date()) as Date;
