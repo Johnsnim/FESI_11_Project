@@ -1,7 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
-import { getReviews, getUserReviews } from "./review.service";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { createReview, getReviews, getUserReviews } from "./review.service";
 import { useSession } from "next-auth/react";
-import type { ReviewsParams } from "./review.service"; 
+import type { CreateReviewRequest, ReviewsParams } from "./review.service";
+import { gatheringKeys } from "../gathering/use-gathering-queries";
 
 // Query Keys
 export const reviewKeys = {
@@ -33,5 +34,31 @@ export function useMyReviewsQuery(params?: Omit<ReviewsParams, "userId">) {
     enabled: !!userId,
     retry: false,
     staleTime: 1000 * 60 * 5, // 5분
+  });
+}
+
+export function useCreateReviewMutation() {
+  const queryClient = useQueryClient();
+  const { data: session } = useSession();
+  const accessToken = session?.accessToken;
+  const userId = session?.user?.id;
+
+  return useMutation({
+    mutationFn: (payload: CreateReviewRequest) =>
+      createReview(accessToken!, payload),
+    onSuccess: () => {
+      // 내 리뷰 목록 다시 불러오기
+      queryClient.invalidateQueries({
+        queryKey: reviewKeys.user(Number(userId)),
+      });
+      // 전체 리뷰 목록도 다시 불러오기
+      queryClient.invalidateQueries({
+        queryKey: reviewKeys.lists(),
+      });
+      // 참여한 모임 목록도 다시 불러오기
+      queryClient.invalidateQueries({
+        queryKey: gatheringKeys.joined(),
+      });
+    },
   });
 }

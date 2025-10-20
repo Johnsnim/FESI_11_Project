@@ -56,14 +56,14 @@ export interface Review {
   Gathering: {
     teamId: string; // number에서 string으로 수정
     id: number;
-    type: string;
+    type: GatheringType;
     name: string;
     dateTime: string;
     location: string;
     image: string;
   };
   User: {
-    teamId: string; // number에서 string으로 수정
+    teamId: string;
     id: number;
     name: string;
     image: string;
@@ -89,6 +89,23 @@ export interface ReviewsParams {
   limit?: number;
   offset?: number;
 }
+
+export interface CreateReviewRequest {
+  gatheringId: number;
+  score: number;
+  comment: string;
+}
+
+export interface CreateReviewResponse {
+  teamId: number;
+  id: number;
+  userId: number;
+  gatheringId: number;
+  score: number;
+  comment: string;
+  createdAt: string;
+}
+
 // 리뷰 목록 조회
 export async function getReviews(
   params?: ReviewsParams,
@@ -175,6 +192,24 @@ export async function getUserReviews(
   const url = `/${TEAM_ID}/reviews?${queryString}`;
 
   const { data } = await api.get<ReviewsResponse>(url);
+
+  return data;
+}
+
+// 리뷰 작성
+export async function createReview(
+  accessToken: string,
+  payload: CreateReviewRequest,
+): Promise<CreateReviewResponse> {
+  const { data } = await api.post<CreateReviewResponse>(
+    `/${TEAM_ID}/reviews`,
+    payload,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    },
+  );
 
   return data;
 }
