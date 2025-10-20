@@ -41,7 +41,7 @@ export function useUserQuery() {
 
 export const useUpdateUserMutation = () => {
   const queryClient = useQueryClient();
-  const { data: session } = useSession();
+  const { data: session, update } = useSession(); // update 메서드 추가
   const accessToken = session?.accessToken;
 
   return useMutation({
@@ -52,8 +52,24 @@ export const useUpdateUserMutation = () => {
         image: file,
       });
     },
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
+      // 1. React Query 캐시 업데이트
       queryClient.setQueryData(["authUser"], data);
+      
+      // 2. NextAuth 세션 업데이트 (중요!)
+      await update({
+        ...session,
+        user: {
+          ...session?.user,
+          name: data.name,
+          email: data.email,
+          companyName: data.companyName,
+          image: data.image,
+        },
+      });
+
+      // 3. 관련 쿼리 무효화 (필요한 경우)
+      queryClient.invalidateQueries({ queryKey: ["authUser"] });
     },
   });
 };
