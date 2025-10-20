@@ -10,6 +10,11 @@ import {
   EditUserFormValues,
   EditUserSchema,
 } from "@/features/mypage/schemas/edituser.schema";
+import CreateReviewModal from "@/features/reviews/components/create-review-modal";
+import {
+  CreateReviewFormValues,
+  CreateReviewSchema,
+} from "@/features/reviews/schemas/review.schema";
 import {
   useUpdateUserMutation,
   useUserQuery,
@@ -19,7 +24,10 @@ import {
   useJoinedGatheringsQuery,
   useLeaveGatheringMutation,
 } from "@/shared/services/gathering/use-gathering-queries";
-import { useMyReviewsQuery } from "@/shared/services/review/user-review-queries";
+import {
+  useCreateReviewMutation,
+  useMyReviewsQuery,
+} from "@/shared/services/review/user-review-queries";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
@@ -31,7 +39,10 @@ function MyPageContent() {
   const { data: user, isLoading } = useUserQuery();
   const updateUser = useUpdateUserMutation();
   const [modalOpen, setModalOpen] = useState(false);
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const leaveGathering = useLeaveGatheringMutation();
+
+  const createReview = useCreateReviewMutation();
 
   const { data: joinedGatherings, isLoading: isJoinedLoading } =
     useJoinedGatheringsQuery();
@@ -46,8 +57,7 @@ function MyPageContent() {
     sortOrder: "desc",
   });
 
-
-  //훅폼 , 모달 훅
+  //유저수정 폼
   const form = useForm<EditUserFormValues>({
     resolver: zodResolver(EditUserSchema),
     mode: "onChange",
@@ -70,6 +80,43 @@ function MyPageContent() {
     });
   };
 
+  //리뷰작성폼
+  const reviewForm = useForm<CreateReviewFormValues>({
+    resolver: zodResolver(CreateReviewSchema),
+    mode: "onChange",
+    defaultValues: { score: 0, comment: "", gatheringId: undefined as any },
+  });
+
+  // 리뷰 작성 핸들러
+  const handleReviewSubmit = (
+    values: CreateReviewFormValues & { gatheringId?: number },
+  ) => {
+    if (!values.gatheringId) return;
+
+    createReview.mutate(
+      {
+        gatheringId: values.gatheringId,
+        score: values.score,
+        comment: values.comment,
+      },
+      {
+        onSuccess: () => {
+          alert("리뷰 작성 완료!");
+          setReviewModalOpen(false);
+          reviewForm.reset();
+        },
+        onError: (error) => {
+          alert("리뷰 작성 실패: " + error.message);
+        },
+      },
+    );
+  };
+
+  // 리뷰 작성 버튼 클릭 핸들러
+  const handleWriteReview = (gatheringId: number) => {
+    reviewForm.setValue("gatheringId", gatheringId, { shouldValidate: true });
+    setReviewModalOpen(true);
+  };
   //모임 참여취소 훅
   const handleCancelGathering = (id: number) => {
     if (confirm("정말 이 모임 참여를 취소하시겠습니까?")) {
@@ -82,7 +129,7 @@ function MyPageContent() {
   };
 
   //탭 훅
-  const currentTab = searchParams.get("tab") ?? "meetings";
+  const currentTab = searchParams.get("tab") ?? "joinedgatherings";
 
   const handleTabChange = (tab: string) => {
     router.push(`/mypage?tab=${tab}`);
@@ -120,6 +167,7 @@ function MyPageContent() {
               data={joinedGatherings}
               isLoading={isJoinedLoading}
               onCancel={handleCancelGathering}
+              onWriteReview={handleWriteReview}
               gotoDetailPage={GotoDetailPage}
             />
           )}
@@ -141,6 +189,17 @@ function MyPageContent() {
         form={form}
         onSubmit={handleSubmit}
         isLoading={updateUser.isPending}
+      />
+      {/* 리뷰 작성 모달 */}
+      <CreateReviewModal
+        open={reviewModalOpen}
+        onClose={() => {
+          setReviewModalOpen(false);
+          reviewForm.reset();
+        }}
+        form={reviewForm}
+        onSubmit={handleReviewSubmit}
+        isLoading={createReview.isPending}
       />
     </div>
   );
