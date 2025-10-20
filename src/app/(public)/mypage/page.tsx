@@ -15,6 +15,7 @@ import {
   CreateReviewFormValues,
   CreateReviewSchema,
 } from "@/features/reviews/schemas/review.schema";
+import { Button } from "@/shadcn/button";
 import {
   useUpdateUserMutation,
   useUserQuery,
@@ -40,6 +41,10 @@ function MyPageContent() {
   const updateUser = useUpdateUserMutation();
   const [modalOpen, setModalOpen] = useState(false);
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [reviewSubTab, setReviewSubTab] = useState<"writable" | "written">(
+    "writable",
+  );
+
   const leaveGathering = useLeaveGatheringMutation();
 
   const createReview = useCreateReviewMutation();
@@ -140,12 +145,16 @@ function MyPageContent() {
     { value: "reviews", label: "나의 리뷰" },
     { value: "created", label: "내가 만든 모임" },
   ];
+
+  const handleReviewSubTabChange = (tab: "writable" | "written") => {
+    setReviewSubTab(tab);
+  };
   ///여기까지
 
   if (isLoading) return <div className="p-4">로딩중...</div>;
 
   return (
-    <div className="lg-gap-10 flex w-full flex-col gap-6 px-4 md:px-6 lg:flex-row mt-5.5 md:mt-8 lg:mt-15.5">
+    <div className="lg-gap-10 mt-5.5 flex w-full flex-col gap-6 px-4 md:mt-8 md:px-6 lg:mt-15.5 lg:flex-row">
       {user && (
         <Info
           user={user}
@@ -161,7 +170,7 @@ function MyPageContent() {
           onChange={handleTabChange}
         />
 
-        <div className="mt-6 lg:mt-8">
+        <div className="mt-4 mb-4 md:mt-7 md:mb-8 lg:mb-4.5">
           {currentTab === "joinedgatherings" && (
             <JoinedGatherings
               data={joinedGatherings}
@@ -172,7 +181,45 @@ function MyPageContent() {
             />
           )}
           {currentTab === "reviews" && (
-            <MyReviews data={myReviews} isLoading={isReviewsLoading} />
+            <div>
+              {/* 서브탭 */}
+              <div className="mb-4 flex gap-2.5 md:mb-8 lg:mb-4.5">
+                <Button
+                  onClick={() => handleReviewSubTabChange("writable")}
+                  className={`h-10 cursor-pointer rounded-2xl px-4 py-2 text-base font-semibold ${
+                    reviewSubTab === "writable"
+                      ? "bg-[#333333] text-white"
+                      : "bg-[#eeeeee] text-[#333333]"
+                  }`}
+                >
+                  작성 가능한 리뷰
+                </Button>
+                <Button
+                  onClick={() => handleReviewSubTabChange("written")}
+                  className={`h-10 cursor-pointer rounded-2xl px-4 py-2 text-base font-semibold ${
+                    reviewSubTab === "written"
+                      ? "bg-[#333333] text-white"
+                      : "bg-[#eeeeee] text-[#333333]"
+                  }`}
+                >
+                  작성한 리뷰
+                </Button>
+              </div>
+
+              {/* 서브탭별 내용 */}
+              {reviewSubTab === "writable" ? (
+                <JoinedGatherings
+                  data={joinedGatherings?.filter(
+                    (g) => g.isCompleted && !g.isReviewed,
+                  )}
+                  isLoading={isJoinedLoading}
+                  onWriteReview={handleWriteReview}
+                  gotoDetailPage={GotoDetailPage}
+                />
+              ) : (
+                <MyReviews data={myReviews} isLoading={isReviewsLoading} />
+              )}
+            </div>
           )}
           {currentTab === "created" && (
             <CreatedGatherings
@@ -183,6 +230,7 @@ function MyPageContent() {
           )}
         </div>
       </div>
+
       <UserEditModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
