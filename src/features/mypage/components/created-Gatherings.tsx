@@ -14,7 +14,7 @@ export function CreatedGatherings({
   isLoading,
   gotoDetailPage,
 }: CreatedGatheringsProps) {
-  if (isLoading) return <div>내가 만든 모임을 불러오는 중...</div>;
+  if (isLoading) return <div>로딩중...</div>;
   if (!data || data.length === 0)
     return (
       <div className="my-[180px] flex w-full flex-col items-center justify-center gap-0.5 md:my-[216px]">
