@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { useSession } from "next-auth/react";
+import type { DefaultSession } from "next-auth";
 import { useQueryClient } from "@tanstack/react-query";
 import { Tag } from "@/shared/components/tag";
 import { Chip } from "@/shared/components/chip";
@@ -17,6 +18,8 @@ type Props = {
   leaving?: boolean;
 };
 
+type AppUser = DefaultSession["user"] & { id?: number | string };
+
 export default function GatheringInfo({
   data,
   isJoined,
@@ -26,7 +29,18 @@ export default function GatheringInfo({
   leaving = false,
 }: Props) {
   const { data: session } = useSession();
-  const myId = Number((session?.user as any)?.id);
+  const user = session?.user as AppUser | undefined;
+
+  const myId: number = (() => {
+    const id = user?.id;
+    if (typeof id === "number") return id;
+    if (typeof id === "string") {
+      const n = Number(id);
+      return Number.isFinite(n) ? n : NaN;
+    }
+    return NaN;
+  })();
+
   const isMadeByMe = Number.isFinite(myId) && data.createdBy === myId;
 
   const { dateLabel, timeLabel, tagText, joinDisabled } = useMemo(() => {
@@ -68,7 +82,24 @@ export default function GatheringInfo({
   }, [data]);
 
   const queryClient = useQueryClient();
-  const [canceling, setCanceling] = React.useState(false);
+  const [canceling, setCanceling] = useState(false);
+
+  function getErrorMessage(err: unknown): string {
+    if (
+      typeof err === "object" &&
+      err !== null &&
+      "response" in err &&
+      typeof (err as any).response === "object" &&
+      (err as any).response !== null
+    ) {
+      const resp = (err as any).response as {
+        data?: { message?: string };
+      };
+      if (resp?.data?.message) return resp.data.message;
+    }
+    if (err instanceof Error) return err.message;
+    return "모임 취소에 실패했습니다.";
+  }
 
   async function handleCancel() {
     if (canceling) return;
@@ -87,10 +118,8 @@ export default function GatheringInfo({
         queryClient.invalidateQueries({ queryKey: ["gathering-list"] }),
         queryClient.invalidateQueries({ queryKey: ["joined-list"] }),
       ]);
-    } catch (e: any) {
-      const msg =
-        e?.response?.data?.message || e?.message || "모임 취소에 실패했습니다.";
-      alert(msg);
+    } catch (e: unknown) {
+      alert(getErrorMessage(e));
     } finally {
       setCanceling(false);
     }

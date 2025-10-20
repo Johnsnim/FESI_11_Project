@@ -89,6 +89,8 @@ const calendarClasses = {
   day_disabled: "text-gray-300 opacity-50",
 } as const;
 
+type DateKey = "date" | "registrationEnd";
+
 export default function StepDate({
   data,
   onChange,
@@ -103,19 +105,31 @@ export default function StepDate({
     onChange({ ...data, [key]: value });
   }
 
-  function ensureBase(key: "date" | "registrationEnd") {
-    return (data as any)[key] ?? new Date();
+  // any 대신 키를 한정하고, null이면 새 Date로 대체
+  function ensureBase(key: DateKey): Date {
+    const cur = data[key];
+    return (cur ?? new Date()) as Date;
   }
 
-  function setDateOnly(key: "date" | "registrationEnd", next: Date | null) {
-    if (!next) return setField(key, null as any);
+  function setDateOnly(key: DateKey, next: Date | null) {
+    if (!next) {
+      setField(
+        key as keyof CreateGatheringForm,
+        null as unknown as CreateGatheringForm[typeof key],
+      );
+      return;
+    }
     const cur = ensureBase(key);
     const { h12, m, ap } = toH12(cur);
-    setField(key, fromH12(next, h12, m, ap));
+    const merged = fromH12(next, h12, m, ap);
+    setField(
+      key as keyof CreateGatheringForm,
+      merged as unknown as CreateGatheringForm[typeof key],
+    );
   }
 
   function setTimeOnly(
-    key: "date" | "registrationEnd",
+    key: DateKey,
     part: "hour" | "minute" | "ampm",
     value: number | AMPMType,
   ) {
@@ -124,7 +138,11 @@ export default function StepDate({
     const nh = part === "hour" ? (value as number) : h12;
     const nm = part === "minute" ? (value as number) : m;
     const nap: AMPMType = part === "ampm" ? (value as AMPMType) : ap;
-    setField(key, fromH12(cur, nh, nm, nap));
+    const merged = fromH12(cur, nh, nm, nap);
+    setField(
+      key as keyof CreateGatheringForm,
+      merged as unknown as CreateGatheringForm[typeof key],
+    );
   }
 
   const dateH = data.date ? toH12(data.date) : toH12(new Date());
@@ -274,7 +292,15 @@ export default function StepDate({
           value={data.capacity}
           onChange={(e) => {
             const v = e.target.value;
-            setField("capacity", v === "" ? "" : Math.max(0, Number(v)));
+            setField(
+              "capacity",
+              v === ""
+                ? ("" as unknown as CreateGatheringForm["capacity"])
+                : (Math.max(
+                    0,
+                    Number(v),
+                  ) as unknown as CreateGatheringForm["capacity"]),
+            );
           }}
         />
       </div>
