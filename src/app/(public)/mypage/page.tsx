@@ -89,7 +89,7 @@ function MyPageContent() {
   const reviewForm = useForm<CreateReviewFormValues>({
     resolver: zodResolver(CreateReviewSchema),
     mode: "onChange",
-    defaultValues: { score: 0, comment: "", gatheringId: undefined as any },
+    defaultValues: { score: 0, comment: "", gatheringId: undefined },
   });
 
   // 리뷰 작성 핸들러
