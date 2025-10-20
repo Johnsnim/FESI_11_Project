@@ -12,7 +12,7 @@ function formatDateDots(iso: string) {
 
 export default function ReviewItem({ rv }: { rv: ReviewItem }) {
   return (
-    <article className="py-4">
+    <article className="py-1">
       <div className="mb-1 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <img
