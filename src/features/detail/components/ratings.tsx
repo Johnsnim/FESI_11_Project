@@ -13,11 +13,11 @@ export default function RatingHearts({
 
   return (
     <div
-      className="flex items-center gap-1"
+      className="flex items-center gap-0.5"
       aria-label={`평점 ${filled}/${USED_MAX}`}
     >
       {Array.from({ length: USED_MAX }, (_, i) => (
-        <Image
+        <img
           key={i}
           src={
             i < filled
@@ -26,7 +26,7 @@ export default function RatingHearts({
           }
           alt=""
           aria-hidden="true"
-          className="h-4 w-4"
+          className="h-6 w-6"
           loading="lazy"
         />
       ))}

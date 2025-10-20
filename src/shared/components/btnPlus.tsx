@@ -11,7 +11,7 @@ export default function ButtonPlus({
   ...props
 }: Props) {
   const base =
-    "cursor-pointer fixed right-5 bottom-5 h-12 w-12 rounded-full bg-green-500 p-0 text-white text-xl font-bold tracking-[-0.03em] hover:bg-green-700 sm:rounded-6 md:h-16 md:w-48.5";
+    "cursor-pointer fixed right-5 bottom-5 h-12 w-12 rounded-full bg-green-500 p-0 text-white text-xl font-bold tracking-[-0.03em] hover:bg-green-700 sm:rounded-6 md:h-16 md:w-48.5 z-999";
   return (
     <Button {...props} className={[base, className].join(" ")}>
       <motion.div
