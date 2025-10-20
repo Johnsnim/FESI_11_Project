@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { Tag } from "@/shared/components/tag";
 import { Chip } from "@/shared/components/chip";
@@ -17,6 +18,22 @@ type Props = {
   leaving?: boolean;
 };
 
+type SessionUserWithId =
+  | (NonNullable<ReturnType<typeof useSession>["data"]>["user"] & {
+      id?: number | string;
+    })
+  | undefined;
+
+function getUserId(u: SessionUserWithId): number | null {
+  const raw = u?.id;
+  if (typeof raw === "number") return Number.isFinite(raw) ? raw : null;
+  if (typeof raw === "string") {
+    const n = Number(raw);
+    return Number.isFinite(n) ? n : null;
+  }
+  return null;
+}
+
 export default function GatheringInfo({
   data,
   isJoined,
@@ -25,9 +42,10 @@ export default function GatheringInfo({
   joining = false,
   leaving = false,
 }: Props) {
-  const { data: session } = useSession();
-  const myId = Number((session?.user as any)?.id);
-  const isMadeByMe = Number.isFinite(myId) && data.createdBy === myId;
+  const router = useRouter();
+  const { data: session, status } = useSession();
+  const myId = getUserId(session?.user as SessionUserWithId);
+  const isMadeByMe = myId !== null && data.createdBy === myId;
 
   const { dateLabel, timeLabel, tagText, joinDisabled } = useMemo(() => {
     const start = new Date(data.dateTime);
@@ -68,7 +86,17 @@ export default function GatheringInfo({
   }, [data]);
 
   const queryClient = useQueryClient();
-  const [canceling, setCanceling] = React.useState(false);
+  const [canceling, setCanceling] = useState(false);
+
+  function getErrorMessage(err: unknown): string {
+    const e = err as {
+      response?: { data?: { message?: string } };
+      message?: string;
+    } | null;
+    return (
+      e?.response?.data?.message || e?.message || "모임 취소에 실패했습니다."
+    );
+  }
 
   async function handleCancel() {
     if (canceling) return;
@@ -87,13 +115,20 @@ export default function GatheringInfo({
         queryClient.invalidateQueries({ queryKey: ["gathering-list"] }),
         queryClient.invalidateQueries({ queryKey: ["joined-list"] }),
       ]);
-    } catch (e: any) {
-      const msg =
-        e?.response?.data?.message || e?.message || "모임 취소에 실패했습니다.";
-      alert(msg);
+    } catch (err: unknown) {
+      alert(getErrorMessage(err));
     } finally {
       setCanceling(false);
     }
+  }
+
+  function handleJoinClick() {
+    if (status !== "authenticated") {
+      alert("로그인이 필요한 서비스입니다.");
+      router.push("/login");
+      return;
+    }
+    onJoin();
   }
 
   return (
@@ -115,7 +150,7 @@ export default function GatheringInfo({
       </p>
 
       <div className="flex items-center gap-1">
-        <div className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border-1 border-gray-100">
+        <div className="flex h-12 w-12 min-w-12 cursor-pointer items-center justify-center rounded-full border-1 border-gray-100">
           <img
             src="/image/ic_heart_empty.svg"
             alt="heart button"
@@ -154,7 +189,7 @@ export default function GatheringInfo({
         ) : (
           <button
             disabled={joinDisabled || joining}
-            onClick={onJoin}
+            onClick={handleJoinClick}
             className={`ml-4 inline-flex h-11 w-full cursor-pointer items-center justify-center rounded-xl px-5 text-white ${
               joinDisabled || joining
                 ? "cursor-not-allowed bg-zinc-300"

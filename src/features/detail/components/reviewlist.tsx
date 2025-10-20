@@ -31,7 +31,10 @@ export default function ReviewList({
 
         {!isReviewLoading && !isReviewError && reviews.length === 0 && (
           <div className="flex flex-col items-center justify-center gap-2 py-10">
-            <p>리뷰가 없습니다.</p>
+            <img src="/image/img_empty.svg" alt="empty image" />
+            <p className="text-center text-lg font-semibold text-gray-400">
+              아직 리뷰가 없어요
+            </p>
           </div>
         )}
 

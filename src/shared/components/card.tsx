@@ -90,7 +90,7 @@ export default function Card({
   }
 
   return (
-    <div className="mb-5 box-border w-full justify-center overflow-hidden rounded-3xl px-4 md:flex md:h-fit md:flex-row md:items-center md:justify-center md:bg-white md:p-6">
+    <div className="mx-4 mb-5 box-border w-[calc(100%-2rem)] justify-center overflow-hidden rounded-3xl bg-white md:mx-0 md:flex md:h-fit md:w-full md:flex-row md:items-center md:justify-center md:p-6">
       <div
         onClick={handleJoin}
         aria-disabled={isClosed}
@@ -126,7 +126,7 @@ export default function Card({
         )}
       </div>
 
-      <div className="h-full w-full rounded-b-3xl pl-4 md:min-w-0 md:flex-1 md:rounded-r-3xl md:rounded-bl-none md:pt-0 md:pr-0 md:pb-0">
+      <div className="h-full w-full rounded-b-3xl p-4 md:min-w-0 md:flex-1 md:rounded-r-3xl md:rounded-bl-none md:pt-0 md:pr-0 md:pb-0 md:pl-4">
         <div className="flex flex-row justify-between">
           <div className="flex flex-col">
             <div

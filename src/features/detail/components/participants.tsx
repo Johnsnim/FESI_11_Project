@@ -6,9 +6,9 @@ import { useQuery } from "@tanstack/react-query";
 import {
   gatheringService,
   type Gathering,
+  type GatheringParticipant,
 } from "@/shared/services/gathering/gathering.service";
 
-// 유저 이미지 없을 때 그냥 닉네임 첫글자 이니셜 따서 보여주는 로직
 function InitialsBubble({ name }: { name: string }) {
   const text = (name ?? "").trim();
   const initials =
@@ -20,8 +20,9 @@ function InitialsBubble({ name }: { name: string }) {
           .slice(0, 2)
           .join("")
           .toUpperCase();
+
   return (
-    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-zinc-200 text-[10px] font-semibold text-slate-600 ring-1 ring-slate-300">
+    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-zinc-200 text-[10px] font-semibold text-slate-600 ring-2 ring-white">
       {initials}
     </div>
   );
@@ -30,10 +31,14 @@ function InitialsBubble({ name }: { name: string }) {
 export default function Participants({ data }: { data: Gathering }) {
   const ratioPct =
     data.capacity > 0
-      ? Math.round((data.participantCount / data.capacity) * 100)
+      ? Math.min(100, Math.round((data.participantCount / data.capacity) * 100))
       : 0;
 
-  const { data: participants = [], isLoading } = useQuery({
+  const {
+    data: participants = [],
+    isLoading,
+    isError,
+  } = useQuery<GatheringParticipant[]>({
     queryKey: ["gathering", "participants", data.id],
     queryFn: () =>
       gatheringService.participants(data.id, {
@@ -41,12 +46,13 @@ export default function Participants({ data }: { data: Gathering }) {
         sortBy: "joinedAt",
         sortOrder: "desc",
       }),
+    enabled: Number.isFinite(data.id),
     staleTime: 30_000,
   });
 
-  const visible = participants.slice(0, 4);
+  const MAX_AVATARS = 4;
+  const visible = participants.slice(0, MAX_AVATARS);
 
-  // 보여주는 프로필 이미지 외에 추가 참여자 수 계산
   const extra = Math.max(0, data.participantCount - visible.length);
 
   return (
@@ -62,12 +68,14 @@ export default function Participants({ data }: { data: Gathering }) {
 
           <div className="flex -space-x-2">
             {isLoading ? (
-              Array.from({ length: 4 }).map((_, i) => (
+              Array.from({ length: MAX_AVATARS }).map((_, i) => (
                 <div
                   key={i}
                   className="h-7 w-7 animate-pulse rounded-full bg-zinc-200 ring-2 ring-white"
                 />
               ))
+            ) : isError ? (
+              <div className="text-xs text-zinc-500">참여자 불러오기 실패</div>
             ) : (
               <>
                 {visible.map((p) => {
@@ -82,7 +90,7 @@ export default function Participants({ data }: { data: Gathering }) {
                       width={28}
                       height={28}
                       unoptimized
-                      className="h-7 w-7 rounded-full object-cover ring-white"
+                      className="h-7 w-7 rounded-full object-cover ring-2 ring-white"
                     />
                   ) : (
                     <InitialsBubble key={key} name={name} />
@@ -98,7 +106,7 @@ export default function Participants({ data }: { data: Gathering }) {
           </div>
         </div>
 
-        <div className="flex flex-row">
+        <div className="flex flex-row items-center gap-1">
           <img src="/image/ic_check_sm.svg" alt="check" />
           <p className="font-medium text-green-600">개설확정</p>
         </div>
@@ -109,10 +117,15 @@ export default function Participants({ data }: { data: Gathering }) {
         <span>최대 {data.capacity}명</span>
       </div>
 
-      <div className="p-0.1 w-full rounded-full bg-[#DAE4E0]">
+      <div className="w-full rounded-full bg-[#DAE4E0]">
         <div
           className="h-2 rounded-full bg-gradient-to-r from-[#17DA71] to-[#08DDF0] transition-[width]"
           style={{ width: `${ratioPct}%` }}
+          aria-label={`참여율 ${ratioPct}%`}
+          role="progressbar"
+          aria-valuenow={ratioPct}
+          aria-valuemin={0}
+          aria-valuemax={100}
         />
       </div>
     </div>
