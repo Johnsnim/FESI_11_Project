@@ -7,14 +7,12 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   gatheringService,
   type Gathering,
-  type GatheringParticipant,
   type JoinedGathering,
 } from "@/shared/services/gathering/gathering.service";
 import { reviewService } from "@/shared/services/review/review.service";
 
 import type { ReviewResponse } from "./types";
 
-// ✅ 누락된 경우 반드시 import
 import GatheringImage from "@/features/detail/components/gatheringimage";
 import GatheringInfo from "@/features/detail/components/gatheringinfo";
 import Participants from "@/features/detail/components/participants";
@@ -41,20 +39,7 @@ export default function DetailPage() {
     retry: false,
   });
 
-  const { data: participants = [], isLoading: pLoading } = useQuery<
-    GatheringParticipant[]
-  >({
-    queryKey: ["gathering-participants", idNum],
-    queryFn: () =>
-      gatheringService.participants(idNum, {
-        limit: 10,
-        offset: 0,
-        sortBy: "joinedAt",
-        sortOrder: "desc",
-      }),
-    enabled: Number.isFinite(idNum),
-  });
-
+  // 내가 참여한 모임 목록
   const { data: myJoined = [] } = useQuery<JoinedGathering[]>({
     queryKey: ["my-joined-list"],
     queryFn: () =>
@@ -64,6 +49,7 @@ export default function DetailPage() {
       }),
     staleTime: 30_000,
     refetchOnWindowFocus: false,
+    enabled: Number.isFinite(idNum),
   });
 
   const isJoined = !!myJoined.find((g) => g.id === idNum);
@@ -134,7 +120,7 @@ export default function DetailPage() {
 
       {data && (
         <>
-          <section className="md:w/full flex flex-col gap-6 md:flex-row">
+          <section className="flex flex-col gap-6 md:w-full md:flex-row">
             <GatheringImage data={data} />
             <div className="flex-1">
               <GatheringInfo
@@ -145,11 +131,8 @@ export default function DetailPage() {
                 joining={joining}
                 leaving={leaving}
               />
-              <Participants
-                data={data}
-                participants={participants}
-                loading={pLoading}
-              />
+
+              <Participants data={data} />
             </div>
           </section>
 
