@@ -145,7 +145,7 @@ function MyPageContent() {
   if (isLoading) return <div className="p-4">로딩중...</div>;
 
   return (
-    <div className="lg-gap-10 flex w-full flex-col gap-6 px-4 md:px-6 lg:flex-row">
+    <div className="lg-gap-10 flex w-full flex-col gap-6 px-4 md:px-6 lg:flex-row mt-5.5 md:mt-8 lg:mt-15.5">
       {user && (
         <Info
           user={user}
