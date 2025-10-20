@@ -15,7 +15,7 @@ export default function ReviewItem({ rv }: { rv: ReviewItem }) {
     <article className="py-4">
       <div className="mb-1 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Image
+          <img
             src={
               rv.User.image ||
               "https://api.dicebear.com/9.x/thumbs/svg?seed=user"
@@ -24,15 +24,18 @@ export default function ReviewItem({ rv }: { rv: ReviewItem }) {
             alt="아바타"
           />
           <div className="text-sm">
-            <div className="font-medium">{rv.User.name}</div>
-            <div className="text-xs text-zinc-500">
+            <div className="mb-1.5 font-medium text-slate-600">
+              {rv.User.name}
+            </div>
+
+            <div className="flex flex-row gap-2 text-xs text-slate-500">
+              <RatingHearts value={rv.score} />
               {formatDateDots(rv.createdAt)}
             </div>
           </div>
         </div>
-        <RatingHearts value={rv.score} />
       </div>
-      <p className="mt-2 text-sm text-zinc-700">{rv.comment}</p>
+      <p className="mt-6 text-base font-medium text-gray-700">{rv.comment}</p>
     </article>
   );
 }
