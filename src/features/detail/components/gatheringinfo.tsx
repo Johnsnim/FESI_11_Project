@@ -2,6 +2,7 @@
 
 import React, { useMemo, useState } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { Tag } from "@/shared/components/tag";
 import { Chip } from "@/shared/components/chip";
@@ -41,7 +42,8 @@ export default function GatheringInfo({
   joining = false,
   leaving = false,
 }: Props) {
-  const { data: session } = useSession();
+  const router = useRouter();
+  const { data: session, status } = useSession();
   const myId = getUserId(session?.user as SessionUserWithId);
   const isMadeByMe = myId !== null && data.createdBy === myId;
 
@@ -120,6 +122,15 @@ export default function GatheringInfo({
     }
   }
 
+  function handleJoinClick() {
+    if (status !== "authenticated") {
+      alert("로그인이 필요한 서비스입니다.");
+      router.push("/login");
+      return;
+    }
+    onJoin();
+  }
+
   return (
     <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-zinc-100">
       <div className="mb-3 flex flex-wrap items-center gap-2">
@@ -139,7 +150,7 @@ export default function GatheringInfo({
       </p>
 
       <div className="flex items-center gap-1">
-        <div className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border-1 border-gray-100">
+        <div className="flex h-12 w-12 min-w-12 cursor-pointer items-center justify-center rounded-full border-1 border-gray-100">
           <img
             src="/image/ic_heart_empty.svg"
             alt="heart button"
@@ -178,7 +189,7 @@ export default function GatheringInfo({
         ) : (
           <button
             disabled={joinDisabled || joining}
-            onClick={onJoin}
+            onClick={handleJoinClick}
             className={`ml-4 inline-flex h-11 w-full cursor-pointer items-center justify-center rounded-xl px-5 text-white ${
               joinDisabled || joining
                 ? "cursor-not-allowed bg-zinc-300"

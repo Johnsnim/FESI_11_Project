@@ -39,7 +39,6 @@ export default function DetailPage() {
     retry: false,
   });
 
-  // 내가 참여한 모임 목록
   const { data: myJoined = [] } = useQuery<JoinedGathering[]>({
     queryKey: ["my-joined-list"],
     queryFn: () =>
