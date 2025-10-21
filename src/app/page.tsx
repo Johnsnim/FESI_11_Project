@@ -37,7 +37,7 @@ export default function ListPage() {
   };
 
   return (
-    <div className="absolute overflow-x-hidden">
+    <div className="absolute overflow-x-hidden md:mt-10">
       <Banner
         subtitle="함께할 사람을 찾고 계신가요?"
         title="지금 모임에 참여해보세요"

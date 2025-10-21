@@ -17,9 +17,8 @@ export default function SignInPage() {
   const form = useForm<LogInFormValues>({
     resolver: zodResolver(LogInSchema),
     defaultValues: { email: "", password: "" },
-    mode: "onChange",
+    mode: "onTouched",
   });
-
   async function handleSubmit(values: { email: string; password: string }) {
     const res = await signIn("credentials", {
       redirect: false,

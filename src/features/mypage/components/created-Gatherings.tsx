@@ -14,7 +14,7 @@ export function CreatedGatherings({
   isLoading,
   gotoDetailPage,
 }: CreatedGatheringsProps) {
-  if (isLoading) return <div>내가 만든 모임을 불러오는 중...</div>;
+  if (isLoading) return <div>로딩중...</div>;
   if (!data || data.length === 0)
     return (
       <div className="my-[180px] flex w-full flex-col items-center justify-center gap-0.5 md:my-[216px]">
@@ -39,7 +39,7 @@ export function CreatedGatherings({
           className="flex cursor-pointer flex-col overflow-hidden rounded-3xl border bg-white transition hover:bg-[#ececec] md:flex-row md:items-center md:gap-4 md:p-6"
         >
           <Image
-            src={g.image ?? "/image/default.svg"}
+            src={g.image ?? "/image/img_empty.svg"}
             alt={g.name}
             width={100}
             height={100}

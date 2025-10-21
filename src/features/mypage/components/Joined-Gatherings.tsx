@@ -17,6 +17,7 @@ export default function JoinedGatherings({
   isLoading,
   gotoDetailPage,
   onCancel,
+  onWriteReview,
 }: JoinedGatheringsProps) {
   if (isLoading) return <div>롸딩중..</div>;
   if (!data || data.length === 0)
@@ -104,7 +105,10 @@ export default function JoinedGatherings({
       // 이용 완료 & 리뷰 미작성 → 리뷰작성 버튼
       return (
         <Button
-          onClick={() => onWriteReview?.(g.id)}
+          onClick={(e) => {
+            stopPropagation(e);
+            onWriteReview?.(g.id);
+          }}
           className="py-2.5md:h-12 h-12 cursor-pointer rounded-2xl bg-green-500 px-6 text-base font-bold text-white hover:bg-green-600 md:px-[17.5px] md:py-3 lg:px-[35.5px]"
         >
           리뷰 작성하기
@@ -123,7 +127,7 @@ export default function JoinedGatherings({
           className="flex cursor-pointer flex-col overflow-hidden rounded-3xl border bg-white transition hover:bg-[#ececec] md:flex-row md:items-center md:gap-4 md:p-6"
         >
           <Image
-            src={g.image}
+            src={g.image || "/image/img_empty.svg"}
             alt={g.name}
             width={100}
             height={100}
@@ -184,7 +188,7 @@ export default function JoinedGatherings({
               </div>
               {/*액션 버튼*/}
               <div className="flex justify-end">
-                {RenderActionButton(g, onCancel)}
+                {RenderActionButton(g, onCancel , onWriteReview)}
               </div>
             </div>
           </div>
