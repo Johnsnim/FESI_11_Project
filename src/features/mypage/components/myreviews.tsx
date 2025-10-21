@@ -6,7 +6,7 @@ import {
 } from "@/shared/services/review/review.service";
 import Image from "next/image";
 
-interface MyReviewsProps {
+interface ReviewsProps {
   data?: ReviewsResponse;
   isLoading: boolean;
 }
@@ -17,7 +17,7 @@ const typeLabels: Record<GatheringType, string> = {
   WORKATION: "워케이션",
 };
 
-function ReviewScore({ score }: { score: number }) {
+export function ReviewScore({ score }: { score: number }) {
   return (
     <div className="flex">
       {Array.from({ length: 5 }).map((_, i) => {
@@ -40,7 +40,7 @@ function ReviewScore({ score }: { score: number }) {
   );
 }
 
-export default function MyReviews({ data, isLoading }: MyReviewsProps) {
+export default function MyReviews({ data, isLoading }: ReviewsProps) {
   if (isLoading)
     return (
       <div className="my-[180px] flex w-full flex-col items-center justify-center gap-0.5 md:my-[216px]">
@@ -67,7 +67,11 @@ export default function MyReviews({ data, isLoading }: MyReviewsProps) {
       {data.data.map((review) => (
         <li key={review.id} className="flex flex-col gap-6 md:flex-row">
           <div className="relative hidden size-50 overflow-hidden rounded-xl border border-[#ebebeb] md:block">
-            <Image src={review.Gathering.image} alt="모임이미지" fill />
+            <Image
+              src={review.Gathering.image ?? "/image/img_empty.svg"}
+              alt="모임이미지"
+              fill
+            />
           </div>
           <div className="w-full md:border-b md:border-[#dddddd]">
             <div className="mb-2 flex items-center gap-3 md:mb-8">
@@ -101,7 +105,7 @@ export default function MyReviews({ data, isLoading }: MyReviewsProps) {
             <div className="mb-6 flex items-center gap-3 border-b border-gray-200 pb-6 md:border-none">
               <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl md:hidden">
                 <Image
-                  src={review.Gathering.image}
+                  src={review.Gathering.image ?? "/image/img_empty.svg"}
                   alt="모임이미지"
                   fill
                   className="object-cover"
