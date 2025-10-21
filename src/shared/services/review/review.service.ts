@@ -1,72 +1,35 @@
 import { api } from "@/lib/api/api";
-import { REVIEWS_API, type ReviewListParams } from "./endpoints";
-
-export type ReviewResponse = {
-  data: Array<{
-    teamId: number;
-    id: number;
-    score: number;
-    comment: string;
-    createdAt: string;
-    Gathering: {
-      teamId: number;
-      id: number;
-      type: string;
-      name: string;
-      dateTime: string;
-      location: string;
-      image: string | null;
-    };
-    User: {
-      teamId: number;
-      id: number;
-      name: string;
-      image: string | null;
-    };
-  }>;
-  totalItemCount: number;
-  currentPage: number;
-  totalPages: number;
-};
 
 const TEAM_ID = process.env.NEXT_PUBLIC_TEAM_ID as string;
-
-export const reviewService = {
-  async list(params?: ReviewListParams) {
-    const { data } = await api.get<ReviewResponse>(
-      REVIEWS_API.list(TEAM_ID, params),
-    );
-    return data;
-  },
-};
 
 export type GatheringType =
   | "DALLAEMFIT"
   | "OFFICE_STRETCHING"
   | "MINDFULNESS"
   | "WORKATION";
+
 export type Location = "건대입구" | "을지로3가" | "신림" | "홍대입구";
 
 export interface Review {
-  teamId: string; // number에서 string으로 수정
+  teamId: number;
   id: number;
   score: number;
   comment: string;
   createdAt: string;
   Gathering: {
-    teamId: string; // number에서 string으로 수정
+    teamId: number;
     id: number;
     type: GatheringType;
     name: string;
     dateTime: string;
     location: string;
-    image: string;
+    image: string | null;
   };
   User: {
-    teamId: string;
+    teamId: number;
     id: number;
     name: string;
-    image: string;
+    image: string | null;
   };
 }
 
@@ -106,110 +69,124 @@ export interface CreateReviewResponse {
   createdAt: string;
 }
 
-// 리뷰 목록 조회
-export async function getReviews(
-  params?: ReviewsParams,
-): Promise<ReviewsResponse> {
+export interface ReviewsScoreRequest {
+  teamId: number;
+  gatheringId: number;
+  type: GatheringType;
+}
+
+export interface ReviewsScoreResponse {
+  teamId: number;
+  gatheringId?: number;
+  type?: GatheringType;
+  oneStar: number;
+  twoStars: number;
+  threeStars: number;
+  fourStars: number;
+  fiveStars: number;
+  averageScore: number;
+}
+
+function buildQueryString(params?: ReviewsParams): string {
+  if (!params) return "";
+
   const searchParams = new URLSearchParams();
 
-  if (params?.gatheringId !== undefined) {
+  if (params.gatheringId !== undefined) {
     searchParams.append("gatheringId", String(params.gatheringId));
   }
-  if (params?.userId !== undefined) {
+  if (params.userId !== undefined) {
     searchParams.append("userId", String(params.userId));
   }
-  if (params?.type) {
+  if (params.type) {
     searchParams.append("type", params.type);
   }
-  if (params?.location) {
+  if (params.location) {
     searchParams.append("location", params.location);
   }
-  if (params?.date) {
+  if (params.date) {
     searchParams.append("date", params.date);
   }
-  if (params?.registrationEnd) {
+  if (params.registrationEnd) {
     searchParams.append("registrationEnd", params.registrationEnd);
   }
-  if (params?.sortBy) {
+  if (params.sortBy) {
     searchParams.append("sortBy", params.sortBy);
   }
-  if (params?.sortOrder) {
+  if (params.sortOrder) {
     searchParams.append("sortOrder", params.sortOrder);
   }
-  if (params?.limit !== undefined) {
+  if (params.limit !== undefined) {
     searchParams.append("limit", String(params.limit));
   }
-  if (params?.offset !== undefined) {
+  if (params.offset !== undefined) {
     searchParams.append("offset", String(params.offset));
   }
 
   const queryString = searchParams.toString();
-  const url = `/${TEAM_ID}/reviews${queryString ? `?${queryString}` : ""}`;
-
-  const { data } = await api.get<ReviewsResponse>(url);
-
-  return data;
+  return queryString ? `?${queryString}` : "";
 }
 
-// 특정 사용자의 리뷰 목록 조회
-export async function getUserReviews(
-  userId: number,
-  params?: Omit<ReviewsParams, "userId">,
-): Promise<ReviewsResponse> {
-  const searchParams = new URLSearchParams();
+export const reviewService = {
+  // 리뷰 목록 조회
+  async getReviews(params?: ReviewsParams): Promise<ReviewsResponse> {
+    const queryString = buildQueryString(params);
+    const { data } = await api.get<ReviewsResponse>(
+      `/${TEAM_ID}/reviews${queryString}`,
+    );
+    return data;
+  },
 
-  searchParams.append("userId", String(userId));
+  // 특정 사용자의 리뷰 목록 조회
+  async getUserReviews(
+    userId: number,
+    params?: Omit<ReviewsParams, "userId">,
+  ): Promise<ReviewsResponse> {
+    const mergedParams = { ...params, userId };
+    return this.getReviews(mergedParams);
+  },
 
-  if (params?.gatheringId !== undefined) {
-    searchParams.append("gatheringId", String(params.gatheringId));
-  }
-  if (params?.type) {
-    searchParams.append("type", params.type);
-  }
-  if (params?.location) {
-    searchParams.append("location", params.location);
-  }
-  if (params?.date) {
-    searchParams.append("date", params.date);
-  }
-  if (params?.registrationEnd) {
-    searchParams.append("registrationEnd", params.registrationEnd);
-  }
-  if (params?.sortBy) {
-    searchParams.append("sortBy", params.sortBy);
-  }
-  if (params?.sortOrder) {
-    searchParams.append("sortOrder", params.sortOrder);
-  }
-  if (params?.limit !== undefined) {
-    searchParams.append("limit", String(params.limit));
-  }
-  if (params?.offset !== undefined) {
-    searchParams.append("offset", String(params.offset));
-  }
-
-  const queryString = searchParams.toString();
-  const url = `/${TEAM_ID}/reviews?${queryString}`;
-
-  const { data } = await api.get<ReviewsResponse>(url);
-
-  return data;
-}
-
-// 리뷰 작성
-export async function createReview(
-  accessToken: string,
-  payload: CreateReviewRequest,
-): Promise<CreateReviewResponse> {
-  const { data } = await api.post<CreateReviewResponse>(
-    `/${TEAM_ID}/reviews`,
-    payload,
-    {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
+  // 리뷰 작성
+  async createReview(
+    accessToken: string,
+    payload: CreateReviewRequest,
+  ): Promise<CreateReviewResponse> {
+    const { data } = await api.post<CreateReviewResponse>(
+      `/${TEAM_ID}/reviews`,
+      payload,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
       },
-    },
-  );
+    );
+    return data;
+  },
 
-  return data;
-}
+  async getReviewScores(
+    params?: Partial<ReviewsScoreRequest>,
+  ): Promise<ReviewsScoreResponse[]> {
+    const searchParams = new URLSearchParams();
+
+    if (params?.gatheringId) {
+      searchParams.append("gatheringId", String(params.gatheringId));
+    }
+    if (params?.type) {
+      searchParams.append("type", params.type);
+    }
+
+    const queryString = searchParams.toString();
+    const { data } = await api.get<ReviewsScoreResponse[]>(
+      `/${TEAM_ID}/reviews/scores${queryString ? `?${queryString}` : ""}`,
+    );
+    return data;
+  },
+};
+
+//
+
+// Backward compatibility exports
+export const getReviews = reviewService.getReviews.bind(reviewService);
+export const getUserReviews = reviewService.getUserReviews.bind(reviewService);
+export const createReview = reviewService.createReview.bind(reviewService);
+export const getReviewScores = reviewService.getReviewScores.bind(reviewService)
