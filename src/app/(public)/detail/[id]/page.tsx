@@ -94,7 +94,7 @@ export default function DetailPage() {
   });
 
   return (
-    <div className="px-4 py-6">
+    <div className="px-4 py-2 md:px-6 md:py-8 lg:p-0 lg:pt-14 mb-10">
       {isLoading && (
         <div className="grid gap-6 md:grid-cols-[360px,1fr]">
           <div className="h-64 animate-pulse rounded-2xl bg-zinc-200 md:h-[300px]" />

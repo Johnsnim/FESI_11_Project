@@ -2,18 +2,13 @@
 
 import { Button } from "@/shadcn/button";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+  Form
 } from "@/shadcn/form";
+import { FormInput } from "@/shared/components/form-input";
 import { InputEmail, InputPassword } from "@/shared/components/input-auth";
 import Link from "next/link";
 import { UseFormReturn } from "react-hook-form";
 import { LogInFormValues } from "../schemas/auth.schema";
-import { FormInput } from "@/shared/components/form-input";
 
 interface LoginFormProps {
   form: UseFormReturn<LogInFormValues>;

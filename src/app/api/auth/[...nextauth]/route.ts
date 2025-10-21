@@ -81,7 +81,8 @@ const handler = NextAuth({
   ],
 
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
+      // 최초 로그인 시
       if (user) {
         const expiresAt = Math.floor(Date.now() / 1000) + 60 * 60;
         
@@ -94,10 +95,17 @@ const handler = NextAuth({
         token.expiresAt = expiresAt;
       }
 
+      // update() 메서드로 세션 업데이트 시
+      if (trigger === "update" && session) {
+        token.name = session.user?.name ?? token.name;
+        token.email = session.user?.email ?? token.email;
+        token.companyName = session.user?.companyName ?? token.companyName;
+        token.image = session.user?.image ?? token.image;
+      }
+
       // 토큰 만료 체크
       const now = Math.floor(Date.now() / 1000);
       if (token.expiresAt && now >= token.expiresAt) {
-        // 토큰 만료 시 에러를 던져서 세션 무효화
         throw new Error("TOKEN_EXPIRED");
       }
 
@@ -128,15 +136,14 @@ const handler = NextAuth({
   },
 
   events: {
-    // 토큰 만료 시 자동 로그아웃 처리
     async signOut() {
-      // 추가 정리 작업이 필요하면 여기서 수행
+      // 추가 정리 작업
     },
   },
 
   pages: {
-    signIn: "/login", // 로그인 페이지 경로
-    error: "/login", // 에러 발생 시 리다이렉트
+    signIn: "/login",
+    error: "/login",
   },
 
   secret: process.env.NEXTAUTH_SECRET,

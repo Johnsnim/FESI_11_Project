@@ -17,8 +17,7 @@ export default function SignUpPage() {
 
   const form = useForm<SignUpFormValues>({
     resolver: zodResolver(SignUpSchema),
-    mode: "onChange",
-    reValidateMode: "onChange",
+    mode: "onTouched",
     defaultValues: {
       email: "",
       password: "",
