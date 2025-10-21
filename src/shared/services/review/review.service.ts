@@ -1,4 +1,6 @@
 import { api } from "@/lib/api/api";
+import { ReviewListParams, REVIEWS_API } from "./endpoints";
+import { ReviewResponse } from "@/app/(public)/detail/[id]/types";
 
 const TEAM_ID = process.env.NEXT_PUBLIC_TEAM_ID as string;
 
@@ -128,6 +130,12 @@ function buildQueryString(params?: ReviewsParams): string {
 }
 
 export const reviewService = {
+    async list(params?: ReviewListParams) {
+    const { data } = await api.get<ReviewResponse>(
+      REVIEWS_API.list(TEAM_ID, params),
+    );
+    return data;
+  },
   // 리뷰 목록 조회
   async getReviews(params?: ReviewsParams): Promise<ReviewsResponse> {
     const queryString = buildQueryString(params);
