@@ -9,9 +9,9 @@ export default function Banner({ title, subtitle }: BannerProps) {
   return (
     <div className="relative w-full bg-[#9DEBCD] md:bg-transparent">
       <picture>
-        <source srcSet="/image/banner_lg.svg" media="(min-width: 1024px)" />
+        <source srcSet="/image/banner_lg.svg" media="(min-width: 1280px)" />
 
-        <source srcSet="/image/banner_md.svg" media="(min-width: 640px)" />
+        <source srcSet="/image/banner_md.svg" media="(min-width: 375px)" />
         <Image
           src="/image/banner_sm.svg"
           alt="banner"
