@@ -7,7 +7,7 @@ type BannerProps = {
 
 export default function Banner({ title, subtitle }: BannerProps) {
   return (
-    <div className="relative w-full bg-[#9DEBCD] md:bg-transparent">
+    <div className="relative w-full bg-[#9DEBCD] md:bg-transparent lg:mb-2">
       <picture>
         <source srcSet="/image/banner_lg.svg" media="(min-width: 1280px)" />
 

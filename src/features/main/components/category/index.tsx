@@ -19,11 +19,25 @@ import FiltersBar from "./filterbar";
 import { TabsBar } from "./tabsbar";
 import { ItemsGrid } from "./itemsgrid";
 import { PaginationBar } from "./pagenationbar";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 export default function Category() {
-  const [value, setValue] = React.useState<"dal" | "wor">("dal");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
-  // 필터 상태
+  const tabParam = searchParams.get("tab");
+  const value: "dal" | "wor" = tabParam === "workation" ? "wor" : "dal";
+
+  const pushWithTab = React.useCallback(
+    (next: "dal" | "wor") => {
+      const params = new URLSearchParams(searchParams);
+      params.set("tab", next === "wor" ? "workation" : "dallemfit");
+      router.push(`${pathname}?${params.toString()}`);
+    },
+    [pathname, router, searchParams],
+  );
+
   const [regionLabel, setRegionLabel] =
     React.useState<(typeof LOCATIONS)[number]>("지역 전체");
   const [sortLabel, setSortLabel] =
@@ -31,10 +45,8 @@ export default function Category() {
   const [dalCategory, setDalCategory] = React.useState<DalCategory>("전체");
   const [date, setDate] = React.useState<Date | null>(null);
 
-  // 페이지네이션
   const [page, setPage] = React.useState(1);
 
-  // 탭/필터 변경 되면 페이지 리셋되도록
   React.useEffect(() => {
     setPage(1);
   }, [value, regionLabel, sortLabel, dalCategory, date]);
@@ -92,17 +104,18 @@ export default function Category() {
     if (next < 1) return;
     if (!hasNextPage && next > page) return;
     setPage(next);
-    if (typeof window !== "undefined")
+    if (typeof window !== "undefined") {
       window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   }
 
   return (
     <Tabs
       value={value}
-      onValueChange={(v) => setValue(v as "dal" | "wor")}
+      onValueChange={(v) => pushWithTab(v as "dal" | "wor")}
       className="mb-7"
     >
-      <TabsBar value={value} onChange={(v) => setValue(v)} />
+      <TabsBar value={value} onChange={(v) => pushWithTab(v)} />
 
       {/* 달램핏 */}
       <TabsContent value="dal" className="mt-4">
@@ -119,7 +132,6 @@ export default function Category() {
 
         {isLoading && <CardSkeletonGrid />}
         {isError && <EmptyBanner />}
-
         {!isLoading &&
           !isError &&
           (items.length === 0 ? (
