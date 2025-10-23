@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { Tabs, TabsContent } from "@/shadcn/tabs";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import {
   Gathering,
   gatheringService,
@@ -14,12 +14,13 @@ import type {
   GatheringType,
 } from "@/shared/services/gathering/endpoints";
 
-import { LOCATIONS, SORTS, LIMIT, DalCategory } from "./constants";
+import { LOCATIONS, SORTS, DalCategory } from "./constants";
 import FiltersBar from "./filterbar";
 import { TabsBar } from "./tabsbar";
 import { ItemsGrid } from "./itemsgrid";
-import { PaginationBar } from "./pagenationbar";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+
+const PAGE_SIZE = 30;
 
 export default function Category() {
   const router = useRouter();
@@ -45,12 +46,6 @@ export default function Category() {
   const [dalCategory, setDalCategory] = React.useState<DalCategory>("전체");
   const [date, setDate] = React.useState<Date | null>(null);
 
-  const [page, setPage] = React.useState(1);
-
-  React.useEffect(() => {
-    setPage(1);
-  }, [value, regionLabel, sortLabel, dalCategory, date]);
-
   const locationParam = regionLabel === "지역 전체" ? undefined : regionLabel;
   const sortBy =
     sortLabel === "마감임박" ? "registrationEnd" : "participantCount";
@@ -66,9 +61,14 @@ export default function Category() {
           ? ("MINDFULNESS" as GatheringType)
           : ("DALLAEMFIT" as GatheringType);
 
-  const offset = (page - 1) * LIMIT;
-
-  const { data, isLoading, isError } = useQuery({
+  const {
+    data,
+    isLoading,
+    isError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
     queryKey: [
       "gatherings",
       {
@@ -78,36 +78,59 @@ export default function Category() {
         sortBy,
         sortOrder,
         date: dateParam,
-        page,
-        limit: LIMIT,
+        limit: PAGE_SIZE,
       },
     ],
-    queryFn: () =>
+    queryFn: ({ pageParam = 0 }) =>
       gatheringService.list({
         type: typeParam,
         location: locationParam,
         sortBy,
         sortOrder,
         date: dateParam,
-        limit: LIMIT,
-        offset,
+        limit: PAGE_SIZE,
+        offset: pageParam,
       } satisfies GatheringListParams),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage: Gathering[], allPages) =>
+      lastPage.length === PAGE_SIZE ? allPages.length * PAGE_SIZE : undefined,
     staleTime: 30_000,
     refetchOnWindowFocus: true,
   });
 
-  const items = (data ?? []) as Gathering[];
-  const hasNextPage = items.length === LIMIT;
-  const hasPrevPage = page > 1;
+  const items: Gathering[] = React.useMemo(
+    () => (data?.pages ? data.pages.flat() : []),
+    [data],
+  );
 
-  function onPageChange(next: number) {
-    if (next < 1) return;
-    if (!hasNextPage && next > page) return;
-    setPage(next);
+  React.useEffect(() => {
     if (typeof window !== "undefined") {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
-  }
+  }, [value, regionLabel, sortLabel, dalCategory, date]);
+
+  const loaderRef = React.useRef<HTMLDivElement | null>(null);
+  React.useEffect(() => {
+    const el = loaderRef.current;
+    if (!el) return;
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      {
+        root: null,
+        rootMargin: "1000px 0px 600px 0px",
+        threshold: 0,
+      },
+    );
+
+    io.observe(el);
+    return () => io.disconnect();
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   return (
     <Tabs
@@ -132,42 +155,41 @@ export default function Category() {
 
         {isLoading && <CardSkeletonGrid />}
         {isError && <EmptyBanner />}
-        {!isLoading &&
-          !isError &&
-          (items.length === 0 ? (
-            <EmptyBanner />
-          ) : (
-            <>
-              <ItemsGrid items={items} />
-              <PaginationBar
-                page={page}
-                hasNextPage={hasNextPage}
-                hasPrevPage={hasPrevPage}
-                onPageChange={onPageChange}
-              />
-            </>
-          ))}
+
+        {!isLoading && !isError && (
+          <>
+            {items.length === 0 ? (
+              <EmptyBanner />
+            ) : (
+              <>
+                <ItemsGrid items={items} />
+
+                <div ref={loaderRef} className="h-10" />
+                {isFetchingNextPage && <CardSkeletonGrid count={1} />}
+              </>
+            )}
+          </>
+        )}
       </TabsContent>
 
       {/* 워케이션 */}
       <TabsContent value="wor" className="mt-4">
         {isLoading && <CardSkeletonGrid />}
         {isError && <EmptyBanner />}
-        {!isLoading &&
-          !isError &&
-          (items.length === 0 ? (
-            <EmptyBanner />
-          ) : (
-            <>
-              <ItemsGrid items={items} />
-              <PaginationBar
-                page={page}
-                hasNextPage={hasNextPage}
-                hasPrevPage={hasPrevPage}
-                onPageChange={onPageChange}
-              />
-            </>
-          ))}
+
+        {!isLoading && !isError && (
+          <>
+            {items.length === 0 ? (
+              <EmptyBanner />
+            ) : (
+              <>
+                <ItemsGrid items={items} />
+                <div ref={loaderRef} className="h-10" />
+                {isFetchingNextPage && <CardSkeletonGrid count={1} />}
+              </>
+            )}
+          </>
+        )}
       </TabsContent>
     </Tabs>
   );

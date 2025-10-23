@@ -137,7 +137,7 @@ export default function Card({
                 !isClosed ? "cursor-pointer" : "cursor-default",
               ].join(" ")}
             >
-              <p className="text-xl leading-7 font-semibold tracking-[-0.03em] text-gray-800">
+              <p className="min-w-0 truncate text-xl leading-7 font-semibold tracking-[-0.03em] text-gray-800 md:max-w-[15ch]">
                 {title}
               </p>
               {statusText === "개설확정" ? (
