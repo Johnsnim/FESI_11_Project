@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { Chip } from "./chip";
 import { Tag } from "./tag";
 import { motion } from "motion/react";
-import * as React from "react";
+import { useMemo } from "react";
 
 export type CardProps = {
   id: number;
@@ -52,7 +52,7 @@ export default function Card({
   const isClosed = !!(isCanceled || (regEnd && regEnd < now));
   const statusText = isCanceled ? "취소됨" : isClosed ? "마감" : "개설확정";
 
-  const tagLabel = React.useMemo(() => {
+  const tagLabel = useMemo(() => {
     if (!regEnd) return "마감일 미정";
     const now = new Date();
     if (regEnd.getTime() <= now.getTime()) return null;
