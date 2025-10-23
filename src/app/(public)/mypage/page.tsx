@@ -168,6 +168,7 @@ function MyPageContent() {
           currentTab={currentTab}
           tabs={tabs}
           onChange={handleTabChange}
+          layoutId="mypage"
         />
 
         <div className="mt-4 mb-4 md:mt-7 md:mb-8 lg:mb-4.5">

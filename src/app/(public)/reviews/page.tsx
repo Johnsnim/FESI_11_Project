@@ -86,6 +86,7 @@ function ReviewsContent() {
       {/* 탭 컴포넌트 */}
       <div>
         <MyPageTabs
+          layoutId="reviews"
           currentTab={currentTab}
           onChange={handleTabChange}
           tabs={tabs}
