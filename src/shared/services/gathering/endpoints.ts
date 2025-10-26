@@ -20,6 +20,7 @@ export interface GatheringListParams {
   sortBy?: GatheringSortBy;
   sortOrder?: SortOrder;
   limit?: number;
+  ids?: number[];
   offset?: number;
 }
 
