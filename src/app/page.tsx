@@ -13,6 +13,7 @@ import { RatingModalForm } from "@/features/ratingmodal/types";
 import Banner from "@/features/main/components/banner";
 import Category from "@/features/main/components/category";
 import ButtonPlus from "@/shared/components/btnPlus";
+import GatheringCategory from "@/shared/components/gatheringcategories";
 
 const defaults: ProfileModalForm = {
   name: "홍길동",
@@ -43,7 +44,7 @@ export default function ListPage() {
         title="지금 모임에 참여해보세요"
       />
 
-      <Category />
+      <GatheringCategory mode="all" />
       <ButtonPlus onClick={handleCreateClick} aria-label="모임 만들기" />
 
       <CreateGatheringModal
