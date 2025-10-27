@@ -15,7 +15,7 @@ function getUserId(raw: unknown): number | null {
 
 export default function DibsPage() {
   const { data: session } = useSession();
-  const userId = getUserId((session?.user as any)?.id);
+  const userId = getUserId((session?.user)?.id);
 
   const getIds = React.useCallback((): number[] => {
     if (typeof window === "undefined") return [];
