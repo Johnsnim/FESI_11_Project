@@ -55,8 +55,8 @@ export const useUpdateUserMutation = () => {
     onSuccess: async (data) => {
       // 1. React Query 캐시 업데이트
       queryClient.setQueryData(["authUser"], data);
-      
-      // 2. NextAuth 세션 업데이트 (중요!)
+
+      // 2. NextAuth 세션 업데이트
       await update({
         ...session,
         user: {
