@@ -24,7 +24,7 @@ interface MyPageTabsProps {
   onChange: (tab: string) => void;
 }
 
-export default function MyPageTabs({
+export default function PageTabs({
   currentTab,
   tabs,
   imageClassName,
