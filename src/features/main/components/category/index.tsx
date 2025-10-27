@@ -2,23 +2,15 @@
 
 import * as React from "react";
 import { Tabs, TabsContent } from "@/shadcn/tabs";
-import { useInfiniteQuery } from "@tanstack/react-query";
-import {
-  Gathering,
-  gatheringService,
-} from "@/shared/services/gathering/gathering.service";
 import EmptyBanner from "../emptybanner";
 import { CardSkeletonGrid } from "@/shared/components/cardskeleton";
-import type {
-  GatheringListParams,
-  GatheringType,
-} from "@/shared/services/gathering/endpoints";
-
 import { LOCATIONS, SORTS, DalCategory } from "./constants";
 import FiltersBar from "./filterbar";
 import { TabsBar } from "./tabsbar";
-import { ItemsGrid } from "./itemsgrid";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import type { GatheringType } from "@/shared/services/gathering/endpoints";
+import { ItemsGrid } from "./itemsgrid";
+import { useGatheringsInfiniteQuery } from "@/shared/services/auth/use-auth-queries";
 
 const PAGE_SIZE = 30;
 
@@ -46,7 +38,7 @@ export default function Category() {
   const [dalCategory, setDalCategory] = React.useState<DalCategory>("전체");
   const [date, setDate] = React.useState<Date | null>(null);
 
-  const locationParam = regionLabel === "지역 전체" ? undefined : regionLabel;
+  const location = regionLabel === "지역 전체" ? undefined : regionLabel;
   const sortBy =
     sortLabel === "마감임박" ? "registrationEnd" : "participantCount";
   const sortOrder = sortLabel === "마감임박" ? "asc" : "desc";
@@ -54,60 +46,35 @@ export default function Category() {
 
   const typeParam: GatheringType | undefined =
     value === "wor"
-      ? ("WORKATION" as GatheringType)
+      ? "WORKATION"
       : dalCategory === "오피스 스트레칭"
-        ? ("OFFICE_STRETCHING" as GatheringType)
+        ? "OFFICE_STRETCHING"
         : dalCategory === "마인드풀니스"
-          ? ("MINDFULNESS" as GatheringType)
-          : ("DALLAEMFIT" as GatheringType);
+          ? "MINDFULNESS"
+          : "DALLAEMFIT";
 
-  const {
-    data,
-    isLoading,
-    isError,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-  } = useInfiniteQuery({
-    queryKey: [
-      "gatherings",
+  const { data, isLoading, isError, fetchNextPage, isFetchingNextPage } =
+    useGatheringsInfiniteQuery(
       {
-        tab: value,
         type: typeParam,
-        location: locationParam,
+        location,
         sortBy,
         sortOrder,
         date: dateParam,
-        limit: PAGE_SIZE,
       },
-    ],
-    queryFn: ({ pageParam = 0 }) =>
-      gatheringService.list({
-        type: typeParam,
-        location: locationParam,
-        sortBy,
-        sortOrder,
-        date: dateParam,
-        limit: PAGE_SIZE,
-        offset: pageParam,
-      } satisfies GatheringListParams),
-    initialPageParam: 0,
-    getNextPageParam: (lastPage: Gathering[], allPages) =>
-      lastPage.length === PAGE_SIZE ? allPages.length * PAGE_SIZE : undefined,
-    staleTime: 30_000,
-    refetchOnWindowFocus: true,
-  });
+      PAGE_SIZE,
+    );
 
-  const items: Gathering[] = React.useMemo(
-    () => (data?.pages ? data.pages.flat() : []),
-    [data],
-  );
+  const items = React.useMemo(() => data?.flatItems ?? [], [data]);
 
   React.useEffect(() => {
     if (typeof window !== "undefined") {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   }, [value, regionLabel, sortLabel, dalCategory, date]);
+
+  const computedHasNext =
+    (data?.pages?.[data.pages.length - 1]?.length ?? 0) === PAGE_SIZE;
 
   const loaderRef = React.useRef<HTMLDivElement | null>(null);
   React.useEffect(() => {
@@ -117,20 +84,16 @@ export default function Category() {
     const io = new IntersectionObserver(
       (entries) => {
         const entry = entries[0];
-        if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
+        if (entry.isIntersecting && computedHasNext && !isFetchingNextPage) {
           fetchNextPage();
         }
       },
-      {
-        root: null,
-        rootMargin: "1000px 0px 600px 0px",
-        threshold: 0,
-      },
+      { root: null, rootMargin: "1000px 0px 600px 0px", threshold: 0 },
     );
 
     io.observe(el);
     return () => io.disconnect();
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+  }, [computedHasNext, isFetchingNextPage, fetchNextPage]);
 
   return (
     <Tabs
@@ -140,7 +103,6 @@ export default function Category() {
     >
       <TabsBar value={value} onChange={(v) => pushWithTab(v)} />
 
-      {/* 달램핏 */}
       <TabsContent value="dal" className="mt-4">
         <FiltersBar
           regionLabel={regionLabel}
@@ -163,8 +125,7 @@ export default function Category() {
             ) : (
               <>
                 <ItemsGrid items={items} />
-
-                <div ref={loaderRef} className="h-10" />
+                {computedHasNext && <div ref={loaderRef} className="h-10" />}
                 {isFetchingNextPage && <CardSkeletonGrid count={1} />}
               </>
             )}
@@ -172,11 +133,9 @@ export default function Category() {
         )}
       </TabsContent>
 
-      {/* 워케이션 */}
       <TabsContent value="wor" className="mt-4">
         {isLoading && <CardSkeletonGrid />}
         {isError && <EmptyBanner />}
-
         {!isLoading && !isError && (
           <>
             {items.length === 0 ? (
@@ -184,7 +143,7 @@ export default function Category() {
             ) : (
               <>
                 <ItemsGrid items={items} />
-                <div ref={loaderRef} className="h-10" />
+                {computedHasNext && <div ref={loaderRef} className="h-10" />}
                 {isFetchingNextPage && <CardSkeletonGrid count={1} />}
               </>
             )}

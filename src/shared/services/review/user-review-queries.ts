@@ -1,10 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { reviewService } from "./review.service";
 import { useSession } from "next-auth/react";
-import type { CreateReviewRequest, ReviewsParams, ReviewsScoreRequest } from "./review.service";
+import type {
+  CreateReviewRequest,
+  ReviewsParams,
+  ReviewsScoreRequest,
+} from "./review.service";
 import { gatheringKeys } from "../gathering/use-gathering-queries";
 
-// Query Keys
 export const reviewKeys = {
   all: ["reviews"] as const,
   lists: () => [...reviewKeys.all, "list"] as const,
@@ -18,53 +21,54 @@ export const reviewScoreKeys = {
   list: (params?: Partial<ReviewsScoreRequest>) =>
     [...reviewScoreKeys.all, params] as const,
 };
-// 모든 리뷰 목록 조회
+
 export function useReviewsQuery(params?: ReviewsParams) {
   return useQuery({
     queryKey: reviewKeys.list(params),
     queryFn: () => reviewService.getReviews(params),
     retry: false,
-    staleTime: 1000 * 60 * 5, 
+    staleTime: 1000 * 60 * 5,
   });
 }
 
-// 내 리뷰 목록 조회
+export function useGatheringReviewsQuery(params: ReviewsParams) {
+  return useQuery({
+    queryKey: reviewKeys.list(params),
+    queryFn: () => reviewService.getReviews(params),
+    retry: false,
+    staleTime: 1000 * 60 * 5,
+    placeholderData: (prev) => prev,
+  });
+}
+
 export function useMyReviewsQuery(params?: Omit<ReviewsParams, "userId">) {
   const { data: session } = useSession();
   const userId = session?.user?.id;
-
   return useQuery({
     queryKey: reviewKeys.user(Number(userId), params),
     queryFn: () => reviewService.getUserReviews(Number(userId), params),
     enabled: !!userId,
     retry: false,
-    staleTime: 1000 * 60 * 5, 
+    staleTime: 1000 * 60 * 5,
   });
 }
 
-// 리뷰 작성
 export function useCreateReviewMutation() {
   const queryClient = useQueryClient();
   const { data: session } = useSession();
   const accessToken = session?.accessToken;
   const userId = session?.user?.id;
-
   return useMutation({
     mutationFn: (payload: CreateReviewRequest) =>
       reviewService.createReview(accessToken!, payload),
-    onSuccess: () => {
-      // 내 리뷰 목록 다시 불러오기
-      queryClient.invalidateQueries({
-        queryKey: reviewKeys.user(Number(userId)),
-      });
-      // 전체 리뷰 목록도 다시 불러오기
-      queryClient.invalidateQueries({
-        queryKey: reviewKeys.lists(),
-      });
-      // 참여한 모임 목록도 다시 불러오기
-      queryClient.invalidateQueries({
-        queryKey: gatheringKeys.joined(),
-      });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: reviewKeys.user(Number(userId)),
+        }),
+        queryClient.invalidateQueries({ queryKey: reviewKeys.lists() }),
+        queryClient.invalidateQueries({ queryKey: gatheringKeys.joined() }),
+      ]);
     },
   });
 }

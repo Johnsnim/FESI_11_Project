@@ -2,21 +2,19 @@
 
 import * as React from "react";
 import { useParams } from "next/navigation";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-
-import {
-  gatheringService,
-  type Gathering,
-  type JoinedGathering,
-} from "@/shared/services/gathering/gathering.service";
-import { reviewService } from "@/shared/services/review/review.service";
-
-import type { ReviewResponse } from "./types";
 
 import GatheringImage from "@/features/detail/components/gatheringimage";
 import GatheringInfo from "@/features/detail/components/gatheringinfo";
 import Participants from "@/features/detail/components/participants";
 import ReviewList from "@/features/detail/components/reviewlist";
+
+import { useGatheringReviewsQuery } from "@/shared/services/review/user-review-queries";
+import {
+  useGatheringDetailQuery,
+  useJoinedGatheringsQuery,
+  useJoinGatheringMutation,
+  useLeaveGatheringMutation,
+} from "@/shared/services/auth/use-auth-queries";
 
 function formatDateDots(iso: string | null | undefined) {
   if (!iso) return "-";
@@ -30,46 +28,18 @@ function formatDateDots(iso: string | null | undefined) {
 export default function DetailPage() {
   const params = useParams<{ id: string }>();
   const idNum = Number(params?.id);
-  const qc = useQueryClient();
 
-  const { data, isLoading, isError, error, refetch } = useQuery<Gathering>({
-    queryKey: ["gathering-detail", idNum],
-    queryFn: () => gatheringService.get(idNum),
-    enabled: Number.isFinite(idNum),
-    retry: false,
+  const { data, isLoading, isError, error, refetch } =
+    useGatheringDetailQuery(idNum);
+
+  const { data: myJoined = [] } = useJoinedGatheringsQuery({
+    limit: 100,
+    offset: 0,
   });
-
-  const { data: myJoined = [] } = useQuery<JoinedGathering[]>({
-    queryKey: ["my-joined-list"],
-    queryFn: () =>
-      gatheringService.joinedList({
-        limit: 100,
-        offset: 0,
-      }),
-    staleTime: 30_000,
-    refetchOnWindowFocus: false,
-    enabled: Number.isFinite(idNum),
-  });
-
   const isJoined = !!myJoined.find((g) => g.id === idNum);
 
-  const { mutate: join, isPending: joining } = useMutation({
-    mutationFn: () => gatheringService.join(idNum),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["gathering-detail", idNum] });
-      qc.invalidateQueries({ queryKey: ["gathering-participants", idNum] });
-      qc.invalidateQueries({ queryKey: ["my-joined-list"] });
-    },
-  });
-
-  const { mutate: leave, isPending: leaving } = useMutation({
-    mutationFn: () => gatheringService.leave(idNum),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["gathering-detail", idNum] });
-      qc.invalidateQueries({ queryKey: ["gathering-participants", idNum] });
-      qc.invalidateQueries({ queryKey: ["my-joined-list"] });
-    },
-  });
+  const joinMut = useJoinGatheringMutation(idNum);
+  const leaveMut = useLeaveGatheringMutation();
 
   const [page, setPage] = React.useState(1);
   const LIMIT = 10;
@@ -79,22 +49,16 @@ export default function DetailPage() {
     data: reviewResp,
     isLoading: isReviewLoading,
     isError: isReviewError,
-  } = useQuery<ReviewResponse>({
-    queryKey: ["reviews", idNum, page, LIMIT],
-    queryFn: () =>
-      reviewService.list({
-        gatheringId: idNum,
-        sortBy: "createdAt",
-        sortOrder: "desc",
-        limit: LIMIT,
-        offset,
-      }),
-    enabled: Number.isFinite(idNum),
-    placeholderData: (prev) => prev,
+  } = useGatheringReviewsQuery({
+    gatheringId: idNum,
+    sortBy: "createdAt",
+    sortOrder: "desc",
+    limit: LIMIT,
+    offset,
   });
 
   return (
-    <div className="px-4 py-2 md:px-6 md:py-8 lg:p-0 lg:pt-14 mb-10">
+    <div className="mb-10 px-4 py-2 md:px-6 md:py-8 lg:p-0 lg:pt-14">
       {isLoading && (
         <div className="grid gap-6 md:grid-cols-[360px,1fr]">
           <div className="h-64 animate-pulse rounded-2xl bg-zinc-200 md:h-[300px]" />
@@ -125,12 +89,11 @@ export default function DetailPage() {
               <GatheringInfo
                 data={data}
                 isJoined={isJoined}
-                onJoin={() => join()}
-                onLeave={() => leave()}
-                joining={joining}
-                leaving={leaving}
+                onJoin={() => joinMut.mutate()}
+                onLeave={() => leaveMut.mutate(idNum)}
+                joining={joinMut.isPending}
+                leaving={leaveMut.isPending}
               />
-
               <Participants data={data} />
             </div>
           </section>
