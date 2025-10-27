@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { reviewService } from "./review.service";
 import { useSession } from "next-auth/react";
 import type { 
@@ -89,5 +89,23 @@ export function useCreateReviewMutation() {
         queryKey: gatheringKeys.joined(),
       });
     },
+  });
+}
+
+export function useInfiniteReviewsQuery(params?: Omit<ReviewsParams, "offset" | "limit">) {
+  return useInfiniteQuery({
+    queryKey: reviewKeys.list({ ...params, limit: 10 }),
+    queryFn: ({ pageParam = 0 }) =>
+      reviewService.getReviews({
+        ...params,
+        limit: 10,
+        offset: pageParam,
+      }),
+    getNextPageParam: (lastPage, allPages) => {
+      const currentOffset = (allPages.length - 1) * 10;
+      const hasMore = currentOffset + lastPage.data.length < lastPage.totalItemCount;
+      return hasMore ? currentOffset + 10 : undefined;
+    },
+    initialPageParam: 0,
   });
 }
