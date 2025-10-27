@@ -20,25 +20,36 @@ export const reviewKeys = {
 };
 
 // 리뷰 목록 조회
+
 export function useReviewsQuery(params?: ReviewsParams) {
   return useQuery({
     queryKey: reviewKeys.list(params),
     queryFn: () => reviewService.getReviews(params),
     retry: false,
     staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 5,
   });
 }
 
-// 내 리뷰 목록 조회
+export function useGatheringReviewsQuery(params: ReviewsParams) {
+  return useQuery({
+    queryKey: reviewKeys.list(params),
+    queryFn: () => reviewService.getReviews(params),
+    retry: false,
+    staleTime: 1000 * 60 * 5,
+    placeholderData: (prev) => prev,
+  });
+}
+
 export function useMyReviewsQuery(params?: Omit<ReviewsParams, "userId">) {
   const { data: session } = useSession();
   const userId = session?.user?.id;
-
   return useQuery({
     queryKey: reviewKeys.user(Number(userId), params),
     queryFn: () => reviewService.getUserReviews(Number(userId), params),
     enabled: !!userId,
     retry: false,
+    staleTime: 1000 * 60 * 5,
     staleTime: 1000 * 60 * 5,
   });
 }
@@ -53,13 +64,11 @@ export function useReviewScoresQuery(params?: ReviewScoresParams) {
   });
 }
 
-// 리뷰 작성
 export function useCreateReviewMutation() {
   const queryClient = useQueryClient();
   const { data: session } = useSession();
   const accessToken = session?.accessToken;
   const userId = session?.user?.id;
-
   return useMutation({
     mutationFn: (payload: CreateReviewRequest) =>
       reviewService.createReview(accessToken!, payload),
@@ -88,6 +97,14 @@ export function useCreateReviewMutation() {
       queryClient.invalidateQueries({
         queryKey: gatheringKeys.joined(),
       });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: reviewKeys.user(Number(userId)),
+        }),
+        queryClient.invalidateQueries({ queryKey: reviewKeys.lists() }),
+        queryClient.invalidateQueries({ queryKey: gatheringKeys.joined() }),
+      ]);
     },
   });
 }

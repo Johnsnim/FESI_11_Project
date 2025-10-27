@@ -41,6 +41,16 @@ export function Header() {
           >
             모임 찾기
           </Link>
+          <Link
+            href="/dibs"
+            className={
+              pathname.startsWith("/dibs")
+                ? "text-green-500"
+                : "hover:text-green-500"
+            }
+          >
+            찜한 모임
+          </Link>
 
           <Link
             href="/reviews"

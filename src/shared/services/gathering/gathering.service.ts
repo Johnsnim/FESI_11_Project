@@ -40,7 +40,6 @@ export interface JoinedGathering extends Gathering {
   isReviewed: boolean;
 }
 
-/* ✅ 참가자 타입 export */
 export interface GatheringParticipant {
   teamId: number;
   userId: number;
@@ -70,7 +69,6 @@ export class GatheringService {
     return data;
   }
 
-  /* ✅ 반환 타입을 GatheringParticipant[]로 명시 */
   async participants(
     id: number,
     params?: {

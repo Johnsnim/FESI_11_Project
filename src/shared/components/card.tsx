@@ -4,7 +4,8 @@ import { useRouter } from "next/navigation";
 import { Chip } from "./chip";
 import { Tag } from "./tag";
 import { motion } from "motion/react";
-import * as React from "react";
+import { useMemo, useEffect, useState, useCallback } from "react";
+import { useSession } from "next-auth/react";
 
 export type CardProps = {
   id: number;
@@ -18,6 +19,8 @@ export type CardProps = {
   isCanceled?: boolean;
 };
 
+type WishMap = Record<string, number[]>;
+
 export default function Card({
   id,
   title,
@@ -30,6 +33,50 @@ export default function Card({
   isCanceled,
 }: CardProps) {
   const router = useRouter();
+  const { data: session } = useSession();
+  const userId = (session?.user as any)?.id?.toString() || "";
+
+  const [isWished, setIsWished] = useState(false);
+
+  useEffect(() => {
+    if (!userId) {
+      setIsWished(false);
+      return;
+    }
+    try {
+      const raw = localStorage.getItem("wishlist");
+      const map: WishMap = raw ? JSON.parse(raw) : {};
+      setIsWished(!!map[userId]?.includes(id));
+    } catch {
+      setIsWished(false);
+    }
+  }, [userId, id]);
+
+  const toggleWish = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      if (!userId) {
+        alert("로그인이 필요한 서비스입니다");
+        router.push("/login");
+        return;
+      }
+      try {
+        const raw = localStorage.getItem("wishlist");
+        const map: WishMap = raw ? JSON.parse(raw) : {};
+        const set = new Set<number>(map[userId] ?? []);
+        if (set.has(id)) {
+          set.delete(id);
+          setIsWished(false);
+        } else {
+          set.add(id);
+          setIsWished(true);
+        }
+        map[userId] = Array.from(set);
+        localStorage.setItem("wishlist", JSON.stringify(map));
+      } catch {}
+    },
+    [userId, id, router],
+  );
 
   const start = new Date(dateTimeISO);
   const dateLabel = `${start.getMonth() + 1}월 ${start.getDate()}일`;
@@ -52,7 +99,7 @@ export default function Card({
   const isClosed = !!(isCanceled || (regEnd && regEnd < now));
   const statusText = isCanceled ? "취소됨" : isClosed ? "마감" : "개설확정";
 
-  const tagLabel = React.useMemo(() => {
+  const tagLabel = useMemo(() => {
     if (!regEnd) return "마감일 미정";
     const now = new Date();
     if (regEnd.getTime() <= now.getTime()) return null;
@@ -137,7 +184,7 @@ export default function Card({
                 !isClosed ? "cursor-pointer" : "cursor-default",
               ].join(" ")}
             >
-              <p className="text-xl leading-7 font-semibold tracking-[-0.03em] text-gray-800">
+              <p className="min-w-0 truncate text-xl leading-7 font-semibold tracking-[-0.03em] text-gray-800 md:max-w-[15ch]">
                 {title}
               </p>
               {statusText === "개설확정" ? (
@@ -163,13 +210,21 @@ export default function Card({
             </div>
           </div>
 
-          <div className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border-1 border-gray-100 transition-colors duration-200 hover:bg-gray-50">
+          <button
+            type="button"
+            onClick={toggleWish}
+            aria-pressed={isWished}
+            aria-label={isWished ? "찜 취소" : "찜하기"}
+            className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border-1 border-gray-100 transition-colors duration-200 hover:bg-gray-50"
+          >
             <img
-              src="/image/ic_heart.svg"
-              alt="heart button"
+              src={
+                isWished ? "/image/ic_heart_fill.svg" : "/image/ic_heart.svg"
+              }
+              alt="찜하기 버튼"
               className="h-6 w-6"
             />
-          </div>
+          </button>
         </div>
 
         <div className="mt-4 flex flex-col gap-3 md:mt-7 md:flex-row md:items-end md:justify-between">
