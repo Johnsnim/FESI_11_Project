@@ -1,5 +1,4 @@
 import { api } from "@/lib/api/api";
-import { useAuthStore } from "@/shared/store/auth.store";
 
 const TEAM_ID = process.env.NEXT_PUBLIC_TEAM_ID;
 

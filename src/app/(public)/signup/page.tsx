@@ -42,7 +42,7 @@ export default function SignUpPage() {
     });
   };
   return (
-    <div className="flex min-h-[calc(100vh-88px)] flex-col items-center justify-center gap-8 px-4 pt-8 pb-8 md:gap-12 md:px-22 md:pt-10 lg:flex-row lg:items-center">
+    <div className="flex  flex-col items-center justify-center gap-8 px-4 pt-8 pb-8 md:gap-12 md:px-22 md:pt-10 lg:flex-row lg:items-center">
       <AuthBanner />
       <SignUpForm form={form} onSubmit={handleSubmit} />
     </div>

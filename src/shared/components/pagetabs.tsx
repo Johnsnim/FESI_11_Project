@@ -20,16 +20,18 @@ interface MyPageTabsProps {
   tabsClassName?: string;
   tabsListClassName?: string;
   tabsTriggerClassName?: string;
+  layoutId?: string;
   onChange: (tab: string) => void;
 }
 
-export default function MyPageTabs({
+export default function PageTabs({
   currentTab,
   tabs,
   imageClassName,
   tabsClassName,
   tabsListClassName,
   tabsTriggerClassName,
+  layoutId = "tab-underline",
   onChange,
 }: MyPageTabsProps) {
   return (
@@ -65,7 +67,7 @@ export default function MyPageTabs({
             {tab.label}
             {currentTab === tab.value && (
               <motion.div
-                layoutId="underline"
+                layoutId={layoutId}
                 className="absolute right-0 bottom-[-6px] left-0 h-[2px] bg-green-600"
                 transition={{ type: "spring", stiffness: 500, damping: 40 }}
               />

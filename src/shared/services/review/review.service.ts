@@ -12,6 +12,10 @@ export type GatheringType =
 
 export type Location = "건대입구" | "을지로3가" | "신림" | "홍대입구";
 
+export type SortBy = "createdAt" | "score" | "participantCount";
+export type SortOrder = "asc" | "desc";
+
+// API 응답 타입
 export interface Review {
   teamId: number;
   id: number;
@@ -42,6 +46,7 @@ export interface ReviewsResponse {
   totalPages: number;
 }
 
+// 리뷰 목록 조회 파라미터
 export interface ReviewsParams {
   gatheringId?: number;
   userId?: number;
@@ -49,18 +54,20 @@ export interface ReviewsParams {
   location?: Location;
   date?: string; // YYYY-MM-DD
   registrationEnd?: string; // YYYY-MM-DD
-  sortBy?: "createdAt" | "score" | "participantCount";
-  sortOrder?: "asc" | "desc";
+  sortBy?: SortBy;
+  sortOrder?: SortOrder;
   limit?: number;
   offset?: number;
 }
 
+// 리뷰 작성 요청
 export interface CreateReviewRequest {
   gatheringId: number;
   score: number;
   comment: string;
 }
 
+// 리뷰 작성 응답
 export interface CreateReviewResponse {
   teamId: number;
   id: number;
@@ -71,16 +78,17 @@ export interface CreateReviewResponse {
   createdAt: string;
 }
 
-export interface ReviewsScoreRequest {
-  teamId: number;
-  gatheringId: number;
-  type: GatheringType;
+// 리뷰 평점 조회 파라미터
+export interface ReviewScoresParams {
+  gatheringId?: string; // 쉼표로 구분된 모임 ID 목록 (예: "1,2,3")
+  type?: GatheringType;
 }
 
-export interface ReviewsScoreResponse {
+// 리뷰 평점 응답
+export interface ReviewScoreResponse {
   teamId: number;
-  gatheringId?: number;
-  type?: GatheringType;
+  gatheringId?: number; // gatheringId 파라미터가 있을 경우에만 포함
+  type?: GatheringType; // type 파라미터가 있을 경우에만 포함
   oneStar: number;
   twoStars: number;
   threeStars: number;
@@ -89,53 +97,31 @@ export interface ReviewsScoreResponse {
   averageScore: number;
 }
 
+// 쿼리 스트링 빌더
 function buildQueryString(params?: ReviewsParams): string {
   if (!params) return "";
 
   const searchParams = new URLSearchParams();
 
-  if (params.gatheringId !== undefined) {
-    searchParams.append("gatheringId", String(params.gatheringId));
-  }
-  if (params.userId !== undefined) {
-    searchParams.append("userId", String(params.userId));
-  }
-  if (params.type) {
-    searchParams.append("type", params.type);
-  }
-  if (params.location) {
-    searchParams.append("location", params.location);
-  }
-  if (params.date) {
-    searchParams.append("date", params.date);
-  }
-  if (params.registrationEnd) {
-    searchParams.append("registrationEnd", params.registrationEnd);
-  }
-  if (params.sortBy) {
-    searchParams.append("sortBy", params.sortBy);
-  }
-  if (params.sortOrder) {
-    searchParams.append("sortOrder", params.sortOrder);
-  }
-  if (params.limit !== undefined) {
-    searchParams.append("limit", String(params.limit));
-  }
-  if (params.offset !== undefined) {
-    searchParams.append("offset", String(params.offset));
-  }
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null) {
+      searchParams.append(key, String(value));
+    }
+  });
 
   const queryString = searchParams.toString();
   return queryString ? `?${queryString}` : "";
 }
 
 export const reviewService = {
-    async list(params?: ReviewListParams) {
+  // 리뷰 목록 조회 (레거시 지원)
+  async list(params?: ReviewListParams) {
     const { data } = await api.get<ReviewResponse>(
       REVIEWS_API.list(TEAM_ID, params),
     );
     return data;
   },
+
   // 리뷰 목록 조회
   async getReviews(params?: ReviewsParams): Promise<ReviewsResponse> {
     const queryString = buildQueryString(params);
@@ -150,8 +136,7 @@ export const reviewService = {
     userId: number,
     params?: Omit<ReviewsParams, "userId">,
   ): Promise<ReviewsResponse> {
-    const mergedParams = { ...params, userId };
-    return this.getReviews(mergedParams);
+    return this.getReviews({ ...params, userId });
   },
 
   // 리뷰 작성
@@ -171,30 +156,29 @@ export const reviewService = {
     return data;
   },
 
+  // 리뷰 평점 목록 조회
   async getReviewScores(
-    params?: Partial<ReviewsScoreRequest>,
-  ): Promise<ReviewsScoreResponse[]> {
+    params?: ReviewScoresParams,
+  ): Promise<ReviewScoreResponse[]> {
     const searchParams = new URLSearchParams();
 
     if (params?.gatheringId) {
-      searchParams.append("gatheringId", String(params.gatheringId));
+      searchParams.append("gatheringId", params.gatheringId);
     }
     if (params?.type) {
       searchParams.append("type", params.type);
     }
 
     const queryString = searchParams.toString();
-    const { data } = await api.get<ReviewsScoreResponse[]>(
+    const { data } = await api.get<ReviewScoreResponse[]>(
       `/${TEAM_ID}/reviews/scores${queryString ? `?${queryString}` : ""}`,
     );
     return data;
   },
 };
 
-//
-
 // Backward compatibility exports
 export const getReviews = reviewService.getReviews.bind(reviewService);
 export const getUserReviews = reviewService.getUserReviews.bind(reviewService);
 export const createReview = reviewService.createReview.bind(reviewService);
-export const getReviewScores = reviewService.getReviewScores.bind(reviewService)
+export const getReviewScores = reviewService.getReviewScores.bind(reviewService);
