@@ -1,18 +1,15 @@
-// src/features/main/components/dibs-category.tsx
 "use client";
 
 import * as React from "react";
+import type { Session } from "next-auth";
 import { useSession } from "next-auth/react";
 import { Tabs, TabsContent } from "@/shadcn/tabs";
 import {
   Gathering,
   gatheringService,
 } from "@/shared/services/gathering/gathering.service";
-
 import { CardSkeletonGrid } from "@/shared/components/cardskeleton";
-
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-
 import type { GatheringType } from "@/shared/services/gathering/endpoints";
 import {
   DalCategory,
@@ -26,34 +23,52 @@ import { ItemsGrid } from "@/features/main/components/category/itemsgrid";
 
 const PAGE_SIZE = 30;
 
-function getUserId(u: { id?: number | string } | undefined | null) {
-  const raw = u?.id;
-  if (typeof raw === "number") return Number.isFinite(raw) ? raw : null;
-  if (typeof raw === "string") {
-    const n = Number(raw);
-    return Number.isFinite(n) ? n : null;
+function getUserIdFromSession(
+  session: Session | null | undefined,
+): number | null {
+  const u = session?.user;
+  if (u && typeof u === "object") {
+    const maybe = (u as Record<string, unknown>)["id"];
+    if (typeof maybe === "number" && Number.isFinite(maybe)) return maybe;
+    if (typeof maybe === "string") {
+      const n = Number(maybe);
+      if (Number.isFinite(n)) return n;
+    }
   }
   return null;
 }
 
+function toUniqueNumberArray(v: unknown): number[] {
+  if (!Array.isArray(v)) return [];
+  const nums = v
+    .map((x) => (typeof x === "number" ? x : Number(x)))
+    .filter((n) => Number.isFinite(n)) as number[];
+  return Array.from(new Set(nums));
+}
+
+function safeJsonParse(v: string | null): unknown {
+  if (!v) return null;
+  try {
+    return JSON.parse(v);
+  } catch {
+    return null;
+  }
+}
+
 function readDibs(userId: number | null): number[] {
   if (typeof window === "undefined" || !userId) return [];
-  try {
-    const k1 = localStorage.getItem(`dibs:${userId}`);
-    if (k1) {
-      const arr = JSON.parse(k1);
-      if (Array.isArray(arr)) {
-        return Array.from(new Set(arr.map(Number))).filter(Number.isFinite);
-      }
-    }
 
-    const k2 = localStorage.getItem("dibs");
-    if (k2) {
-      const obj = JSON.parse(k2);
-      const arr = Array.isArray(obj?.[userId]) ? obj[userId] : [];
-      return Array.from(new Set(arr.map(Number))).filter(Number.isFinite);
-    }
-  } catch {}
+  const k1 = localStorage.getItem(`dibs:${userId}`);
+  const parsedK1 = safeJsonParse(k1);
+  const fromK1 = toUniqueNumberArray(parsedK1);
+  if (fromK1.length > 0) return fromK1;
+
+  const k2 = localStorage.getItem("dibs");
+  const parsedK2 = safeJsonParse(k2);
+  if (parsedK2 && typeof parsedK2 === "object") {
+    const byUser = (parsedK2 as Record<string, unknown>)[String(userId)];
+    return toUniqueNumberArray(byUser);
+  }
   return [];
 }
 
@@ -61,8 +76,10 @@ export default function DibsCategory() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
   const tabParam = searchParams.get("tab");
   const value: "dal" | "wor" = tabParam === "workation" ? "wor" : "dal";
+
   const pushWithTab = React.useCallback(
     (next: "dal" | "wor") => {
       const params = new URLSearchParams(searchParams);
@@ -73,7 +90,7 @@ export default function DibsCategory() {
   );
 
   const { data: session } = useSession();
-  const myId = getUserId(session?.user as any);
+  const myId = getUserIdFromSession(session);
 
   const [dibIds, setDibIds] = React.useState<number[]>([]);
   React.useEffect(() => {
@@ -95,7 +112,7 @@ export default function DibsCategory() {
         : ["DALLAEMFIT", "OFFICE_STRETCHING", "MINDFULNESS"];
 
   const wantTypes: GatheringType[] =
-    value === "wor" ? (["WORKATION"] as GatheringType[]) : typeForDal;
+    value === "wor" ? ["WORKATION"] : typeForDal;
 
   const [allDetails, setAllDetails] = React.useState<Gathering[] | null>(null);
   const [loading, setLoading] = React.useState(false);
@@ -104,8 +121,12 @@ export default function DibsCategory() {
   React.useEffect(() => {
     let alive = true;
     async function run() {
-      if (!dibIds.length) {
-        setAllDetails([]);
+      if (dibIds.length === 0) {
+        if (alive) {
+          setAllDetails([]);
+          setLoading(false);
+          setError(null);
+        }
         return;
       }
       setLoading(true);
@@ -114,15 +135,16 @@ export default function DibsCategory() {
         const results = await Promise.allSettled(
           dibIds.map((id) => gatheringService.get(id)),
         );
-        const ok = results
+        const ok: Gathering[] = results
           .filter(
             (r): r is PromiseFulfilledResult<Gathering> =>
               r.status === "fulfilled",
           )
           .map((r) => r.value);
         if (alive) setAllDetails(ok);
-      } catch (e: any) {
-        if (alive) setError(e?.message ?? "불러오기에 실패했습니다.");
+      } catch (e) {
+        if (alive)
+          setError(e instanceof Error ? e.message : "불러오기에 실패했습니다.");
       } finally {
         if (alive) setLoading(false);
       }
@@ -133,7 +155,7 @@ export default function DibsCategory() {
     };
   }, [dibIds]);
 
-  const filteredSorted = React.useMemo(() => {
+  const filteredSorted: Gathering[] = React.useMemo(() => {
     if (!allDetails) return [];
     let arr = allDetails.slice();
 
@@ -159,10 +181,10 @@ export default function DibsCategory() {
       arr.sort((a, b) => {
         const A = a.registrationEnd
           ? new Date(a.registrationEnd).getTime()
-          : Infinity;
+          : Number.POSITIVE_INFINITY;
         const B = b.registrationEnd
           ? new Date(b.registrationEnd).getTime()
-          : Infinity;
+          : Number.POSITIVE_INFINITY;
         return A - B;
       });
     } else {
@@ -172,11 +194,13 @@ export default function DibsCategory() {
   }, [allDetails, wantTypes, regionLabel, date, sortLabel]);
 
   const [visibleCount, setVisibleCount] = React.useState(PAGE_SIZE);
+
   React.useEffect(() => {
     setVisibleCount(PAGE_SIZE);
-    if (typeof window !== "undefined")
+    if (typeof window !== "undefined") {
       window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [value, regionLabel, sortLabel, dalCategory, date, dibIds.join(",")]);
+    }
+  }, [value, regionLabel, sortLabel, dalCategory, date, dibIds]);
 
   const loaderRef = React.useRef<HTMLDivElement | null>(null);
   React.useEffect(() => {
@@ -185,7 +209,7 @@ export default function DibsCategory() {
     const io = new IntersectionObserver(
       (entries) => {
         const entry = entries[0];
-        if (entry.isIntersecting) {
+        if (entry?.isIntersecting) {
           setVisibleCount((c) =>
             Math.min(c + PAGE_SIZE, filteredSorted.length),
           );
@@ -197,7 +221,10 @@ export default function DibsCategory() {
     return () => io.disconnect();
   }, [filteredSorted.length]);
 
-  const showing = filteredSorted.slice(0, visibleCount);
+  const showing = React.useMemo(
+    () => filteredSorted.slice(0, visibleCount),
+    [filteredSorted, visibleCount],
+  );
 
   return (
     <Tabs
@@ -242,6 +269,7 @@ export default function DibsCategory() {
       <TabsContent value="wor" className="mt-4">
         {loading && <CardSkeletonGrid />}
         {error && <EmptyBanner />}
+
         {!loading && !error && (
           <>
             {showing.length === 0 ? (
