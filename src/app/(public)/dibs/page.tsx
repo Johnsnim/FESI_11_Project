@@ -15,14 +15,14 @@ function getUserId(raw: unknown): number | null {
 
 export default function DibsPage() {
   const { data: session } = useSession();
-  const userId = getUserId((session?.user)?.id);
+  const userId = getUserId(session?.user?.id);
 
   const getIds = React.useCallback((): number[] => {
     if (typeof window === "undefined") return [];
     const raw = localStorage.getItem("wishlist") || "{}";
     try {
       const parsed = JSON.parse(raw) as Record<string, unknown>;
-      if (userId == null) return []; // 비로그인 시 빈 배열
+      if (userId == null) return [];
       const arr = parsed[String(userId)];
       if (Array.isArray(arr)) {
         return arr.map((x) => Number(x)).filter((n) => Number.isFinite(n));
