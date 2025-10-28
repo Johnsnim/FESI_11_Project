@@ -20,13 +20,14 @@ const LOCATIONS: Array<{ value: Location | "all"; label: string }> = [
   { value: "홍대입구", label: "홍대입구" },
 ];
 
-const SORTS: Array<{ value: SortBy; label: string }> = [
+// 기본 정렬 옵션 (리뷰 페이지용)
+const DEFAULT_SORTS: Array<{ value: SortBy; label: string }> = [
   { value: "createdAt", label: "최신순" },
   { value: "score", label: "별점순" },
-  { value: "participantCount", label: "마감임박순" },
+  { value: "participantCount", label: "참여인원순" },
 ];
 
-interface ReviewFiltersBarProps {
+interface ReviewFiltersBarProps<T extends string = SortBy> {
   // 타입 필터 (달램핏 탭에서만 사용)
   showTypeFilter?: boolean;
   dallaemfitFilter: DallaemfitFilter;
@@ -41,11 +42,14 @@ interface ReviewFiltersBarProps {
   setSelectedDate: (d: string | undefined) => void;
 
   // 정렬 필터
-  sortBy: SortBy;
-  setSortBy: (s: SortBy) => void;
+  sortBy: T;
+  setSortBy: (s: T) => void;
+
+  // 정렬 옵션 (선택적, 기본값은 DEFAULT_SORTS)
+  sortOptions?: Array<{ value: T; label: string }>;
 }
 
-export default function FiltersBar({
+export default function FiltersBar<T extends string = SortBy>({
   showTypeFilter = true,
   dallaemfitFilter,
   setDallaemfitFilter,
@@ -55,14 +59,21 @@ export default function FiltersBar({
   setSelectedDate,
   sortBy,
   setSortBy,
-}: ReviewFiltersBarProps) {
+  sortOptions,
+}: ReviewFiltersBarProps<T>) {
+  // 타입이 명시적으로 지정되지 않은 경우 DEFAULT_SORTS 사용
+  const sorts = (sortOptions ?? DEFAULT_SORTS) as Array<{ value: T; label: string }>;
+
   // 선택된 지역의 라벨 찾기
   const regionLabel =
     LOCATIONS.find((loc) => loc.value === selectedLocation)?.label ||
     "지역 전체";
 
   // 선택된 정렬의 라벨 찾기
-  const sortLabel = SORTS.find((sort) => sort.value === sortBy)?.label || "최신순";
+  const sortLabel =
+    sorts.find((sort) => sort.value === sortBy)?.label ||
+    sorts[0]?.label ||
+    "정렬";
 
   // 날짜를 Date 객체로 변환
   const dateValue = selectedDate ? new Date(selectedDate) : null;
@@ -166,7 +177,7 @@ export default function FiltersBar({
 
         {/* 정렬 */}
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
+          <DropdownMenuTrigger asChild className="">
             <button className="flex cursor-pointer items-center px-2 py-2 text-sm font-medium text-gray-500">
               <img
                 src="/image/ic_filter.svg"
@@ -177,7 +188,7 @@ export default function FiltersBar({
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-35.5 rounded-lg p-1.5 shadow-sm">
-            {SORTS.map((sort) => (
+            {sorts.map((sort) => (
               <DropdownMenuItem
                 key={sort.value}
                 onSelect={() => setSortBy(sort.value)}

@@ -67,17 +67,26 @@ type ListFilter = Omit<GatheringListParams, "limit" | "offset" | "ids"> & {
 };
 
 // 모임 목록 무한 스크롤 조회
-export function useGatheringsInfiniteQuery(filter: ListFilter, pageSize = 30) {
+export function useGatheringsInfiniteQuery(filter: ListFilter, pageSize = 50) {
+  // sortOrder 기본값을 desc로 설정
+  const filterWithDefaults = useMemo(
+    () => ({
+      sortOrder: "desc" as const,
+      ...filter,
+    }),
+    [filter],
+  );
+
   const key = useMemo(
-    () => gatheringKeys.list({ ...filter, limit: pageSize }),
-    [filter, pageSize],
+    () => gatheringKeys.list({ ...filterWithDefaults, limit: pageSize }),
+    [filterWithDefaults, pageSize],
   );
 
   return useInfiniteQuery({
     queryKey: key,
     queryFn: ({ pageParam = 0 }) =>
       gatheringService.list({
-        ...filter,
+        ...filterWithDefaults,
         limit: pageSize,
         offset: Number(pageParam) || 0,
       }),

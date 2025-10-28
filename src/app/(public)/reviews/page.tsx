@@ -16,6 +16,21 @@ import PageTabs, { TabItem } from "@/shared/components/pagetabs";
 
 type DallaemfitFilter = "all" | "OFFICE_STRETCHING" | "MINDFULNESS";
 
+export const tabs: TabItem[] = [
+  {
+    value: "dallemfit",
+    label: "달램핏",
+    imageUrl: "/image/ic_mind_md.svg",
+    imageAlt: "달램핏 아이콘",
+  },
+  {
+    value: "workation",
+    label: "워케이션",
+    imageUrl: "/image/ic_ parasol_md.svg",
+    imageAlt: "워케이션 아이콘",
+  },
+];
+
 function ReviewsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -158,21 +173,6 @@ function ReviewsContent() {
   const handleSortChange = (sort: SortBy) => {
     updateSearchParams({ sortBy: sort });
   };
-
-  const tabs: TabItem[] = [
-    {
-      value: "dallemfit",
-      label: "달램핏",
-      imageUrl: "/image/ic_mind_md.svg",
-      imageAlt: "달램핏 아이콘",
-    },
-    {
-      value: "workation",
-      label: "워케이션",
-      imageUrl: "/image/ic_ parasol_md.svg",
-      imageAlt: "워케이션 아이콘",
-    },
-  ];
 
   return (
     <div className="flex flex-col">
