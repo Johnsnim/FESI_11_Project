@@ -248,7 +248,7 @@ export default function Card({
                 />
                 <div className="relative ml-1 h-2 min-w-0 flex-1 overflow-hidden rounded-full bg-[#EAEAEA]">
                   <motion.div
-                    className="absolute bottom-0 left-0 rounded-full bg-gradient-to-r from-[#17DA71] to-[#08DDF0]"
+                    className="absolute inset-y-0 left-0 h-full rounded-full bg-gradient-to-r from-[#17DA71] to-[#08DDF0]"
                     initial={{ width: 0 }}
                     whileInView={{ width: `${percent}%` }}
                     viewport={{ once: true, amount: 1 }}
