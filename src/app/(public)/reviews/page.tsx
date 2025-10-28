@@ -11,7 +11,7 @@ import {
 } from "@/shared/services/review/user-review-queries";
 import ReviewScore from "@/features/reviews/components/review-score";
 import type { Location, SortBy } from "@/shared/services/review/review.service";
-import FiltersBar from "@/shadcn/filters-bar";
+import FiltersBar from "@/shared/components/filters-bar";
 import PageTabs, { TabItem } from "@/shared/components/pagetabs";
 
 type DallaemfitFilter = "all" | "OFFICE_STRETCHING" | "MINDFULNESS";

@@ -17,8 +17,8 @@ import EmptyBanner from "@/features/main/components/emptybanner";
 import Card from "@/shared/components/card";
 import { CardSkeletonGrid } from "@/shared/components/cardskeleton";
 import { GatheringType } from "@/shared/services/gathering/endpoints";
-import { useGatheringsInfiniteQuery } from "@/shared/services/auth/use-auth-queries";
 import { Gathering } from "@/shared/services/gathering/gathering.service";
+import { useGatheringsInfiniteQuery } from "@/shared/services/gathering/use-gathering-queries";
 
 const LOCATIONS = [
   "지역 전체",
