@@ -14,7 +14,7 @@ import {
   useJoinedGatheringsQuery,
   useJoinGatheringMutation,
   useLeaveGatheringMutation,
-} from "@/shared/services/auth/use-auth-queries";
+} from "@/shared/services/gathering/use-gathering-queries"
 
 function formatDateDots(iso: string | null | undefined) {
   if (!iso) return "-";

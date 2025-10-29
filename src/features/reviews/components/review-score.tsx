@@ -1,11 +1,9 @@
-// src/features/reviews/components/review-score.tsx
-
-import { ReviewsScoreResponse } from "@/shared/services/review/review.service";
+import { ReviewScoreResponse } from "@/shared/services/review/review.service";
 import { Heart } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface ReviewScoreProps {
-  data?: ReviewsScoreResponse[];
+  data?: ReviewScoreResponse[];
   isLoading?: boolean;
 }
 

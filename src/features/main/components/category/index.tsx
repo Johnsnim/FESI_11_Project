@@ -10,7 +10,7 @@ import { TabsBar } from "./tabsbar";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { GatheringType } from "@/shared/services/gathering/endpoints";
 import { ItemsGrid } from "./itemsgrid";
-import { useGatheringsInfiniteQuery } from "@/shared/services/auth/use-auth-queries";
+import { useGatheringsInfiniteQuery } from "@/shared/services/gathering/use-gathering-queries";
 
 const PAGE_SIZE = 30;
 

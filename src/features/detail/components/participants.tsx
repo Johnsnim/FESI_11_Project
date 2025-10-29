@@ -3,7 +3,7 @@
 import * as React from "react";
 import Image from "next/image";
 import type { Gathering } from "@/shared/services/gathering/gathering.service";
-import { useGatheringParticipantsQuery } from "@/shared/services/auth/use-auth-queries";
+import { useGatheringParticipantsQuery } from "@/shared/services/gathering/use-gathering-queries";
 
 function InitialsBubble({ name }: { name: string }) {
   const text = (name ?? "").trim();
