@@ -137,7 +137,7 @@ export default function Card({
   }
 
   return (
-    <div className="mx-4 mb-5 box-border w-[calc(100%-2rem)] justify-center overflow-hidden rounded-3xl bg-white md:mx-0 md:flex md:h-fit md:w-full md:flex-row md:items-center md:justify-center md:p-6">
+    <div className="box-border w-[calc(100%-2rem)] justify-center overflow-hidden rounded-3xl bg-white md:flex md:h-fit md:w-full md:flex-row md:items-center md:justify-center md:p-6">
       <div
         onClick={handleJoin}
         aria-disabled={isClosed}

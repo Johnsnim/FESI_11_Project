@@ -1,3 +1,4 @@
+// filters-bar.tsx
 "use client";
 
 import * as React from "react";
@@ -9,10 +10,13 @@ import {
   DropdownMenuTrigger,
 } from "@/shadcn/dropdown-menu";
 import type { Location, SortBy } from "@/shared/services/review/review.service";
+import { DateFilter } from "@/features/main/components/category/datefilter";
+import { DallaemfitFilter } from "../types/filters";
 
-type DallaemfitFilter = "all" | "OFFICE_STRETCHING" | "MINDFULNESS";
+// 타입 별칭 추가
+type LocationFilter = "all" | Location;
 
-const LOCATIONS: Array<{ value: Location | "all"; label: string }> = [
+const LOCATIONS: Array<{ value: LocationFilter; label: string }> = [
   { value: "all", label: "지역 전체" },
   { value: "건대입구", label: "건대입구" },
   { value: "을지로3가", label: "을지로3가" },
@@ -20,7 +24,6 @@ const LOCATIONS: Array<{ value: Location | "all"; label: string }> = [
   { value: "홍대입구", label: "홍대입구" },
 ];
 
-// 기본 정렬 옵션 (리뷰 페이지용)
 const DEFAULT_SORTS: Array<{ value: SortBy; label: string }> = [
   { value: "createdAt", label: "최신순" },
   { value: "score", label: "별점순" },
@@ -28,24 +31,20 @@ const DEFAULT_SORTS: Array<{ value: SortBy; label: string }> = [
 ];
 
 interface ReviewFiltersBarProps<T extends string = SortBy> {
-  // 타입 필터 (달램핏 탭에서만 사용)
   showTypeFilter?: boolean;
   dallaemfitFilter: DallaemfitFilter;
   setDallaemfitFilter: (v: DallaemfitFilter) => void;
 
-  // 지역 필터
-  selectedLocation: Location | "all";
-  setSelectedLocation: (v: Location | "all") => void;
+  // 타입 수정
+  selectedLocation: LocationFilter;
+  setSelectedLocation: (v: LocationFilter) => void;
 
-  // 날짜 필터
   selectedDate: string | undefined;
   setSelectedDate: (d: string | undefined) => void;
 
-  // 정렬 필터
   sortBy: T;
   setSortBy: (s: T) => void;
 
-  // 정렬 옵션 (선택적, 기본값은 DEFAULT_SORTS)
   sortOptions?: Array<{ value: T; label: string }>;
 }
 
@@ -61,21 +60,20 @@ export default function FiltersBar<T extends string = SortBy>({
   setSortBy,
   sortOptions,
 }: ReviewFiltersBarProps<T>) {
-  // 타입이 명시적으로 지정되지 않은 경우 DEFAULT_SORTS 사용
-  const sorts = (sortOptions ?? DEFAULT_SORTS) as Array<{ value: T; label: string }>;
+  const sorts = (sortOptions ?? DEFAULT_SORTS) as Array<{
+    value: T;
+    label: string;
+  }>;
 
-  // 선택된 지역의 라벨 찾기
   const regionLabel =
     LOCATIONS.find((loc) => loc.value === selectedLocation)?.label ||
     "지역 전체";
 
-  // 선택된 정렬의 라벨 찾기
   const sortLabel =
     sorts.find((sort) => sort.value === sortBy)?.label ||
     sorts[0]?.label ||
-    "정렬";
+    null;
 
-  // 날짜를 Date 객체로 변환
   const dateValue = selectedDate ? new Date(selectedDate) : null;
 
   const handleDateChange = (date: Date | null) => {
@@ -90,10 +88,9 @@ export default function FiltersBar<T extends string = SortBy>({
   };
 
   return (
-    <div className="mx-4 mb-3 md:mx-0 md:flex md:flex-row md:justify-between">
-      {/* 타입 필터 - 달램핏 탭에서만 표시 */}
+    <div className="mx-4 md:mx-0 md:flex md:flex-row md:justify-between">
       {showTypeFilter && (
-        <div className="mb-2 flex flex-row gap-2 md:mb-0">
+        <div className="flex flex-row gap-2">
           <Chip
             onClick={() => setDallaemfitFilter("all")}
             variant={dallaemfitFilter === "all" ? "dark" : "light"}
@@ -103,7 +100,9 @@ export default function FiltersBar<T extends string = SortBy>({
           </Chip>
           <Chip
             onClick={() => setDallaemfitFilter("OFFICE_STRETCHING")}
-            variant={dallaemfitFilter === "OFFICE_STRETCHING" ? "dark" : "light"}
+            variant={
+              dallaemfitFilter === "OFFICE_STRETCHING" ? "dark" : "light"
+            }
             className="cursor-pointer"
           >
             오피스 스트레칭
@@ -118,13 +117,18 @@ export default function FiltersBar<T extends string = SortBy>({
         </div>
       )}
 
-      <div className="flex flex-row gap-2">
-        {/* 지역 */}
+      <div
+        className={`flex h-10 flex-row gap-2 ${!showTypeFilter ? "md:ml-auto" : ""}`}
+      >
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="flex cursor-pointer items-center px-2 py-2 text-sm font-medium text-gray-500">
+            <button className="flex cursor-pointer items-center px-2 py-2 text-sm font-medium text-gray-500 focus:outline-none focus-visible:ring-0">
               {regionLabel}
-              <img src="/image/ic_arrow.svg" sizes="100vw" alt="dropdown icon" />
+              <img
+                src="/image/ic_arrow.svg"
+                sizes="100vw"
+                alt="dropdown icon"
+              />
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-35.5 rounded-lg p-1.5 shadow-sm">
@@ -133,7 +137,7 @@ export default function FiltersBar<T extends string = SortBy>({
                 key={location.value}
                 onSelect={() => setSelectedLocation(location.value)}
                 data-selected={selectedLocation === location.value}
-                className="rounded-lg data-[highlighted]:bg-gray-100 data-[selected=true]:bg-green-100 data-[selected=true]:text-gray-900"
+                className="rounded-lg focus:outline-none focus-visible:ring-0 data-[highlighted]:bg-green-50 data-[selected=true]:bg-green-100 data-[selected=true]:text-gray-900"
               >
                 {location.label}
               </DropdownMenuItem>
@@ -141,44 +145,11 @@ export default function FiltersBar<T extends string = SortBy>({
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* 날짜 */}
+        <DateFilter date={dateValue} onChange={handleDateChange} />
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="flex cursor-pointer items-center px-2 py-2 text-sm font-medium text-gray-500">
-              {dateValue
-                ? dateValue.toLocaleDateString("ko-KR", {
-                    year: "numeric",
-                    month: "2-digit",
-                    day: "2-digit",
-                  })
-                : "날짜 선택"}
-              <img src="/image/ic_arrow.svg" alt="dropdown icon" />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-auto rounded-lg p-3 shadow-sm">
-            <input
-              type="date"
-              value={selectedDate || ""}
-              onChange={(e) =>
-                handleDateChange(e.target.value ? new Date(e.target.value) : null)
-              }
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-            />
-            {selectedDate && (
-              <button
-                onClick={() => setSelectedDate(undefined)}
-                className="mt-2 w-full rounded-md bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200"
-              >
-                날짜 초기화
-              </button>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
-
-        {/* 정렬 */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild className="">
-            <button className="flex cursor-pointer items-center px-2 py-2 text-sm font-medium text-gray-500">
+            <button className="flex cursor-pointer items-center px-2 py-2 text-sm font-medium text-gray-500 focus:outline-none focus-visible:ring-0">
               <img
                 src="/image/ic_filter.svg"
                 alt="filter icon"
