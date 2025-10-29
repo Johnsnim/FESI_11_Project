@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/shadcn/tabs";
-import { motion } from "framer-motion";
+import { m } from "motion/react";
 import Image from "next/image";
 import { cn } from "@/shadcn/lib/utils";
 
@@ -13,9 +13,9 @@ export interface TabItem {
   imageAlt?: string;
 }
 
-interface PageTabsProps {
+interface MyPageTabsProps {
   currentTab: string;
-  tabs: TabItem[];
+  tabs: readonly TabItem[];
   imageClassName?: string;
   tabsClassName?: string;
   tabsListClassName?: string;
@@ -33,7 +33,7 @@ export default function PageTabs({
   tabsTriggerClassName,
   layoutId = "tab-underline",
   onChange,
-}: PageTabsProps) {
+}: MyPageTabsProps) {
   return (
     <Tabs
       value={currentTab}
@@ -66,7 +66,7 @@ export default function PageTabs({
             )}
             {tab.label}
             {currentTab === tab.value && (
-              <motion.div
+              <m.div
                 layoutId={layoutId}
                 className="absolute right-0 bottom-[-6px] left-0 h-[2px] bg-green-600"
                 transition={{ type: "spring", stiffness: 500, damping: 40 }}

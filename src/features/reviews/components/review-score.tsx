@@ -1,6 +1,6 @@
 import { ReviewScoreResponse } from "@/shared/services/review/review.service";
 import { Heart } from "lucide-react";
-import { motion } from "framer-motion";
+import { m } from "motion/react";
 
 interface ReviewScoreProps {
   data?: ReviewScoreResponse[];
@@ -111,7 +111,7 @@ export default function ReviewsScore({ data, isLoading }: ReviewScoreProps) {
 
               {/* 프로그레스 바 */}
               <div className="relative h-2 flex-1 overflow-hidden rounded-full bg-[#E5E7EB]">
-                <motion.div
+                <m.div
                   className="absolute top-0 left-0 h-full rounded-full bg-gradient-to-r from-[#5DD996] to-[#68E3E3]"
                   initial={{ width: 0 }}
                   animate={{ width: `${percentage}%` }}

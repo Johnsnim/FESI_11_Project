@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { Chip } from "./chip";
 import { Tag } from "./tag";
-import { motion } from "motion/react";
+import { m } from "motion/react";
 import { useMemo, useEffect, useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
 
@@ -82,9 +82,7 @@ export default function Card({
         }
         map[userId] = Array.from(set);
         localStorage.setItem("wishlist", JSON.stringify(map));
-      } catch {
-        /* noop */
-      }
+      } catch {}
     },
     [userId, id, router],
   );
@@ -258,7 +256,7 @@ export default function Card({
                   className="h-4.5 w-4.5"
                 />
                 <div className="relative ml-1 h-2 min-w-0 flex-1 overflow-hidden rounded-full bg-[#EAEAEA]">
-                  <motion.div
+                  <m.div
                     className="absolute inset-y-0 left-0 h-full rounded-full bg-gradient-to-r from-[#17DA71] to-[#08DDF0]"
                     initial={{ width: 0 }}
                     whileInView={{ width: `${percent}%` }}
