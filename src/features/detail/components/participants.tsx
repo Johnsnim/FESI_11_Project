@@ -2,12 +2,8 @@
 
 import * as React from "react";
 import Image from "next/image";
-import { useQuery } from "@tanstack/react-query";
-import {
-  gatheringService,
-  type Gathering,
-  type GatheringParticipant,
-} from "@/shared/services/gathering/gathering.service";
+import type { Gathering } from "@/shared/services/gathering/gathering.service";
+import { useGatheringParticipantsQuery } from "@/shared/services/auth/use-auth-queries";
 
 function InitialsBubble({ name }: { name: string }) {
   const text = (name ?? "").trim();
@@ -38,21 +34,14 @@ export default function Participants({ data }: { data: Gathering }) {
     data: participants = [],
     isLoading,
     isError,
-  } = useQuery<GatheringParticipant[]>({
-    queryKey: ["gathering", "participants", data.id],
-    queryFn: () =>
-      gatheringService.participants(data.id, {
-        limit: 12,
-        sortBy: "joinedAt",
-        sortOrder: "desc",
-      }),
-    enabled: Number.isFinite(data.id),
-    staleTime: 30_000,
+  } = useGatheringParticipantsQuery(data.id, {
+    limit: 12,
+    sortBy: "joinedAt",
+    sortOrder: "desc",
   });
 
   const MAX_AVATARS = 4;
   const visible = participants.slice(0, MAX_AVATARS);
-
   const extra = Math.max(0, data.participantCount - visible.length);
 
   return (

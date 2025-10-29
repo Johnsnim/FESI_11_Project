@@ -3,7 +3,7 @@
 import { CreatedGatherings } from "@/features/mypage/components/created-Gatherings";
 import Info from "@/features/mypage/components/info";
 import JoinedGatherings from "@/features/mypage/components/Joined-Gatherings";
-import MyPageTabs, { TabItem } from "@/features/mypage/components/mypage-tabs";
+import PageTabs, { TabItem } from "@/shared/components/pagetabs";
 import MyReviews from "@/features/mypage/components/myreviews";
 import UserEditModal from "@/features/mypage/components/user-edit-modal";
 import {
@@ -33,6 +33,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { useForm } from "react-hook-form";
+
 
 function MyPageContent() {
   const router = useRouter();
@@ -164,10 +165,11 @@ function MyPageContent() {
         />
       )}
       <div className="mb-10 w-full">
-        <MyPageTabs
+        <PageTabs
           currentTab={currentTab}
           tabs={tabs}
           onChange={handleTabChange}
+          layoutId="mypage"
         />
 
         <div className="mt-4 mb-4 md:mt-7 md:mb-8 lg:mb-4.5">
@@ -238,7 +240,7 @@ function MyPageContent() {
         onSubmit={handleSubmit}
         isLoading={updateUser.isPending}
       />
-      {/* 리뷰 작성 모달 */}
+      {/* 리뷰 작성 모달 */}    
       <CreateReviewModal
         open={reviewModalOpen}
         onClose={() => {
