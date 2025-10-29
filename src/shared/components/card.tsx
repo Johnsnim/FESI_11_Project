@@ -21,6 +21,13 @@ export type CardProps = {
 
 type WishMap = Record<string, number[]>;
 
+function hasId(u: unknown): u is { id: string | number } {
+  if (typeof u !== "object" || u === null) return false;
+  if (!("id" in u)) return false;
+  const id = (u as Record<string, unknown>).id;
+  return typeof id === "string" || typeof id === "number";
+}
+
 export default function Card({
   id,
   title,
@@ -34,7 +41,9 @@ export default function Card({
 }: CardProps) {
   const router = useRouter();
   const { data: session } = useSession();
-  const userId = (session?.user as any)?.id?.toString() || "";
+
+  const rawUser: unknown = session?.user;
+  const userId = hasId(rawUser) ? String(rawUser.id) : "";
 
   const [isWished, setIsWished] = useState(false);
 
@@ -73,7 +82,9 @@ export default function Card({
         }
         map[userId] = Array.from(set);
         localStorage.setItem("wishlist", JSON.stringify(map));
-      } catch {}
+      } catch {
+        /* noop */
+      }
     },
     [userId, id, router],
   );
@@ -101,14 +112,14 @@ export default function Card({
 
   const tagLabel = useMemo(() => {
     if (!regEnd) return "마감일 미정";
-    const now = new Date();
-    if (regEnd.getTime() <= now.getTime()) return null;
+    const now2 = new Date();
+    if (regEnd.getTime() <= now2.getTime()) return null;
     const dayMs = 24 * 60 * 60 * 1000;
-    const diffMs = regEnd.getTime() - now.getTime();
+    const diffMs = regEnd.getTime() - now2.getTime();
     const isSameDay =
-      regEnd.getFullYear() === now.getFullYear() &&
-      regEnd.getMonth() === now.getMonth() &&
-      regEnd.getDate() === now.getDate();
+      regEnd.getFullYear() === now2.getFullYear() &&
+      regEnd.getMonth() === now2.getMonth() &&
+      regEnd.getDate() === now2.getDate();
     if (diffMs >= dayMs) {
       const days = Math.ceil(diffMs / dayMs);
       return `${days}일 후 마감`;
@@ -117,8 +128,8 @@ export default function Card({
       const hour = regEnd.getHours();
       return `오늘 ${hour}시 마감`;
     }
-    const tomorrow = new Date(now);
-    tomorrow.setDate(now.getDate() + 1);
+    const tomorrow = new Date(now2);
+    tomorrow.setDate(now2.getDate() + 1);
     const isTomorrow =
       regEnd.getFullYear() === tomorrow.getFullYear() &&
       regEnd.getMonth() === tomorrow.getMonth() &&
@@ -129,7 +140,7 @@ export default function Card({
     }
     const hour = regEnd.getHours();
     return `${hour}시 마감`;
-  }, [registrationEndISO]);
+  }, [regEnd]);
 
   function handleJoin() {
     if (isClosed) return;
