@@ -1,4 +1,3 @@
-// hooks/useUrlFilters.ts
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback } from "react";
 import type { Location } from "@/shared/services/review/review.service";
