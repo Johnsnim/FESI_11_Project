@@ -50,6 +50,7 @@ export default function JoinedGatherings({
   };
 
   const CreationStatusText = (g: JoinedGathering) => {
+    if (!g.registrationEnd) return null
     const now = Date.now();
     const startAt = new Date(g.dateTime).getTime();
     const regEndAt = new Date(g.registrationEnd).getTime();
