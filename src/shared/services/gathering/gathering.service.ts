@@ -66,6 +66,11 @@ export interface JoinedGatheringsParams {
   sortOrder?: "asc" | "desc";
 }
 
+export type MainPageSortBy =
+  | "registrationEnd"
+  | "participantCount"
+  | "dateTime";
+
 
 export class GatheringService {
   // 모임 목록 조회
