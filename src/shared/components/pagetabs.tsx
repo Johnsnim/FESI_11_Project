@@ -13,9 +13,9 @@ export interface TabItem {
   imageAlt?: string;
 }
 
-interface PageTabsProps {
+interface MyPageTabsProps {
   currentTab: string;
-  tabs: TabItem[];
+  tabs: readonly TabItem[];
   imageClassName?: string;
   tabsClassName?: string;
   tabsListClassName?: string;
@@ -33,7 +33,7 @@ export default function PageTabs({
   tabsTriggerClassName,
   layoutId = "tab-underline",
   onChange,
-}: PageTabsProps) {
+}: MyPageTabsProps) {
   return (
     <Tabs
       value={currentTab}
