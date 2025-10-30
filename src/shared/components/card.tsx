@@ -3,9 +3,9 @@
 import { useRouter } from "next/navigation";
 import { Chip } from "./chip";
 import { Tag } from "./tag";
-import { m } from "motion/react";
 import { useMemo, useEffect, useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
+import ProgressBar from "./progressbar";
 
 export type CardProps = {
   id: number;
@@ -105,8 +105,15 @@ export default function Card({
       ? Math.min(100, Math.round((participantCount / capacity) * 100))
       : 0;
 
-  const isClosed = !!(isCanceled || (regEnd && regEnd < now));
-  const statusText = isCanceled ? "취소됨" : isClosed ? "마감" : "개설확정";
+  const isRecruitmentClosed =
+    !!regEnd &&
+    regEnd.getTime() < now.getTime() &&
+    now.getTime() < start.getTime();
+
+  const isDisabled = !!isCanceled || isRecruitmentClosed;
+
+  const isConfirmed =
+    !isCanceled && capacity > 0 && participantCount >= capacity;
 
   const tagLabel = useMemo(() => {
     if (!regEnd) return "마감일 미정";
@@ -138,10 +145,10 @@ export default function Card({
     }
     const hour = regEnd.getHours();
     return `${hour}시 마감`;
-  }, [regEnd]);
+  }, [registrationEndISO]);
 
   function handleJoin() {
-    if (isClosed) return;
+    if (isDisabled) return;
     router.push(`/detail/${id}`);
   }
 
@@ -149,11 +156,11 @@ export default function Card({
     <div className="box-border w-[calc(100%-2rem)] justify-center overflow-hidden rounded-3xl bg-white md:flex md:h-fit md:w-full md:flex-row md:items-center md:justify-center md:p-6">
       <div
         onClick={handleJoin}
-        aria-disabled={isClosed}
+        aria-disabled={isDisabled}
         className={[
           "relative flex h-39 w-full items-center justify-center rounded-t-3xl md:aspect-square md:size-45 md:shrink-0 md:rounded-3xl md:rounded-l-3xl",
           image ? "bg-[#EDEDED]" : "bg-[#9DEBCD]",
-          isClosed ? "cursor-default" : "cursor-pointer",
+          isDisabled ? "cursor-default" : "cursor-pointer",
         ].join(" ")}
       >
         {image ? (
@@ -170,7 +177,18 @@ export default function Card({
           />
         )}
 
-        {isClosed && (
+        {isCanceled && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/70 md:rounded-3xl">
+            <span
+              className="text-2xl leading-[30px] font-extrabold tracking-[-0.03em] text-white"
+              style={{ fontFamily: "Tenada, sans-serif" }}
+            >
+              취소됨
+            </span>
+          </div>
+        )}
+
+        {!isCanceled && isRecruitmentClosed && (
           <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/70 md:rounded-3xl">
             <span
               className="text-2xl leading-[30px] font-extrabold tracking-[-0.03em] text-white"
@@ -187,18 +205,18 @@ export default function Card({
           <div className="flex flex-col">
             <div
               onClick={handleJoin}
-              aria-disabled={isClosed}
+              aria-disabled={isDisabled}
               className={[
                 "flex flex-row gap-2 align-middle",
-                !isClosed ? "cursor-pointer" : "cursor-default",
+                !isDisabled ? "cursor-pointer" : "cursor-default",
               ].join(" ")}
             >
               <p className="min-w-0 truncate text-xl leading-7 font-semibold tracking-[-0.03em] text-gray-800 md:max-w-[15ch]">
                 {title}
               </p>
-              {statusText === "개설확정" ? (
+              {isConfirmed ? (
                 <Chip variant="statedone" icon="/image/ic_check_md.svg">
-                  {statusText}
+                  개설확정
                 </Chip>
               ) : null}
             </div>
@@ -255,14 +273,8 @@ export default function Card({
                   alt="person icon"
                   className="h-4.5 w-4.5"
                 />
-                <div className="relative ml-1 h-2 min-w-0 flex-1 overflow-hidden rounded-full bg-[#EAEAEA]">
-                  <m.div
-                    className="absolute inset-y-0 left-0 h-full rounded-full bg-gradient-to-r from-[#17DA71] to-[#08DDF0]"
-                    initial={{ width: 0 }}
-                    whileInView={{ width: `${percent}%` }}
-                    viewport={{ once: true, amount: 1 }}
-                    transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-                  />
+                <div className="ml-1 min-w-0 flex-1">
+                  <ProgressBar cur={participantCount} max={capacity} />
                 </div>
                 <span className="ml-2 text-sm font-medium text-gray-600 tabular-nums md:ml-3">
                   <span className="text-green-500">{participantCount}</span>/
@@ -272,11 +284,11 @@ export default function Card({
 
               <button
                 onClick={handleJoin}
-                disabled={isClosed}
-                aria-disabled={isClosed}
+                disabled={isDisabled}
+                aria-disabled={isDisabled}
                 className={[
                   "shrink-0 rounded-2xl px-6 py-2.5 font-semibold whitespace-nowrap md:hidden",
-                  isClosed
+                  isDisabled
                     ? "cursor-not-allowed border-0 bg-slate-100 text-slate-500"
                     : "cursor-pointer border-1 border-green-500 text-green-500",
                 ].join(" ")}
@@ -288,12 +300,12 @@ export default function Card({
 
           <button
             onClick={handleJoin}
-            disabled={isClosed}
-            aria-disabled={isClosed}
+            disabled={isDisabled}
+            aria-disabled={isDisabled}
             className={[
               "hidden rounded-2xl px-6 py-2.5 font-semibold whitespace-nowrap md:block md:self-end",
               "transition-colors duration-200",
-              isClosed
+              isDisabled
                 ? "cursor-not-allowed border-0 bg-slate-100 text-slate-500"
                 : "cursor-pointer border-1 border-green-500 text-green-500 hover:bg-green-100",
             ].join(" ")}
