@@ -1,9 +1,6 @@
-// reviews/page.tsx
 "use client";
 
 import { ReviewsHeader } from "@/features/reviews/components/reviews-header";
-import Dallemfit from "@/features/reviews/components/dallemfit";
-import Workation from "@/features/reviews/components/workation";
 import { Suspense, useMemo } from "react";
 import {
   useReviewScoresQuery,
@@ -17,6 +14,7 @@ import { useUrlFilters } from "@/shared/hooks/use-url-filters";
 import { useTabFilters } from "@/shared/hooks/use-tab-filters";
 import { useInfiniteScroll } from "@/shared/hooks/use-infinite-scroll";
 import { LoaderCircle } from "lucide-react";
+import ReviewList from "@/shared/components/review-list";
 
 const TABS = [
   {
@@ -40,7 +38,6 @@ const SORT_OPTIONS = [
 ];
 
 function ReviewsContent() {
-  // 공통 훅 사용
   const {
     currentTab,
     dallaemfitFilter,
@@ -56,7 +53,6 @@ function ReviewsContent() {
 
   const { data: scores, isLoading: isScoreLoading } = useReviewScoresQuery();
 
-  // 달램핏 쿼리
   const {
     data: dallaemfitData,
     isLoading: isDallaemfitLoading,
@@ -71,7 +67,6 @@ function ReviewsContent() {
     sortOrder: sortBy === "participantCount" ? "asc" : "desc",
   });
 
-  // 워케이션 쿼리
   const {
     data: workationData,
     isLoading: isWorkationLoading,
@@ -86,7 +81,6 @@ function ReviewsContent() {
     sortOrder: sortBy === "participantCount" ? "asc" : "desc",
   });
 
-  // 현재 탭 데이터
   const {
     currentData,
     currentIsLoading,
@@ -133,7 +127,6 @@ function ReviewsContent() {
         )
       : allReviews;
 
-  // 공통 훅 사용
   const observerTarget = useInfiniteScroll(
     currentFetchNextPage,
     currentHasNextPage,
@@ -156,7 +149,6 @@ function ReviewsContent() {
       </div>
 
       <div className="px-[17px] pt-4 md:px-6 md:pt-6 lg:px-0">
-        {/* 필터 바 */}
         <FiltersBar
           showTypeFilter={currentTab === "dallemfit"}
           dallaemfitFilter={dallaemfitFilter}
@@ -172,16 +164,12 @@ function ReviewsContent() {
 
         <ReviewScore data={scores} isLoading={isScoreLoading} />
 
-        {/* 탭별 내용 렌더링 */}
         <div className="mt-6 mb-8 md:mt-8">
-          {currentTab === "dallemfit" && (
-            <Dallemfit reviews={filteredReviews} isLoading={currentIsLoading} />
-          )}
-          {currentTab === "workation" && (
-            <Workation reviews={allReviews} isLoading={currentIsLoading} />
-          )}
+          <ReviewList
+            reviews={currentTab === "dallemfit" ? filteredReviews : allReviews}
+            isLoading={currentIsLoading}
+          />
 
-          {/* 무한 스크롤 트리거 */}
           <div
             ref={observerTarget}
             className="flex h-10 items-center justify-center"

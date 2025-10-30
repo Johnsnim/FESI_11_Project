@@ -6,7 +6,6 @@ import { useParams } from "next/navigation";
 import GatheringImage from "@/features/detail/components/gatheringimage";
 import GatheringInfo from "@/features/detail/components/gatheringinfo";
 import Participants from "@/features/detail/components/participants";
-import ReviewList from "@/features/detail/components/reviewlist";
 
 import { useGatheringReviewsQuery } from "@/shared/services/review/user-review-queries";
 import {
@@ -14,7 +13,8 @@ import {
   useJoinedGatheringsQuery,
   useJoinGatheringMutation,
   useLeaveGatheringMutation,
-} from "@/shared/services/gathering/use-gathering-queries"
+} from "@/shared/services/gathering/use-gathering-queries";
+import ReviewList from "@/shared/components/review-list";
 
 function formatDateDots(iso: string | null | undefined) {
   if (!iso) return "-";
@@ -99,12 +99,33 @@ export default function DetailPage() {
           </section>
 
           <ReviewList
-            reviewResp={reviewResp}
-            isReviewLoading={isReviewLoading}
-            isReviewError={isReviewError}
-            page={page}
-            setPage={setPage}
+            reviews={reviewResp?.data ?? []}
+            isLoading={isReviewLoading}
+            variant="detail"
           />
+
+          {/* 페이지네이션 추가 (필요한 경우) */}
+          {reviewResp && reviewResp.totalPages > 1 && (
+            <div className="mt-6 flex items-center justify-center gap-2">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="rounded-lg border px-4 py-2 disabled:opacity-50"
+              >
+                이전
+              </button>
+              <span className="text-sm">
+                {page} / {reviewResp.totalPages}
+              </span>
+              <button
+                onClick={() => setPage((p) => Math.min(reviewResp.totalPages, p + 1))}
+                disabled={page === reviewResp.totalPages}
+                className="rounded-lg border px-4 py-2 disabled:opacity-50"
+              >
+                다음
+              </button>
+            </div>
+          )}
 
           <div className="mt-2 text-xs text-zinc-500">
             {data.canceledAt
