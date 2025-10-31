@@ -7,7 +7,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Tag } from "@/shared/components/tag";
 import { Chip } from "@/shared/components/chip";
 import { gatheringService } from "@/shared/services/gathering/gathering.service";
+import { useWishlist } from "@/shared/hooks/use-wishlist"; // 경로는 프로젝트 구조에 맞게 수정
 import type { Gathering } from "@/shared/services/gathering/gathering.service";
+import WishButton from "@/shared/components/wish-button";
 
 type Props = {
   data: Gathering;
@@ -46,6 +48,9 @@ export default function GatheringInfo({
   const { data: session, status } = useSession();
   const myId = getUserId(session?.user as SessionUserWithId);
   const isMadeByMe = myId !== null && data.createdBy === myId;
+
+  // 찜하기 기능 추가
+  const { isWished, toggleWish } = useWishlist(data.id);
 
   const { dateLabel, timeLabel, tagText, joinDisabled } = useMemo(() => {
     const start = new Date(data.dateTime);
@@ -150,13 +155,8 @@ export default function GatheringInfo({
       </p>
 
       <div className="flex items-center gap-1">
-        <div className="flex h-12 w-12 min-w-12 cursor-pointer items-center justify-center rounded-full border-1 border-gray-100">
-          <img
-            src="/image/ic_heart_empty.svg"
-            alt="heart button"
-            className="h-6 w-6"
-          />
-        </div>
+        {/* 찜하기 버튼 - 기능 연동 */}
+        <WishButton isWished={isWished} onClick={toggleWish} />
 
         {isMadeByMe ? (
           <div className="flex h-full w-full gap-2 pl-2">

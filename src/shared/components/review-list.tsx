@@ -4,8 +4,8 @@ import {
   GatheringType,
   Review as ReviewType,
 } from "@/shared/services/review/review.service";
-import { Heart } from "lucide-react";
 import Image from "next/image";
+import RatingHearts from "./rating-hearts";
 
 interface ReviewsProps {
   reviews: ReviewType[];
@@ -19,22 +19,6 @@ const typeLabels: Record<GatheringType, string> = {
   MINDFULNESS: "마인드풀니스",
   WORKATION: "워케이션",
 };
-
-function ReviewScore({ score }: { score: number }) {
-  return (
-    <div className="flex gap-[1px]">
-      {Array.from({ length: 5 }).map((_, i) => {
-        const heart =
-          i < score ? (
-            <Heart key={i} className="fill-green-500 text-green-500" />
-          ) : (
-            <Heart key={i} className="fill-[#eeeeee] text-[#eeeeee]" />
-          );
-        return heart;
-      })}
-    </div>
-  );
-}
 
 export default function ReviewList({
   reviews,
@@ -60,7 +44,7 @@ export default function ReviewList({
           height={136}
         />
         <p className="text-lg font-semibold text-[#a4a4a4]">
-          아직 작성된 리뷰가 없어요.
+          아직 작성한 리뷰가 없어요.
         </p>
       </div>
     );
@@ -68,7 +52,7 @@ export default function ReviewList({
   // detail variant용 렌더링
   if (isDetailVariant) {
     return (
-      <ul className="mt-6 space-y-6 rounded-3xl bg-white p-6 md:mt-8">
+      <ul className="mt-6 space-y-2.5 rounded-3xl bg-white p-6 md:mt-8 md:space-y-10">
         {reviews.map((review, index) => (
           <li
             key={review.id}
@@ -91,7 +75,7 @@ export default function ReviewList({
                   </p>
                 </div>
                 <div className="mb-3 flex items-center gap-2">
-                  <ReviewScore score={review.score} />
+                  <RatingHearts score={review.score} />
                   <span className="text-sm text-[#a4a4a4]">
                     {new Date(review.Gathering.dateTime)
                       .toISOString()
@@ -110,7 +94,7 @@ export default function ReviewList({
     );
   }
 
-  // default variant용 렌더링
+  // default variant용 렌더링 (기존 스타일)
   return (
     <ul className="space-y-2.5 rounded-3xl bg-white p-6 md:space-y-10">
       {reviews.map((review) => (
@@ -138,14 +122,12 @@ export default function ReviewList({
                 <p className="text-sm font-medium text-[#737373]">
                   {review.User.name}
                 </p>
-                <div className="flex items-center justify-center gap-2 text-sm font-normal text-[#a4a4a4]">
-                  <ReviewScore score={review.score} />
-                  <p className="mt-1">
-                    {new Date(review.Gathering.dateTime)
-                      .toISOString()
-                      .slice(0, 10)
-                      .replace(/-/g, ".")}
-                  </p>
+                <div className="flex gap-2 text-sm font-normal text-[#a4a4a4]">
+                  <RatingHearts score={review.score} />
+                  {new Date(review.Gathering.dateTime)
+                    .toISOString()
+                    .slice(0, 10)
+                    .replace(/-/g, ".")}
                 </div>
               </div>
             </div>
