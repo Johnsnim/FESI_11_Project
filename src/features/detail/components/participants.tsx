@@ -3,7 +3,8 @@
 import * as React from "react";
 import Image from "next/image";
 import type { Gathering } from "@/shared/services/gathering/gathering.service";
-import { useGatheringParticipantsQuery } from "@/shared/services/auth/use-auth-queries";
+import { useGatheringParticipantsQuery } from "@/shared/services/gathering/use-gathering-queries";
+import ProgressBar from "@/shared/components/progressbar";
 
 function InitialsBubble({ name }: { name: string }) {
   const text = (name ?? "").trim();
@@ -25,11 +26,6 @@ function InitialsBubble({ name }: { name: string }) {
 }
 
 export default function Participants({ data }: { data: Gathering }) {
-  const ratioPct =
-    data.capacity > 0
-      ? Math.min(100, Math.round((data.participantCount / data.capacity) * 100))
-      : 0;
-
   const {
     data: participants = [],
     isLoading,
@@ -106,17 +102,7 @@ export default function Participants({ data }: { data: Gathering }) {
         <span>최대 {data.capacity}명</span>
       </div>
 
-      <div className="w-full rounded-full bg-[#DAE4E0]">
-        <div
-          className="h-2 rounded-full bg-gradient-to-r from-[#17DA71] to-[#08DDF0] transition-[width]"
-          style={{ width: `${ratioPct}%` }}
-          aria-label={`참여율 ${ratioPct}%`}
-          role="progressbar"
-          aria-valuenow={ratioPct}
-          aria-valuemin={0}
-          aria-valuemax={100}
-        />
-      </div>
+      <ProgressBar cur={data.participantCount} max={data.capacity} />
     </div>
   );
 }

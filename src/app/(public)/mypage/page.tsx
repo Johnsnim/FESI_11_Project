@@ -3,8 +3,6 @@
 import { CreatedGatherings } from "@/features/mypage/components/created-Gatherings";
 import Info from "@/features/mypage/components/info";
 import JoinedGatherings from "@/features/mypage/components/Joined-Gatherings";
-import PageTabs, { TabItem } from "@/shared/components/pagetabs";
-import MyReviews from "@/features/mypage/components/myreviews";
 import UserEditModal from "@/features/mypage/components/user-edit-modal";
 import {
   EditUserFormValues,
@@ -16,6 +14,8 @@ import {
   CreateReviewSchema,
 } from "@/features/reviews/schemas/review.schema";
 import { Button } from "@/shadcn/button";
+import PageTabs, { TabItem } from "@/shared/components/pagetabs";
+import ReviewList from "@/shared/components/review-list";
 import {
   useUpdateUserMutation,
   useUserQuery,
@@ -33,7 +33,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { useForm } from "react-hook-form";
-
 
 function MyPageContent() {
   const router = useRouter();
@@ -219,7 +218,10 @@ function MyPageContent() {
                   gotoDetailPage={GotoDetailPage}
                 />
               ) : (
-                <MyReviews data={myReviews} isLoading={isReviewsLoading} />
+                <ReviewList
+                  reviews={myReviews?.data ?? []}
+                  isLoading={isReviewsLoading}
+                />
               )}
             </div>
           )}
@@ -240,7 +242,7 @@ function MyPageContent() {
         onSubmit={handleSubmit}
         isLoading={updateUser.isPending}
       />
-      {/* 리뷰 작성 모달 */}    
+      {/* 리뷰 작성 모달 */}
       <CreateReviewModal
         open={reviewModalOpen}
         onClose={() => {

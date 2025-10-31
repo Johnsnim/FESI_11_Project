@@ -1,11 +1,9 @@
-// src/features/reviews/components/review-score.tsx
-
-import { ReviewsScoreResponse } from "@/shared/services/review/review.service";
+import { ReviewScoreResponse } from "@/shared/services/review/review.service";
 import { Heart } from "lucide-react";
-import { motion } from "framer-motion";
+import ProgressBar from "@/shared/components/progressbar";
 
 interface ReviewScoreProps {
-  data?: ReviewsScoreResponse[];
+  data?: ReviewScoreResponse[];
   isLoading?: boolean;
 }
 
@@ -30,11 +28,11 @@ export default function ReviewsScore({ data, isLoading }: ReviewScoreProps) {
 
   // 각 점수별 데이터
   const scoreData = [
-    { label: "5점", count: score.fiveStars, color: "#10B981" },
-    { label: "4점", count: score.fourStars, color: "#10B981" },
-    { label: "3점", count: score.threeStars, color: "#10B981" },
-    { label: "2점", count: score.twoStars, color: "#10B981" },
-    { label: "1점", count: score.oneStar, color: "#10B981" },
+    { label: "5점", count: score.fiveStars },
+    { label: "4점", count: score.fourStars },
+    { label: "3점", count: score.threeStars },
+    { label: "2점", count: score.twoStars },
+    { label: "1점", count: score.oneStar },
   ];
 
   return (
@@ -99,29 +97,19 @@ export default function ReviewsScore({ data, isLoading }: ReviewScoreProps) {
       {/* 가운데 구분선 (md 이상에서만 표시) */}
       <div className="hidden h-[180px] w-px bg-[#CCE5DA] md:block" />
 
-      {/* 오른쪽: 프로그레스 바 */}
       <div className="mt-8 w-full space-y-2 md:mt-0 md:max-w-[330px] md:flex-1">
         {scoreData.map((item, index) => {
-          const percentage =
-            totalPeople > 0 ? (item.count / totalPeople) * 100 : 0;
-
           return (
             <div key={index} className="flex items-center gap-2">
               <span className="text-end text-sm font-semibold text-[#10B981] md:text-base">
                 {item.label}
               </span>
 
-              {/* 프로그레스 바 */}
-              <div className="relative h-2 flex-1 overflow-hidden rounded-full bg-[#E5E7EB]">
-                <motion.div
-                  className="absolute top-0 left-0 h-full rounded-full bg-gradient-to-r from-[#5DD996] to-[#68E3E3]"
-                  initial={{ width: 0 }}
-                  animate={{ width: `${percentage}%` }}
-                  transition={{
-                    duration: 1,
-                    delay: index * 0.1,
-                    ease: "easeOut",
-                  }}
+              <div className="flex-1">
+                <ProgressBar
+                  cur={item.count}
+                  max={totalPeople}
+                  delay={index * 0.1}
                 />
               </div>
 
