@@ -1,11 +1,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useMemo } from "react";
+import { useWishlist } from "../hooks/use-wishlist";
 import { Chip } from "./chip";
-import { Tag } from "./tag";
-import { useMemo, useEffect, useState, useCallback } from "react";
-import { useSession } from "next-auth/react";
 import ProgressBar from "./progressbar";
+import { Tag } from "./tag";
+import WishButton from "./wish-button";
 
 export type CardProps = {
   id: number;
@@ -19,15 +20,6 @@ export type CardProps = {
   isCanceled?: boolean;
 };
 
-type WishMap = Record<string, number[]>;
-
-function hasId(u: unknown): u is { id: string | number } {
-  if (typeof u !== "object" || u === null) return false;
-  if (!("id" in u)) return false;
-  const id = (u as Record<string, unknown>).id;
-  return typeof id === "string" || typeof id === "number";
-}
-
 export default function Card({
   id,
   title,
@@ -40,52 +32,7 @@ export default function Card({
   isCanceled,
 }: CardProps) {
   const router = useRouter();
-  const { data: session } = useSession();
-
-  const rawUser: unknown = session?.user;
-  const userId = hasId(rawUser) ? String(rawUser.id) : "";
-
-  const [isWished, setIsWished] = useState(false);
-
-  useEffect(() => {
-    if (!userId) {
-      setIsWished(false);
-      return;
-    }
-    try {
-      const raw = localStorage.getItem("wishlist");
-      const map: WishMap = raw ? JSON.parse(raw) : {};
-      setIsWished(!!map[userId]?.includes(id));
-    } catch {
-      setIsWished(false);
-    }
-  }, [userId, id]);
-
-  const toggleWish = useCallback(
-    (e: React.MouseEvent) => {
-      e.stopPropagation();
-      if (!userId) {
-        alert("로그인이 필요한 서비스입니다");
-        router.push("/login");
-        return;
-      }
-      try {
-        const raw = localStorage.getItem("wishlist");
-        const map: WishMap = raw ? JSON.parse(raw) : {};
-        const set = new Set<number>(map[userId] ?? []);
-        if (set.has(id)) {
-          set.delete(id);
-          setIsWished(false);
-        } else {
-          set.add(id);
-          setIsWished(true);
-        }
-        map[userId] = Array.from(set);
-        localStorage.setItem("wishlist", JSON.stringify(map));
-      } catch {}
-    },
-    [userId, id, router],
-  );
+  const { isWished, toggleWish } = useWishlist(id);
 
   const start = new Date(dateTimeISO);
   const dateLabel = `${start.getMonth() + 1}월 ${start.getDate()}일`;
@@ -229,21 +176,7 @@ export default function Card({
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={toggleWish}
-            aria-pressed={isWished}
-            aria-label={isWished ? "찜 취소" : "찜하기"}
-            className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border-1 border-gray-100 transition-colors duration-200 hover:bg-gray-50"
-          >
-            <img
-              src={
-                isWished ? "/image/ic_heart_fill.svg" : "/image/ic_heart.svg"
-              }
-              alt="찜하기 버튼"
-              className="h-6 w-6"
-            />
-          </button>
+          <WishButton isWished={isWished} onClick={toggleWish} />
         </div>
 
         <div className="mt-4 flex flex-col gap-3 md:mt-7 md:flex-row md:items-end md:justify-between">

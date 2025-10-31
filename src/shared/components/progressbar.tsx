@@ -5,9 +5,9 @@ import { m, LazyMotion, domAnimation } from "motion/react";
 type ProgressBarProps = {
   cur: number;
   max: number;
+  delay?: number;
 };
-
-export default function ProgressBar({ cur, max }: ProgressBarProps) {
+export default function ProgressBar({ cur, max, delay = 0 }: ProgressBarProps) {
   const percent =
     max > 0 ? Math.max(0, Math.min(100, Math.round((cur / max) * 100))) : 0;
 
@@ -19,7 +19,7 @@ export default function ProgressBar({ cur, max }: ProgressBarProps) {
           initial={{ width: 0 }}
           whileInView={{ width: `${percent}%` }}
           viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 1, delay, ease: [0.22, 1, 0.36, 1] }}
         />
       </LazyMotion>
     </div>
