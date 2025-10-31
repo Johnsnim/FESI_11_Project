@@ -51,17 +51,14 @@ function DetailContent() {
   const reviewOffset = (reviewPage - 1) * REVIEWS_LIMIT;
 
   // 리뷰 목록
-  const {
-    data: reviewResp,
-    isLoading: isReviewLoading,
-    isError: isReviewError,
-  } = useGatheringReviewsQuery({
-    gatheringId: idNum,
-    sortBy: "createdAt",
-    sortOrder: "desc",
-    limit: REVIEWS_LIMIT,
-    offset: reviewOffset,
-  });
+  const { data: reviewResp, isLoading: isReviewLoading } =
+    useGatheringReviewsQuery({
+      gatheringId: idNum,
+      sortBy: "createdAt",
+      sortOrder: "desc",
+      limit: REVIEWS_LIMIT,
+      offset: reviewOffset,
+    });
 
   // ============= 핸들러 함수 =============
   const handleJoin = useCallback(() => {

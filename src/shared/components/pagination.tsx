@@ -28,8 +28,8 @@ export default function ReviewPagination({
     const items = [];
 
     // 보여줄 페이지 범위 계산
-    let startPage = Math.max(1, currentPage - 2);
-    let endPage = Math.min(totalPages, currentPage + 2);
+    const startPage = Math.max(1, currentPage - 2);
+    const endPage = Math.min(totalPages, currentPage + 2);
 
     // 시작 ellipsis
     if (startPage > 1) {
