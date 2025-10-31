@@ -1,6 +1,6 @@
 "use client";
 
-import { m } from "motion/react";
+import { m, LazyMotion, domAnimation } from "motion/react";
 
 type ProgressBarProps = {
   cur: number;
@@ -13,14 +13,15 @@ export default function ProgressBar({ cur, max }: ProgressBarProps) {
 
   return (
     <div className="relative h-2 w-full overflow-hidden rounded-full bg-[#EAEAEA]">
-      <m.div
-        className="absolute top-0 left-0 h-full rounded-full bg-gradient-to-r from-[#17DA71] to-[#08DDF0]"
-        initial={{ width: 0 }}
-        whileInView={{ width: `${percent}%` }}
-        viewport={{ once: true, amount: 0.6 }}
-        transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-        role="progressbar"
-      />
+      <LazyMotion features={domAnimation}>
+        <m.div
+          className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-[#17DA71] to-[#08DDF0]"
+          initial={{ width: 0 }}
+          whileInView={{ width: `${percent}%` }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+        />
+      </LazyMotion>
     </div>
   );
 }

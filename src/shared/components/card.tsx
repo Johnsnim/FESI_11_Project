@@ -100,15 +100,7 @@ export default function Card({
   const now = new Date();
   const regEnd = registrationEndISO ? new Date(registrationEndISO) : null;
 
-  const percent =
-    capacity > 0
-      ? Math.min(100, Math.round((participantCount / capacity) * 100))
-      : 0;
-
-  const isRecruitmentClosed =
-    !!regEnd &&
-    regEnd.getTime() < now.getTime() &&
-    now.getTime() < start.getTime();
+  const isRecruitmentClosed = !!regEnd && regEnd.getTime() <= now.getTime();
 
   const isDisabled = !!isCanceled || isRecruitmentClosed;
 
