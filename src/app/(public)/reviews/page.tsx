@@ -1,7 +1,7 @@
 "use client";
 
 import { ReviewsHeader } from "@/features/reviews/components/reviews-header";
-import { Suspense, useMemo } from "react";
+import { Suspense, useMemo, memo } from "react";
 import {
   useReviewScoresQuery,
   useInfiniteReviewsQuery,
@@ -37,6 +37,30 @@ const SORT_OPTIONS = [
   { value: "participantCount" as SortBy, label: "참여인원순" },
 ];
 
+// 로딩 인디케이터 컴포넌트 분리
+const LoadingSpinner = memo(() => (
+  <div className="flex h-10 items-center justify-center">
+    <LoaderCircle className="mt-6 animate-spin text-gray-400" />
+  </div>
+));
+LoadingSpinner.displayName = "LoadingSpinner";
+
+// 초기 로딩 스켈레톤
+const ReviewsSkeleton = memo(() => (
+  <div className="space-y-6 p-6">
+    {[1, 2, 3].map((i) => (
+      <div key={i} className="space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="size-10 animate-pulse rounded-full bg-zinc-200" />
+          <div className="h-4 w-32 animate-pulse rounded bg-zinc-200" />
+        </div>
+        <div className="h-24 animate-pulse rounded-lg bg-zinc-200" />
+      </div>
+    ))}
+  </div>
+));
+ReviewsSkeleton.displayName = "ReviewsSkeleton";
+
 function ReviewsContent() {
   const {
     currentTab,
@@ -51,7 +75,10 @@ function ReviewsContent() {
 
   const handlers = useTabFilters<SortBy>(updateSearchParams, currentTab);
 
+  // 리뷰 점수는 항상 필요
   const { data: scores, isLoading: isScoreLoading } = useReviewScoresQuery();
+
+  const isDallaemfitTab = currentTab === "dallemfit";
 
   const {
     data: dallaemfitData,
@@ -81,6 +108,7 @@ function ReviewsContent() {
     sortOrder: sortBy === "participantCount" ? "asc" : "desc",
   });
 
+  // 현재 탭의 데이터 선택 (메모이제이션)
   const {
     currentData,
     currentIsLoading,
@@ -89,20 +117,22 @@ function ReviewsContent() {
     currentIsFetchingNextPage,
   } = useMemo(
     () => ({
-      currentData: currentTab === "dallemfit" ? dallaemfitData : workationData,
-      currentIsLoading:
-        currentTab === "dallemfit" ? isDallaemfitLoading : isWorkationLoading,
-      currentFetchNextPage:
-        currentTab === "dallemfit" ? fetchNextDallaemfit : fetchNextWorkation,
-      currentHasNextPage:
-        currentTab === "dallemfit" ? hasNextDallaemfit : hasNextWorkation,
-      currentIsFetchingNextPage:
-        currentTab === "dallemfit"
-          ? isFetchingNextDallaemfit
-          : isFetchingNextWorkation,
+      currentData: isDallaemfitTab ? dallaemfitData : workationData,
+      currentIsLoading: isDallaemfitTab
+        ? isDallaemfitLoading
+        : isWorkationLoading,
+      currentFetchNextPage: isDallaemfitTab
+        ? fetchNextDallaemfit
+        : fetchNextWorkation,
+      currentHasNextPage: isDallaemfitTab
+        ? hasNextDallaemfit
+        : hasNextWorkation,
+      currentIsFetchingNextPage: isDallaemfitTab
+        ? isFetchingNextDallaemfit
+        : isFetchingNextWorkation,
     }),
     [
-      currentTab,
+      isDallaemfitTab,
       dallaemfitData,
       workationData,
       isDallaemfitLoading,
@@ -116,22 +146,33 @@ function ReviewsContent() {
     ],
   );
 
-  const allReviews = currentData?.pages.flatMap((page) => page.data) ?? [];
+  // 리뷰 데이터 평탄화 (메모이제이션)
+  const allReviews = useMemo(
+    () => currentData?.pages.flatMap((page) => page.data) ?? [],
+    [currentData],
+  );
 
-  const filteredReviews =
-    currentTab === "dallemfit" && dallaemfitFilter === "all"
-      ? allReviews.filter((review) =>
-          ["DALLAEMFIT", "OFFICE_STRETCHING", "MINDFULNESS"].includes(
-            review.Gathering.type,
-          ),
-        )
-      : allReviews;
+  // 필터링 (달램핏 "all" 필터인 경우만)
+  const filteredReviews = useMemo(() => {
+    if (isDallaemfitTab && dallaemfitFilter === "all") {
+      return allReviews.filter((review) =>
+        ["DALLAEMFIT", "OFFICE_STRETCHING", "MINDFULNESS"].includes(
+          review.Gathering.type,
+        ),
+      );
+    }
+    return allReviews;
+  }, [isDallaemfitTab, dallaemfitFilter, allReviews]);
 
+  // 무한 스크롤 observer
   const observerTarget = useInfiniteScroll(
     currentFetchNextPage,
     currentHasNextPage,
     currentIsFetchingNextPage,
   );
+
+  // 표시할 리뷰 선택
+  const displayReviews = isDallaemfitTab ? filteredReviews : allReviews;
 
   return (
     <div className="flex flex-col">
@@ -150,7 +191,7 @@ function ReviewsContent() {
 
       <div className="px-[17px] pt-4 md:px-6 md:pt-6 lg:px-0">
         <FiltersBar
-          showTypeFilter={currentTab === "dallemfit"}
+          showTypeFilter={isDallaemfitTab}
           dallaemfitFilter={dallaemfitFilter}
           setDallaemfitFilter={handlers.handleTypeFilterChange}
           selectedLocation={selectedLocation}
@@ -165,19 +206,18 @@ function ReviewsContent() {
         <ReviewScore data={scores} isLoading={isScoreLoading} />
 
         <div className="mt-6 mb-8 md:mt-8">
-          <ReviewList
-            reviews={currentTab === "dallemfit" ? filteredReviews : allReviews}
-            isLoading={currentIsLoading}
-          />
+          {currentIsLoading ? (
+            <ReviewsSkeleton />
+          ) : (
+            <>
+              <ReviewList reviews={displayReviews} isLoading={false} />
 
-          <div
-            ref={observerTarget}
-            className="flex h-10 items-center justify-center"
-          >
-            {currentIsFetchingNextPage && (
-              <LoaderCircle className="mt-6 animate-spin text-gray-400" />
-            )}
-          </div>
+              {/* 무한 스크롤 트리거 */}
+              <div ref={observerTarget}>
+                {currentIsFetchingNextPage && <LoadingSpinner />}
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
@@ -186,7 +226,7 @@ function ReviewsContent() {
 
 export default function ReviewsPage() {
   return (
-    <Suspense fallback={<div className="p-4">로딩중...</div>}>
+    <Suspense fallback={<ReviewsSkeleton />}>
       <ReviewsContent />
     </Suspense>
   );

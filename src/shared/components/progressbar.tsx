@@ -1,5 +1,3 @@
-"use client";
-
 import { m, LazyMotion, domAnimation } from "motion/react";
 
 type ProgressBarProps = {

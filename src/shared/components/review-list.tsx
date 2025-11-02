@@ -1,5 +1,3 @@
-"use client";
-
 import {
   GatheringType,
   Review as ReviewType,
@@ -30,7 +28,7 @@ export default function ReviewList({
   if (isLoading)
     return (
       <div className="my-[180px] flex w-full flex-col items-center justify-center gap-0.5 md:my-[216px]">
-        로딩중...
+        잠시만기다려주세요
       </div>
     );
 
@@ -42,6 +40,8 @@ export default function ReviewList({
           alt="empty_image"
           width={171}
           height={136}
+          quality={50}
+          loading="lazy"
         />
         <p className="text-lg font-semibold text-[#a4a4a4]">
           아직 작성한 리뷰가 없어요.
@@ -65,6 +65,7 @@ export default function ReviewList({
                 <Image
                   src={review.User.image || "/image/profile.svg"}
                   alt="유저이미지"
+                  quality={75}
                   fill
                 />
               </div>
@@ -106,6 +107,7 @@ export default function ReviewList({
               fill
               className="object-cover"
               sizes="200px"
+              loading="lazy"
             />
           </div>
 
@@ -146,6 +148,8 @@ export default function ReviewList({
                   fill
                   className="object-cover"
                   sizes="80px"
+                  fetchPriority="high"
+                  loading="lazy"
                 />
               </div>
 

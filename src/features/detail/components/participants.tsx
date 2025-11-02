@@ -1,5 +1,3 @@
-"use client";
-
 import * as React from "react";
 import Image from "next/image";
 import type { Gathering } from "@/shared/services/gathering/gathering.service";
@@ -74,7 +72,7 @@ export default function Participants({ data }: { data: Gathering }) {
                       alt={name}
                       width={28}
                       height={28}
-                      unoptimized
+                      quality={75}
                       className="h-7 w-7 rounded-full object-cover ring-2 ring-white"
                     />
                   ) : (
@@ -92,7 +90,7 @@ export default function Participants({ data }: { data: Gathering }) {
         </div>
 
         <div className="flex flex-row items-center gap-1">
-          <img src="/image/ic_check_sm.svg" alt="check" />
+          <Image src="/image/ic_check_sm.svg" alt="check" width={8} height={8}/>
           <p className="font-medium text-green-600">개설확정</p>
         </div>
       </div>

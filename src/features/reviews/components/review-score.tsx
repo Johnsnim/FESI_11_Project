@@ -8,7 +8,7 @@ interface ReviewScoreProps {
 }
 
 export default function ReviewsScore({ data, isLoading }: ReviewScoreProps) {
-  if (isLoading) return <div>로딩중...</div>;
+  if (isLoading) return null;
   if (!data || data.length === 0)
     return <div>아직 평가된 모임이 없습니다.</div>;
 

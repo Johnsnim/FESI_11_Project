@@ -1,12 +1,28 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@import url("https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/static/pretendard.css");
+
+/* 폰트 정의 - preload로 최적화 */
+@font-face {
+  font-family: "Pretendard";
+  src: url("/fonts/Pretendard-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Pretendard";
+  src: url("/fonts/Pretendard-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
 
 @font-face {
   font-family: "Tenada";
-  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2210-2@1.0/Tenada.woff2")
-    format("woff2");
+  src: url("/fonts/Tenada.woff2") format("woff2");
   font-weight: normal;
+  font-style: normal;
   font-display: swap;
 }
 
@@ -67,6 +83,10 @@
   --color-gradient-100: linear-gradient(to right, #e3f2fd, #e5f9f8);
   --color-gradient-500: linear-gradient(to right, #17a7d7, #00bcf0);
   --color-gradient-600: linear-gradient(to right, #00c36b, #00b0dc);
+  
+  /* 폰트 패밀리 */
+  --font-pretendard: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-tenada: "Tenada", serif;
 }
 
 @theme inline {
@@ -180,15 +200,22 @@
   * {
     @apply border-border outline-ring/50;
   }
+  
+  html {
+    overflow-y: scroll; /* 스크롤바 공간 항상 확보 */
+  }
+  
   body {
     @apply bg-background text-foreground;
-    font-family: "Pretendard", sans-serif;
+    font-family: var(--font-pretendard);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
 @layer utilities {
   .font-tenada {
-    font-family: "Tenada", sans-serif;
+    font-family: var(--font-tenada);
   }
 
   .gradient-border {
@@ -208,6 +235,15 @@
       linear-gradient(#fff 0 0);
     mask-composite: xor;
     -webkit-mask-composite: xor;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
   }
 }
 

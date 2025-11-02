@@ -3,8 +3,8 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Suspense, useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 
-import { CreateGatheringModal } from "@/shared/components/modals";
 import Banner from "@/features/main/components/banner";
 import ButtonPlus from "@/shared/components/btnPlus";
 import PageTabs from "@/shared/components/pagetabs";
@@ -13,12 +13,34 @@ import FiltersBar from "@/shared/components/filters-bar";
 import { CardSkeletonGrid } from "@/shared/components/cardskeleton";
 import { useGatheringsInfiniteQuery } from "@/shared/services/gathering/use-gathering-queries";
 import type { GatheringType } from "@/shared/services/gathering/endpoints";
-import EmptyBanner from "@/features/main/components/emptybanner";
 import { LoaderCircle } from "lucide-react";
 import { MainPageSortBy } from "@/shared/services/gathering/gathering.service";
 import { useUrlFilters } from "@/shared/hooks/use-url-filters";
 import { useTabFilters } from "@/shared/hooks/use-tab-filters";
 import { useInfiniteScroll } from "@/shared/hooks/use-infinite-scroll";
+
+const CreateGatheringModal = dynamic(
+  () =>
+    import("@/shared/components/modals").then((mod) => ({
+      default: mod.CreateGatheringModal,
+    })),
+  {
+    loading: () => null, 
+    ssr: false,
+  },
+);
+
+const EmptyBanner = dynamic(
+  () => import("@/features/main/components/emptybanner"),
+  {
+    loading: () => (
+      <div className="flex h-64 items-center justify-center">
+        <p className="text-gray-400">로딩중...</p>
+      </div>
+    ),
+    ssr: false,
+  },
+);
 
 const TABS = [
   {
@@ -38,7 +60,7 @@ const TABS = [
 const SORT_OPTIONS: Array<{ value: MainPageSortBy; label: string }> = [
   { value: "registrationEnd", label: "마감임박순" },
   { value: "participantCount", label: "참여인원순" },
-  { value: "dateTime", label: "모임시작임박" },
+  { value: "dateTime", label: "모임시작 임박" },
 ];
 
 const DALLAEMFIT_TYPES = ["DALLAEMFIT", "OFFICE_STRETCHING", "MINDFULNESS"];
@@ -64,6 +86,7 @@ function MainPageContent() {
     currentTab,
   );
 
+  // API 파라미터 메모이제이션
   const apiParams = useMemo(() => {
     const type: GatheringType | undefined =
       currentTab === "workation"
@@ -84,6 +107,7 @@ function MainPageContent() {
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useGatheringsInfiniteQuery(apiParams, 40);
 
+  // 모임 목록 필터링 및 정렬 메모이제이션
   const gatherings = useMemo(() => {
     const items = data?.flatItems ?? [];
     const filteredItems =
@@ -106,7 +130,7 @@ function MainPageContent() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-    { rootMargin: "200px" },
+    { rootMargin: "200px" }, // 200px 전에 미리 로드
   );
 
   const handleCreateClick = () => {
@@ -169,12 +193,13 @@ function MainPageContent() {
             />
           ))}
 
+          {/* 무한 스크롤 로딩 인디케이터 */}
           <div
             ref={observerTarget}
             className="flex items-center justify-center"
           >
             {isFetchingNextPage && (
-              <LoaderCircle className="mt-6 animate-spin text-gray-400" />
+              <LoaderCircle className="mt-6 h-8 w-8 animate-spin text-gray-400" />
             )}
           </div>
         </div>
@@ -182,6 +207,7 @@ function MainPageContent() {
 
       <ButtonPlus onClick={handleCreateClick} aria-label="모임 만들기" />
 
+      {/* 모달 - 조건부 렌더링 + Dynamic Import */}
       {modalOpen && (
         <CreateGatheringModal
           open={modalOpen}
@@ -195,7 +221,7 @@ function MainPageContent() {
 
 export default function MainPage() {
   return (
-    <Suspense fallback={<div className="p-4">로딩중...</div>}>
+    <Suspense fallback={<CardSkeletonGrid count={8} />}>
       <MainPageContent />
     </Suspense>
   );

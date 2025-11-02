@@ -41,7 +41,7 @@ export default function StepService({
               ].join(" ")}
             >
               <div className="flex items-center gap-3">
-                <Image src={s.icon} alt="" width={40} height={40} />
+                <Image src={s.icon} alt="" width={40} height={40} quality={75}/>
                 <div>
                   <div
                     className={[

@@ -1,7 +1,6 @@
-"use client";
-
 import { Button } from "@/shadcn/button";
 import { m } from "motion/react";
+import Image from "next/image";
 
 type Props = React.ComponentProps<typeof Button> & { label?: string };
 
@@ -20,7 +19,7 @@ export default function ButtonPlus({
         whileTap={{ scale: 0.95 }}
         transition={{ type: "spring", stiffness: 200, damping: 15 }}
       >
-        <img src="/image/ic_plus.svg" alt="plus" width={32} height={32} />
+        <Image src="/image/ic_plus.svg" alt="plus" width={32} height={32} />
         <span className="hidden md:inline">{label}</span>
       </m.div>
     </Button>

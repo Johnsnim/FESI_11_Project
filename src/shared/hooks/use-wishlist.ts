@@ -64,10 +64,10 @@ export function useWishlist(gatheringId: number) {
         map[userId] = Array.from(set);
         localStorage.setItem("wishlist", JSON.stringify(map));
       } catch (error) {
-        console.error("Failed to update wishlist:", error);
+        return error;
       }
     },
-    [userId, gatheringId, router]
+    [userId, gatheringId, router],
   );
 
   return {
