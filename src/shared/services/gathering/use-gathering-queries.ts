@@ -13,6 +13,7 @@ import {
   type JoinedGatheringsParams,
 } from "./gathering.service";
 import type { GatheringListParams, GatheringType } from "./endpoints";
+import { alert } from "@/shared/store/alert-store";
 
 // ============= Query Keys =============
 

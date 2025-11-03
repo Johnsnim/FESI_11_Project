@@ -84,9 +84,10 @@
   --color-gradient-100: linear-gradient(to right, #e3f2fd, #e5f9f8);
   --color-gradient-500: linear-gradient(to right, #17a7d7, #00bcf0);
   --color-gradient-600: linear-gradient(to right, #00c36b, #00b0dc);
-  
+
   /* 폰트 패밀리 */
-  --font-pretendard: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-pretendard:
+    "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   --font-tenada: "Tenada", serif;
 }
 
@@ -201,16 +202,17 @@
   * {
     @apply border-border outline-ring/50;
   }
-  
+
   html {
-    overflow-y: scroll; /* 스크롤바 공간 항상 확보 */
+    scrollbar-gutter: stable;
   }
-  
+
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-pretendard);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    scrollbar-gutter: stable;
   }
 }
 

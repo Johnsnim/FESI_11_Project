@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { confirm } from "../store/alert-store";
 
 type WishMap = Record<string, number[]>;
 
@@ -43,8 +44,9 @@ export function useWishlist(gatheringId: number) {
       }
 
       if (!userId) {
-        alert("로그인이 필요한 서비스입니다");
-        router.push("/login");
+        confirm("로그인이 필요한 서비스입니다.", () => {
+          router.push("/login");
+        });
         return;
       }
 

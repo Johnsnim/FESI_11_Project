@@ -1,23 +1,24 @@
 "use client";
 
 import { useSession } from "next-auth/react";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { Suspense, useMemo, useState } from "react";
-import dynamic from "next/dynamic";
 
 import Banner from "@/features/main/components/banner";
 import ButtonPlus from "@/shared/components/btnPlus";
-import PageTabs from "@/shared/components/pagetabs";
 import Card from "@/shared/components/card";
-import FiltersBar from "@/shared/components/filters-bar";
 import { CardSkeletonGrid } from "@/shared/components/cardskeleton";
-import { useGatheringsInfiniteQuery } from "@/shared/services/gathering/use-gathering-queries";
-import type { GatheringType } from "@/shared/services/gathering/endpoints";
-import { LoaderCircle } from "lucide-react";
-import { MainPageSortBy } from "@/shared/services/gathering/gathering.service";
-import { useUrlFilters } from "@/shared/hooks/use-url-filters";
-import { useTabFilters } from "@/shared/hooks/use-tab-filters";
+import FiltersBar from "@/shared/components/filters-bar";
+import PageTabs from "@/shared/components/pagetabs";
 import { useInfiniteScroll } from "@/shared/hooks/use-infinite-scroll";
+import { useTabFilters } from "@/shared/hooks/use-tab-filters";
+import { useUrlFilters } from "@/shared/hooks/use-url-filters";
+import type { GatheringType } from "@/shared/services/gathering/endpoints";
+import { MainPageSortBy } from "@/shared/services/gathering/gathering.service";
+import { useGatheringsInfiniteQuery } from "@/shared/services/gathering/use-gathering-queries";
+import { LoaderCircle } from "lucide-react";
+import { confirm } from "@/shared/store/alert-store";
 
 const CreateGatheringModal = dynamic(
   () =>
@@ -25,7 +26,7 @@ const CreateGatheringModal = dynamic(
       default: mod.CreateGatheringModal,
     })),
   {
-    loading: () => null, 
+    loading: () => null,
     ssr: false,
   },
 );
@@ -133,15 +134,18 @@ function MainPageContent() {
     { rootMargin: "200px" }, // 200px 전에 미리 로드
   );
 
-  const handleCreateClick = () => {
+ const handleCreateClick = () => {
     if (status !== "authenticated") {
-      alert("로그인이 필요한 서비스입니다.");
-      router.push("/login");
+      confirm(
+        "로그인이 필요한 서비스입니다.",
+        () => {
+          router.push("/login");
+        }
+      );
       return;
     }
     setModalOpen(true);
   };
-
   return (
     <div className="w-full pb-20 md:px-5 lg:mx-5 lg:mt-10 lg:px-0">
       <Banner
