@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TEAM4 – 같이달램
 
-## Getting Started
+<div align="center">
+  <table style="border:none;">
+    <tr>
+      <td width="15%" style="border:none;">
+        <a href="https://fesi-11-project-ldwd.vercel.app/">
+          <img src="https://github.com/user-attachments/assets/e80758a0-1f6f-4bf9-9133-7ca2f320c1c4" alt="Vercel Deploy" width="100%" />
+        </a>
+      </td>
+      <td width="50%" valign="middle" style="border:none; padding-left: 24px;">
+        <div align="left">
+          <b>유저가 바쁜 일상 속 휴식을 위한 다양한 모임을 탐색하고 참여하며,<br>
+          직접 모임을 개설하고 리뷰를 생성할 수 있는 서비스입니다.</b><br><br>
+          <b>🛠️ Tech Stack</b><br>
+          Next.js 15(App Router) · TypeScript · TanStack Query · NextAuth · shadcn/ui
+        </div>
+      </td>
+    </tr>
+  </table>
+</div>
 
-First, run the development server:
+---
+![Image](https://github.com/user-attachments/assets/fe8cf640-d954-4a0f-94a4-37d5058bd8b2)
+| 페이지 | 설명 |
+|:--|:--|
+| **로그인 / 회원가입** | 이메일·비밀번호·이름·회사명 입력 및 유효성 검사, 실시간 오류 메시지 및 애니메이션 효과 적용 |
+| **GNB (내비게이션 바)** | 로고 클릭 시 홈 이동, 찜 개수 표시, 프로필 메뉴(마이페이지·로그아웃) 제공 |
+| **모임 목록 페이지 (홈)** | SSR+CSR 기반 무한 스크롤, 필터/정렬, 찜 기능, 로그인 상태별 모임 생성 처리 |
+| **모임 상세 페이지** | 참여/취소/공유 기능, 리뷰 확인, 참여 인원 Progress Bar 및 인터랙션 애니메이션 |
+| **찜한 모임 페이지** | 웹 스토리지 기반 찜 목록 관리, 클릭 시 색상/크기 변화 애니메이션 |
+| **마이페이지** | 프로필 수정, 내가 신청한/만든 모임 및 리뷰 관리, 별점 인터랙션 효과 |
+| **모든 리뷰 페이지** | 전체 평점 통계 및 개별 리뷰 조회, 필터/정렬, 무한 스크롤 기반 로딩 |
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+> ✨ 전반적인 UI에 *Framer Motion*으로 부드러운 전환 및 시각적 피드백 애니메이션을 적용하고
+> 
+> *Skeleton UI*를 적용하여 레이아웃 시프트 같은 UX까지 고려했습니다. 
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## Learn More
+![Image](https://github.com/user-attachments/assets/e7e8944a-23f1-43da-b05a-c9bddce12f3d)
 
-To learn more about Next.js, take a look at the following resources:
+- **FE**: Next.js 15(App Router), React 18, TypeScript, TailwindCSS, shadcn/ui, lucide-react
+- **상태/데이터**: TanStack Query(∞ query, 캐싱), 커스텀 훅(use-infinite-scroll, use-url-filters 등)
+- **인증**: NextAuth
+- **테스트**: Jest, React Testing Library, jest-environment-jsdom
+- **배포/호스팅**: Vercel
+- **번들 분석**: @next/bundle-analyzer
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 📂 폴더 구조(요지)
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
