@@ -1,13 +1,6 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import DibsPage from "./page";
-
-const useGatheringsByIdsInfiniteQueryMock = jest.fn();
-jest.mock("@/shared/services/gathering/use-gathering-queries", () => ({
-  useGatheringsByIdsInfiniteQuery: (...args: any[]) =>
-    useGatheringsByIdsInfiniteQueryMock(...args),
-}));
 
 jest.mock("next-auth/react", () => ({
   useSession: () => ({
@@ -16,8 +9,13 @@ jest.mock("next-auth/react", () => ({
   }),
 }));
 
-jest.mock("next/image", () => (props: any) => {
-  const { src, alt, ...rest } = props;
+type NextImageProps = React.ImgHTMLAttributes<HTMLImageElement> & {
+  src: string;
+  alt?: string;
+  priority?: boolean;
+};
+jest.mock("next/image", () => (props: NextImageProps) => {
+  const { src, alt = "", priority: _omit, ...rest } = props;
   return <img src={src} alt={alt} {...rest} />;
 });
 
@@ -29,13 +27,13 @@ jest.mock("@/shared/components/cardskeleton", () => ({
 jest.mock("@/features/main/components/emptybanner", () => () => (
   <div data-testid="empty" />
 ));
-jest.mock("@/shared/components/card", () => (p: any) => (
+jest.mock("@/shared/components/card", () => (p: { title: string }) => (
   <div data-testid="card">{p.title}</div>
 ));
 
 jest.mock("@/shared/hooks/use-url-filters", () => ({
   useUrlFilters: () => ({
-    currentTab: "dallemfit",
+    currentTab: "workation",
     dallaemfitFilter: "all",
     selectedLocation: "all",
     selectedDate: undefined,
@@ -52,9 +50,24 @@ jest.mock("@/shared/hooks/use-tab-filters", () => ({
     handleSortChange: jest.fn(),
   }),
 }));
-jest.mock("@/shared/hooks/use-infinite-scroll", () => ({
-  useInfiniteScroll: () => ({ current: null }),
+
+jest.mock("@/shared/hooks/use-infinite-scroll", () => {
+  const ref: React.RefObject<HTMLDivElement> = {
+    current:
+      typeof document !== "undefined"
+        ? document.createElement("div")
+        : (undefined as unknown as HTMLDivElement),
+  };
+  return { useInfiniteScroll: () => ref };
+});
+
+const useGatheringsByIdsInfiniteQueryMock = jest.fn();
+jest.mock("@/shared/services/gathering/use-gathering-queries", () => ({
+  useGatheringsByIdsInfiniteQuery: (...args: unknown[]) =>
+    useGatheringsByIdsInfiniteQueryMock(...(args as [])),
 }));
+
+import DibsPage from "./page";
 
 describe("DibsPage", () => {
   beforeEach(() => {
@@ -75,6 +88,8 @@ describe("DibsPage", () => {
   });
 
   test("데이터가 있으면 map으로 Card 렌더함", () => {
+    jest.useFakeTimers().setSystemTime(new Date("2025-11-01T12:00:00+09:00"));
+
     useGatheringsByIdsInfiniteQueryMock.mockReturnValue({
       data: {
         flatItems: [
@@ -116,6 +131,8 @@ describe("DibsPage", () => {
     expect(cards).toHaveLength(2);
     expect(cards[0]).toHaveTextContent("찜한모임1");
     expect(cards[1]).toHaveTextContent("찜한모임2");
+
+    jest.useRealTimers();
   });
 
   test("데이터 없을 때 EmptyBanner 렌더함", () => {

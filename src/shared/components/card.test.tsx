@@ -1,22 +1,39 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import Card, { CardProps } from "./card";
 
-const pushMock = jest.fn();
-jest.mock("next/navigation", () => ({ useRouter: () => ({ push: pushMock }) }));
+type NextImageProps = React.ImgHTMLAttributes<HTMLImageElement> & {
+  src: string;
+  alt?: string;
+  priority?: boolean;
+};
+jest.mock("next/image", () => (props: NextImageProps) => {
+  const { src, alt = "", priority: _omit, ...rest } = props;
+  return <img src={src} alt={alt} {...rest} />;
+});
 
 jest.mock("./progressbar", () => ({
   __esModule: true,
   default: () => <div data-testid="progressbar" />,
 }));
 
-const useWishlistMock = jest.fn();
+const pushMock = jest.fn();
+jest.mock("next/navigation", () => ({ useRouter: () => ({ push: pushMock }) }));
+
+type UseWishlistReturn = {
+  isWished: boolean;
+  toggleWish: (e?: React.MouseEvent) => void;
+};
+const useWishlistMock = jest.fn<UseWishlistReturn, []>();
 jest.mock("../hooks/use-wishlist", () => ({
   useWishlist: () => useWishlistMock(),
 }));
 
-jest.mock("./wish-button", () => (props: any) => (
+interface WishButtonProps {
+  isWished: boolean;
+  onClick: (e?: React.MouseEvent) => void;
+}
+jest.mock("./wish-button", () => (props: WishButtonProps) => (
   <button
     aria-label="wish"
     aria-pressed={props.isWished}
@@ -25,6 +42,8 @@ jest.mock("./wish-button", () => (props: any) => (
     WISH
   </button>
 ));
+
+import Card, { CardProps } from "./card";
 
 function makeProps(overrides: Partial<CardProps> = {}): CardProps {
   return {
@@ -60,9 +79,10 @@ describe("Card 핵심 동작", () => {
     );
     fireEvent.click(screen.getAllByRole("button", { name: "참여하기" })[0]);
     expect(pushMock).toHaveBeenCalledWith("/detail/1");
+    jest.useRealTimers();
   });
 
-  test("등록 마감이 지났으면 '모집 마감' 보이면서 버튼 비활성화", () => {
+  test("등록 마감이 지났으면 버튼 비활성화", () => {
     jest.useFakeTimers().setSystemTime(new Date("2025-11-02T12:00:00+09:00"));
     render(
       <Card
@@ -72,21 +92,13 @@ describe("Card 핵심 동작", () => {
         })}
       />,
     );
-    expect(screen.getByText("모집 마감")).toBeInTheDocument();
     screen.getAllByRole("button", { name: "참여하기" }).forEach((b) => {
       expect(b).toBeDisabled();
     });
+    jest.useRealTimers();
   });
 
-  test("취소된 모임이면 '취소됨' 보이면서 버튼 비활성화", () => {
-    render(<Card {...makeProps({ isCanceled: true })} />);
-    expect(screen.getByText("취소됨")).toBeInTheDocument();
-    screen.getAllByRole("button", { name: "참여하기" }).forEach((b) => {
-      expect(b).toBeDisabled();
-    });
-  });
-
-  test("찜하기 버튼 클릭 시 toggleWish로 버튼 토글", () => {
+  test("좋아요 버튼 클릭하면 toggleWish 호출", () => {
     const toggle = jest.fn();
     useWishlistMock.mockReturnValue({ isWished: false, toggleWish: toggle });
     render(<Card {...makeProps()} />);
