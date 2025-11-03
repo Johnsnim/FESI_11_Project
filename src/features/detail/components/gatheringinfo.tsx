@@ -10,7 +10,7 @@ import { gatheringService } from "@/shared/services/gathering/gathering.service"
 import { useWishlist } from "@/shared/hooks/use-wishlist"; // 경로는 프로젝트 구조에 맞게 수정
 import type { Gathering } from "@/shared/services/gathering/gathering.service";
 import WishButton from "@/shared/components/wish-button";
-import { confirm } from "@/shared/store/alert-store";
+import { alert, confirm } from "@/shared/store/alert-store";
 
 type Props = {
   data: Gathering;
@@ -104,29 +104,30 @@ export default function GatheringInfo({
     );
   }
 
-  async function handleCancel() {
-    if (canceling) return;
-    const ok = window.confirm(
-      "정말로 이 모임을 취소하시겠어요? 취소 후에는 되돌릴 수 없어요.",
-    );
-    if (!ok) return;
-
-    try {
-      setCanceling(true);
-      await gatheringService.cancel(data.id);
-      await Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: ["gathering-detail", data.id],
-        }),
-        queryClient.invalidateQueries({ queryKey: ["gathering-list"] }),
-        queryClient.invalidateQueries({ queryKey: ["joined-list"] }),
-      ]);
-    } catch (err: unknown) {
-      alert(getErrorMessage(err));
-    } finally {
-      setCanceling(false);
+async function handleCancel() {
+  if (canceling) return;
+  
+  confirm(
+    "정말로 이 모임을 취소하시겠어요?\n취소 후에는 되돌릴 수 없어요.",
+    async () => {
+      try {
+        setCanceling(true);
+        await gatheringService.cancel(data.id);
+        await Promise.all([
+          queryClient.invalidateQueries({
+            queryKey: ["gathering-detail", data.id],
+          }),
+          queryClient.invalidateQueries({ queryKey: ["gathering-list"] }),
+          queryClient.invalidateQueries({ queryKey: ["joined-list"] }),
+        ]);
+      } catch (err: unknown) {
+        alert(getErrorMessage(err));
+      } finally {
+        setCanceling(false);
+      }
     }
-  }
+  );
+}
 
   function handleJoinClick() {
     if (status !== "authenticated") {
