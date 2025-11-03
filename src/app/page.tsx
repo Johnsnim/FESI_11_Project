@@ -3,7 +3,7 @@
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import { Suspense, useMemo, useState } from "react";
+import { Suspense, useMemo, useState, useCallback } from "react";
 
 import Banner from "@/features/main/components/banner";
 import ButtonPlus from "@/shared/components/btnPlus";
@@ -25,10 +25,7 @@ const CreateGatheringModal = dynamic(
     import("@/shared/components/modals").then((mod) => ({
       default: mod.CreateGatheringModal,
     })),
-  {
-    loading: () => null,
-    ssr: false,
-  },
+  { loading: () => null, ssr: false },
 );
 
 const EmptyBanner = dynamic(
@@ -68,6 +65,7 @@ const DALLAEMFIT_TYPES = ["DALLAEMFIT", "OFFICE_STRETCHING", "MINDFULNESS"];
 
 function MainPageContent() {
   const [modalOpen, setModalOpen] = useState(false);
+  const [modalKey, setModalKey] = useState(0);
   const router = useRouter();
   const { status } = useSession();
 
@@ -82,12 +80,12 @@ function MainPageContent() {
 
   const sortBy =
     (searchParams.get("sortBy") as MainPageSortBy) || "registrationEnd";
+
   const handlers = useTabFilters<MainPageSortBy>(
     updateSearchParams,
     currentTab,
   );
 
-  // API 파라미터 메모이제이션
   const apiParams = useMemo(() => {
     const type: GatheringType | undefined =
       currentTab === "workation"
@@ -108,7 +106,6 @@ function MainPageContent() {
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useGatheringsInfiniteQuery(apiParams, 40);
 
-  // 모임 목록 필터링 및 정렬 메모이제이션
   const gatherings = useMemo(() => {
     const items = data?.flatItems ?? [];
     const filteredItems =
@@ -129,23 +126,36 @@ function MainPageContent() {
 
   const observerTarget = useInfiniteScroll(
     fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    { rootMargin: "200px" }, // 200px 전에 미리 로드
+    !!hasNextPage,
+    !!isFetchingNextPage,
+    { rootMargin: "200px" },
   );
 
- const handleCreateClick = () => {
+  const openModalFresh = useCallback(() => {
+    setModalKey((k) => k + 1);
+    setModalOpen(true);
+  }, []);
+
+  const handleCreateClick = useCallback(() => {
     if (status !== "authenticated") {
-      confirm(
-        "로그인이 필요한 서비스입니다.",
-        () => {
-          router.push("/login");
-        }
-      );
+      confirm("로그인이 필요한 서비스입니다.", () => {
+        router.push("/login");
+      });
       return;
     }
-    setModalOpen(true);
-  };
+    openModalFresh();
+  }, [status, router, openModalFresh]);
+
+  const handleModalOpenChange = useCallback((open: boolean) => {
+    if (open) setModalKey((k) => k + 1);
+    setModalOpen(open);
+  }, []);
+
+  const handleComplete = useCallback(() => {
+    setModalOpen(false);
+    setModalKey((k) => k + 1);
+  }, []);
+
   return (
     <div className="w-full pb-20 md:px-5 lg:mx-5 lg:mt-10 lg:px-0">
       <Banner
@@ -182,22 +192,21 @@ function MainPageContent() {
         <EmptyBanner />
       ) : (
         <div className="flex flex-col items-center justify-center gap-4 md:gap-6 lg:grid lg:grid-cols-2 lg:gap-6 lg:space-y-0">
-          {gatherings.map((gathering) => (
+          {gatherings.map((g) => (
             <Card
-              key={gathering.id}
-              id={gathering.id}
-              title={gathering.name}
-              location={gathering.location}
-              dateTimeISO={gathering.dateTime}
-              registrationEndISO={gathering.registrationEnd}
-              participantCount={gathering.participantCount}
-              capacity={gathering.capacity}
-              image={gathering.image}
-              isCanceled={!!gathering.canceledAt}
+              key={g.id}
+              id={g.id}
+              title={g.name}
+              location={g.location}
+              dateTimeISO={g.dateTime}
+              registrationEndISO={g.registrationEnd}
+              participantCount={g.participantCount}
+              capacity={g.capacity}
+              image={g.image}
+              isCanceled={!!g.canceledAt}
             />
           ))}
 
-          {/* 무한 스크롤 로딩 인디케이터 */}
           <div
             ref={observerTarget}
             className="flex items-center justify-center"
@@ -211,12 +220,12 @@ function MainPageContent() {
 
       <ButtonPlus onClick={handleCreateClick} aria-label="모임 만들기" />
 
-      {/* 모달 - 조건부 렌더링 + Dynamic Import */}
       {modalOpen && (
         <CreateGatheringModal
+          key={modalKey}
           open={modalOpen}
-          onOpenChange={setModalOpen}
-          onComplete={() => setModalOpen(false)}
+          onOpenChange={handleModalOpenChange}
+          onComplete={handleComplete}
         />
       )}
     </div>
