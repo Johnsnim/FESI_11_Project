@@ -4,6 +4,7 @@ import * as React from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shadcn/popover";
 import { Calendar } from "@/shadcn/calendar";
 import { CreateGatheringForm } from "@/shared/components/modals/create/types";
+import Image from "next/image";
 
 function fmtDateLabel(d: Date | null) {
   if (!d) return "날짜를 입력해주세요";
@@ -158,7 +159,7 @@ export default function StepDate({
           <PopoverTrigger asChild>
             <button className="flex w-full items-center justify-between rounded-xl bg-[#F9FAFB] px-3 py-2 text-left text-sm text-gray-400">
               {fmtDateLabel(data.date)}
-              <img
+              <Image
                 src="/image/ic_calendar_sm.svg"
                 alt=""
                 width={20}
@@ -223,7 +224,7 @@ export default function StepDate({
           <PopoverTrigger asChild>
             <button className="flex w-full items-center justify-between rounded-xl bg-[#F9FAFB] px-3 py-2 text-left text-sm text-gray-400">
               {fmtDateLabel(data.registrationEnd)}
-              <img
+              <Image
                 src="/image/ic_calendar_sm.svg"
                 alt=""
                 width={20}

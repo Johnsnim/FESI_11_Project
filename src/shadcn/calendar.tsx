@@ -39,13 +39,13 @@ function Calendar({
       )}
       captionLayout={captionLayout}
       formatters={{
-        formatCaption: (month, options) =>
+        formatCaption: (month) =>
           format(month, "yyyy년 M월", { locale: ko }),
-        formatWeekdayName: (date, options) =>
+        formatWeekdayName: (date) =>
           format(date, "EEEEE", { locale: ko }),
-        formatMonthDropdown: (month, options) =>
+        formatMonthDropdown: (month) =>
           format(month, "M월", { locale: ko }),
-        formatYearDropdown: (date, options) =>
+        formatYearDropdown: (date) =>
           format(date, "yyyy년", { locale: ko }),
         ...formatters,
       }}
