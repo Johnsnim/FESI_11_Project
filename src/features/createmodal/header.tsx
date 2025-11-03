@@ -1,5 +1,3 @@
-"use client";
-
 import * as React from "react";
 import { DialogTitle, DialogClose } from "@/shadcn/dialog";
 import { cn } from "@/shadcn/lib/utils";

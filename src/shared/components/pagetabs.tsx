@@ -1,5 +1,3 @@
-"use client";
-
 import * as React from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/shadcn/tabs";
 import { m } from "motion/react";
@@ -54,6 +52,7 @@ export default function PageTabs({
               "relative flex-1 cursor-pointer p-0 text-lg font-semibold text-gray-400 shadow-none focus-visible:ring-0 focus-visible:outline-none data-[state=active]:bg-transparent data-[state=active]:text-green-600 data-[state=active]:shadow-none md:w-[159px] md:flex-none md:text-xl",
               tabsTriggerClassName,
             )}
+            aria-label="탭"
           >
             {tab.imageUrl && (
               <div className={cn(imageClassName, "relative")}>
@@ -61,6 +60,7 @@ export default function PageTabs({
                   src={tab.imageUrl}
                   alt={tab.imageAlt ?? `${tab.label} icon`}
                   fill
+                  aria-label="탭 아이콘"
                 />
               </div>
             )}

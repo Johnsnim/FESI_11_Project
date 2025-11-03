@@ -248,7 +248,6 @@ export function useLeaveGatheringMutation() {
       alert("모임 참여가 취소되었습니다.");
     },
     onError: (err: unknown) => {
-      console.error(err);
       alert(err instanceof Error ? err.message : "모임 취소 중 오류 발생");
     },
   });

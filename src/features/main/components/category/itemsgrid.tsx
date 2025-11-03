@@ -1,5 +1,3 @@
-"use client";
-
 import * as React from "react";
 import Card from "@/shared/components/card";
 import type { Gathering } from "@/shared/services/gathering/gathering.service";

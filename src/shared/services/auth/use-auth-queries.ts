@@ -1,12 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
-import { getUser, signup, updateUser } from "./auth.service";
+import { ApiError, getUser, signup, updateUser } from "./auth.service";
 
-interface ApiError {
-  code: string;
-  message: string;
-  status?: number;
-}
 
 // 회원가입
 export const useSignUpMutation = () =>

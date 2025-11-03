@@ -32,7 +32,7 @@ const TABS = [
   {
     value: "workation",
     label: "워케이션",
-    imageUrl: "/image/ic_parasol_md.svg",
+    imageUrl: "/image/ic_ parasol_md.svg",
     imageAlt: "워케이션 아이콘",
   },
 ] as const;
@@ -149,6 +149,7 @@ function DibsPageContent() {
           alt="찜하기 배너 이미지"
           width={102}
           height={83}
+          quality={75}
           className="h-[57px] w-[70px] md:h-[83px] md:w-[102px]"
           priority
         />
