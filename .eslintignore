@@ -1,0 +1,5 @@
+**/*.test.*
+**/*.spec.*
+**/__tests__/**
+jest.config.*
+jest.setup.*
