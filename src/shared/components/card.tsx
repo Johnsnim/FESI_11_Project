@@ -225,12 +225,13 @@ const Card = memo(function Card({
 
         {!isCanceled && isRecruitmentClosed && (
           <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/70 md:rounded-3xl">
-            <span
+            {/* <span
               className="text-2xl leading-[30px] font-extrabold tracking-[-0.03em] text-white"
               style={{ fontFamily: "Tenada, sans-serif" }}
             >
               모집 마감
-            </span>
+            </span> */}
+            <Image src="/image/deadline.svg" alt="" width={88} height={30} loading="lazy"/>
           </div>
         )}
       </div>

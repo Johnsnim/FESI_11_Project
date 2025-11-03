@@ -32,6 +32,7 @@ import {
   CreateReviewSchema,
 } from "@/features/reviews/schemas/review.schema";
 import { CreatedGatherings } from "@/features/mypage/components/created-Gatherings";
+import { alert } from "@/shared/store/alert-store";
 
 // 🎯 모달만 dynamic import (실제로 지연 로딩이 필요한 부분)
 const UserEditModal = dynamic(

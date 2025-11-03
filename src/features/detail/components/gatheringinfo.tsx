@@ -10,6 +10,7 @@ import { gatheringService } from "@/shared/services/gathering/gathering.service"
 import { useWishlist } from "@/shared/hooks/use-wishlist"; // 경로는 프로젝트 구조에 맞게 수정
 import type { Gathering } from "@/shared/services/gathering/gathering.service";
 import WishButton from "@/shared/components/wish-button";
+import { confirm } from "@/shared/store/alert-store";
 
 type Props = {
   data: Gathering;
@@ -129,9 +130,13 @@ export default function GatheringInfo({
 
   function handleJoinClick() {
     if (status !== "authenticated") {
-      alert("로그인이 필요한 서비스입니다.");
-      router.push("/login");
-      return;
+      confirm(
+             "로그인이 필요한 서비스입니다.",
+             () => {
+               router.push("/login");
+             }
+           );
+           return;
     }
     onJoin();
   }
