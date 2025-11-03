@@ -190,14 +190,14 @@ export function InputPassword({ ...props }) {
       >
         {showPassword ? (
           <img
-            src="/image/ic_visibility_off_lg.svg"
-            alt="비밀번호 숨김"
+            src="/image/ic_visibility_on_lg.svg"
+            alt="비밀번호 보기"
             className="size-4.5 md:size-6"
           />
         ) : (
           <img
-            src="/image/ic_visibility_on_lg.svg"
-            alt="비밀번호 보기"
+            src="/image/ic_visibility_off_lg.svg"
+            alt="비밀번호 숨김"
             className="size-4.5 md:size-6"
           />
         )}

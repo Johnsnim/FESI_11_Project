@@ -1,25 +1,40 @@
 import { api } from "@/lib/api/api";
+import { AxiosError } from "axios";
 
+export interface ApiError extends Error {
+  code: string;
+  status?: number;
+  parameter?: string;
+}
 const TEAM_ID = process.env.NEXT_PUBLIC_TEAM_ID;
 
 //회원가입
-export async function signup({
-  email,
-  password,
-  name,
-  companyName,
-}: {
+export const signup = async (data: {
   email: string;
   password: string;
   name: string;
   companyName: string;
-}) {
-  const { data } = await api.post<{ message: string }>(
-    `/${TEAM_ID}/auths/signup`,
-    { email, password, name, companyName },
-  );
-  return data;
-}
+}): Promise<{ message: string }> => {
+  try {
+    const response = await api.post(`/${TEAM_ID}/auths/signup`, data);
+    return response.data;
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      const errorData = error.response?.data;
+
+      const apiError = new Error(
+        errorData?.message || "회원가입에 실패했습니다",
+      ) as ApiError;
+      apiError.code = errorData?.code || "SIGNUP_ERROR";
+      apiError.status = error.response?.status;
+      apiError.parameter = errorData?.parameter;
+      apiError.name = "ApiError";
+
+      throw apiError;
+    }
+    throw error;
+  }
+};
 
 //내정보
 export async function getUser(accessToken: string) {
@@ -31,7 +46,7 @@ export async function getUser(accessToken: string) {
   return data;
 }
 
-//회
+//회원정보 수정
 export async function updateUser(
   accessToken: string,
   payload: { companyName: string; image?: string | File },
@@ -39,21 +54,16 @@ export async function updateUser(
   const formData = new FormData();
   formData.append("companyName", payload.companyName);
 
-  // image가 File일 때만 append
   if (payload.image instanceof File) {
     formData.append("image", payload.image);
   }
 
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/${TEAM_ID}/auths/user`,
-    {
-      method: "PUT",
-      headers: { Authorization: `Bearer ${accessToken}` },
-      body: formData,
+  const { data } = await api.put(`/${TEAM_ID}/auths/user`, formData, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "multipart/form-data",
     },
-  );
+  });
 
-  if (!res.ok) throw new Error("회원정보 수정 실패");
-
-  return res.json();
+  return data;
 }

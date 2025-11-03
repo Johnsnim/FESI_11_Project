@@ -1,7 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-/* 폰트 정의 - preload로 최적화 */
+/* 폰트 정의 - Pretendard만 즉시 로드 */
 @font-face {
   font-family: "Pretendard";
   src: url("/fonts/Pretendard-Regular.woff2") format("woff2");
@@ -18,12 +18,13 @@
   font-display: swap;
 }
 
+/* Tenada는 optional - 즉시 로드 안됨, 필요할 때만 */
 @font-face {
   font-family: "Tenada";
   src: url("/fonts/Tenada.woff2") format("woff2");
   font-weight: normal;
   font-style: normal;
-  font-display: swap;
+  font-display: optional; /* 블로킹 기간 100ms로 제한 */
 }
 
 @theme {

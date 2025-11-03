@@ -20,7 +20,7 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <head>
-        {/* 폰트 preload로 렌더링 차단 해결 */}
+        {/* 중요한 폰트만 preload */}
         <link
           rel="preload"
           href="/fonts/Pretendard-Regular.woff2"
