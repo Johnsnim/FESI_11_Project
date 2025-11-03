@@ -1,16 +1,17 @@
-// @/shared/components/alert-modal.tsx
 "use client";
 
 import { Dialog, DialogContent, DialogFooter } from "@/shadcn/dialog";
 import { Button } from "@/shadcn/button";
 import { useAlertStore } from "@/shared/store/alert-store";
 import { X } from "lucide-react";
+import { DialogTitle } from "@radix-ui/react-dialog";
 
 export function AlertModal() {
   const { open, message, buttons, closeAlert } = useAlertStore();
 
   return (
     <Dialog open={open} onOpenChange={closeAlert}>
+      <DialogTitle/>
       <DialogContent className="max-w-[342px] rounded-[40px] p-6 md:px-10 md:pt-12 md:pb-10 md:max-w-[600px]">
         {/* X 버튼 */}
         <button

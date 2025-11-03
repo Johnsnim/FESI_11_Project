@@ -13,10 +13,9 @@ import {
   type JoinedGatheringsParams,
 } from "./gathering.service";
 import type { GatheringListParams, GatheringType } from "./endpoints";
-import { alert } from "@/shared/store/alert-store";
+// import { alert } from "@/shared/store/alert-store"; // ← 임시로 주석
 
 // ============= Query Keys =============
-
 export const gatheringKeys = {
   all: ["gatherings"] as const,
   detail: (id: number) => [...gatheringKeys.all, "detail", id] as const,
@@ -32,7 +31,6 @@ export const gatheringKeys = {
 
 // ============= 조회 Queries =============
 
-// 모임 상세 조회
 export function useGatheringDetailQuery(id?: number) {
   const enabled = typeof id === "number" && Number.isFinite(id);
   return useQuery({
@@ -43,7 +41,6 @@ export function useGatheringDetailQuery(id?: number) {
   });
 }
 
-// 모임 참가자 목록 조회
 export function useGatheringParticipantsQuery(
   gatheringId?: number,
   params: {
@@ -58,7 +55,7 @@ export function useGatheringParticipantsQuery(
     queryKey: gatheringKeys.participants(gatheringId as number, params),
     queryFn: () => gatheringService.participants(gatheringId as number, params),
     enabled,
-    staleTime: 30_000,
+    staleTime: 0,
   });
 }
 
@@ -67,9 +64,7 @@ type ListFilter = Omit<GatheringListParams, "limit" | "offset" | "ids"> & {
   id?: number[];
 };
 
-// 모임 목록 무한 스크롤 조회
 export function useGatheringsInfiniteQuery(filter: ListFilter, pageSize = 50) {
-  // sortOrder 기본값을 desc로 설정
   const filterWithDefaults = useMemo(
     () => ({
       sortOrder: "desc" as const,
@@ -103,7 +98,6 @@ export function useGatheringsInfiniteQuery(filter: ListFilter, pageSize = 50) {
   });
 }
 
-// ID 기반 모임 목록 무한 스크롤 조회
 export function useGatheringsByIdsInfiniteQuery(
   getIds: () => number[] | Promise<number[]>,
   filter: Omit<ListFilter, "id">,
@@ -164,7 +158,6 @@ export function useGatheringsByIdsInfiniteQuery(
   });
 }
 
-// 참여한 모임 목록 조회
 export function useJoinedGatheringsQuery(params?: JoinedGatheringsParams) {
   const { data: session } = useSession();
   const accessToken = session?.accessToken;
@@ -178,7 +171,6 @@ export function useJoinedGatheringsQuery(params?: JoinedGatheringsParams) {
   });
 }
 
-// 내가 만든 모임 목록 조회
 export function useCreatedGatheringsQuery(params?: {
   sortBy?: "dateTime" | "registrationEnd" | "participantCount";
   sortOrder?: "asc" | "desc";
@@ -209,26 +201,30 @@ export function useCreatedGatheringsQuery(params?: {
 
 // ============= Mutations =============
 
-// 모임 참가
 export function useJoinGatheringMutation(gatheringId: number) {
   const qc = useQueryClient();
 
   return useMutation({
     mutationFn: () => gatheringService.join(gatheringId),
     onSuccess: async () => {
+      console.log("🎯 참여하기 성공! Refetch 시작");
+
+      await qc.refetchQueries({
+        queryKey: [...gatheringKeys.all, "participants", gatheringId],
+        type: "all",
+        exact: false,
+      });
+
       await Promise.all([
         qc.invalidateQueries({ queryKey: gatheringKeys.detail(gatheringId) }),
-        qc.invalidateQueries({
-          queryKey: gatheringKeys.participants(gatheringId),
-        }),
         qc.invalidateQueries({ queryKey: gatheringKeys.joined() }),
         qc.invalidateQueries({ queryKey: gatheringKeys.lists(), exact: false }),
       ]);
+
     },
   });
 }
 
-// 모임 참가 취소
 export function useLeaveGatheringMutation() {
   const qc = useQueryClient();
   const { data: session } = useSession();
@@ -238,18 +234,22 @@ export function useLeaveGatheringMutation() {
     mutationFn: (gatheringId: number) =>
       gatheringService.leave(accessToken!, gatheringId),
     onSuccess: async (_data, gatheringId) => {
+  
+
+      await qc.refetchQueries({
+        queryKey: [...gatheringKeys.all, "participants", gatheringId],
+        type: "all",
+        exact: false,
+      });
+
       await Promise.all([
         qc.invalidateQueries({ queryKey: gatheringKeys.detail(gatheringId) }),
-        qc.invalidateQueries({
-          queryKey: gatheringKeys.participants(gatheringId),
-        }),
         qc.invalidateQueries({ queryKey: gatheringKeys.joined() }),
         qc.invalidateQueries({ queryKey: gatheringKeys.lists(), exact: false }),
       ]);
-      alert("모임 참여가 취소되었습니다.");
     },
     onError: (err: unknown) => {
-      alert(err instanceof Error ? err.message : "모임 취소 중 오류 발생");
+      console.error(err);
     },
   });
 }
