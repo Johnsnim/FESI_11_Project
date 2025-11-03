@@ -1,12 +1,19 @@
 import type { NextConfig } from "next";
+import path from "path";
 import bundleAnalyzer from "@next/bundle-analyzer";
 
 const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === "true",
+  openAnalyzer: true,
 });
 
 const nextConfig: NextConfig = {
+  reactStrictMode: true,
+  poweredByHeader: false,
+  compress: true,
   productionBrowserSourceMaps: false,
+
+  outputFileTracingRoot: path.join(__dirname),
 
   experimental: {
     serverActions: { allowedOrigins: ["*"] },
@@ -36,16 +43,10 @@ const nextConfig: NextConfig = {
     minimumCacheTTL: 60,
   },
 
-  compress: true,
-  poweredByHeader: false,
-  reactStrictMode: true,
-
   compiler: {
     removeConsole:
       process.env.NODE_ENV === "production"
-        ? {
-            exclude: ["error", "warn"],
-          }
+        ? { exclude: ["error", "warn"] }
         : false,
   },
 
@@ -63,7 +64,6 @@ const nextConfig: NextConfig = {
           cacheGroups: {
             default: false,
             vendors: false,
-
             framework: {
               name: "framework",
               chunks: "all",
@@ -71,7 +71,6 @@ const nextConfig: NextConfig = {
               priority: 40,
               enforce: true,
             },
-
             nextVendor: {
               name: "next-vendor",
               chunks: "all",
@@ -79,34 +78,30 @@ const nextConfig: NextConfig = {
               priority: 35,
               enforce: true,
             },
-
             tanstack: {
               name: "tanstack",
               test: /[\\/]node_modules[\\/]@tanstack[\\/]/,
               chunks: "all",
               priority: 32,
             },
-
             dateFns: {
               name: "date-fns",
               test: /[\\/]node_modules[\\/]date-fns[\\/]/,
               chunks: "all",
               priority: 31,
             },
-
             lib: {
               test: /[\\/]node_modules[\\/]/,
               name(module: any) {
-                const packageName = module.context.match(
+                const pkg = module.context?.match(
                   /[\\/]node_modules[\\/](.*?)([\\/]|$)/,
                 )?.[1];
-                return `npm.${packageName?.replace("@", "")}`;
+                return `npm.${pkg?.replace("@", "")}`;
               },
               priority: 20,
               minChunks: 1,
               reuseExistingChunk: true,
             },
-
             commons: {
               name: "commons",
               minChunks: 2,
@@ -115,12 +110,10 @@ const nextConfig: NextConfig = {
             },
           },
         },
+        usedExports: true,
+        sideEffects: true,
       };
-
-      config.optimization.usedExports = true;
-      config.optimization.sideEffects = true;
     }
-
     return config;
   },
 

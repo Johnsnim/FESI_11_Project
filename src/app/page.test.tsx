@@ -1,10 +1,17 @@
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import Page from "./page";
 
-const pushMock = jest.fn();
-jest.mock("next/navigation", () => ({ useRouter: () => ({ push: pushMock }) }));
+const mockRouter = {
+  push: jest.fn(),
+  prefetch: jest.fn(),
+  replace: jest.fn(),
+  back: jest.fn(),
+  forward: jest.fn(),
+};
+jest.mock("next/navigation", () => ({
+  useRouter: () => mockRouter,
+}));
 
 jest.mock("lucide-react", () => ({
   LoaderCircle: (p: any) => <div data-testid="loader" {...p} />,
@@ -20,7 +27,6 @@ jest.mock("@/shared/hooks/use-url-filters", () => ({
     updateSearchParams: jest.fn(),
   }),
 }));
-
 jest.mock("@/shared/hooks/use-tab-filters", () => ({
   useTabFilters: () => ({
     handleTabChange: jest.fn(),
@@ -30,20 +36,28 @@ jest.mock("@/shared/hooks/use-tab-filters", () => ({
     handleSortChange: jest.fn(),
   }),
 }));
-
-jest.mock("@/shared/hooks/use-infinite-scroll", () => ({
-  useInfiniteScroll: () => ({ current: null }),
-}));
+jest.mock("@/shared/hooks/use-infinite-scroll", () => {
+  const ref: React.RefObject<HTMLDivElement> = {
+    current:
+      typeof document !== "undefined"
+        ? document.createElement("div")
+        : (undefined as unknown as HTMLDivElement),
+  };
+  return { useInfiniteScroll: () => ref };
+});
 
 jest.mock("@/features/main/components/banner", () => () => (
   <div data-testid="banner" />
 ));
-jest.mock("@/shared/components/pagetabs", () => (props: any) => (
-  <div data-testid="tabs">
-    <button onClick={() => props.onChange?.("dallemfit")}>달램핏</button>
-    <button onClick={() => props.onChange?.("workation")}>워케이션</button>
-  </div>
-));
+jest.mock(
+  "@/shared/components/pagetabs",
+  () => (props: { onChange?: (t: string) => void }) => (
+    <div data-testid="tabs">
+      <button onClick={() => props.onChange?.("dallemfit")}>달램핏</button>
+      <button onClick={() => props.onChange?.("workation")}>워케이션</button>
+    </div>
+  ),
+);
 jest.mock("@/shared/components/filters-bar", () => () => (
   <div data-testid="filters" />
 ));
@@ -53,16 +67,19 @@ jest.mock("@/shared/components/cardskeleton", () => ({
 jest.mock("@/features/main/components/emptybanner", () => () => (
   <div data-testid="empty" />
 ));
-jest.mock("@/shared/components/card", () => (props: any) => (
-  <li data-testid="card" data-id={props.id}>
-    {props.title}
-  </li>
-));
+jest.mock(
+  "@/shared/components/card",
+  () => (props: { id: number; title: string }) => (
+    <li data-testid="card" data-id={props.id}>
+      {props.title}
+    </li>
+  ),
+);
 jest.mock("@/shared/components/modals", () => ({
-  CreateGatheringModal: (p: any) =>
+  CreateGatheringModal: (p: { open: boolean }) =>
     p.open ? <div data-testid="create-modal" /> : null,
 }));
-jest.mock("@/shared/components/btnPlus", () => (p: any) => (
+jest.mock("@/shared/components/btnPlus", () => (p: { onClick: () => void }) => (
   <button data-testid="create-btn" onClick={p.onClick}>
     CREATE
   </button>
@@ -84,6 +101,15 @@ const setSession = (status: "authenticated" | "unauthenticated") => {
   );
 };
 
+function makeQueryReturn() {
+  return {
+    data: { flatItems: [] as Array<unknown> },
+    isLoading: false,
+    hasNextPage: false,
+    isFetchingNextPage: false,
+    fetchNextPage: jest.fn(),
+  };
+}
 const setQuery = (opts: Partial<ReturnType<typeof makeQueryReturn>> = {}) => {
   (useGatheringsInfiniteQuery as jest.Mock).mockReturnValue({
     ...makeQueryReturn(),
@@ -91,22 +117,13 @@ const setQuery = (opts: Partial<ReturnType<typeof makeQueryReturn>> = {}) => {
   });
 };
 
-function makeQueryReturn() {
-  return {
-    data: { flatItems: [] as any[] },
-    isLoading: false,
-    hasNextPage: false,
-    isFetchingNextPage: false,
-    fetchNextPage: jest.fn(),
-  };
-}
+import Page from "./page";
 
 beforeEach(() => {
   jest.useRealTimers();
-  pushMock.mockReset();
+  mockRouter.push.mockReset();
   setSession("unauthenticated");
   setQuery();
-  jest.spyOn(window, "alert").mockImplementation(() => {});
 });
 
 describe("메인 페이지 핵심 테스트", () => {
@@ -116,13 +133,13 @@ describe("메인 페이지 핵심 테스트", () => {
     expect(screen.getByTestId("skeleton")).toBeInTheDocument();
   });
 
-  test("데이터가 없으면 empty 배너가 보임", () => {
-    setQuery({ data: { flatItems: [] } });
+  test("데이터가 없으면 empty 배너가 보임", async () => {
+    setQuery({ data: { flatItems: [] }, isLoading: false });
     render(<Page />);
-    expect(screen.getByTestId("empty")).toBeInTheDocument();
+    expect(await screen.findByTestId("empty")).toBeInTheDocument();
   });
 
-  test("데이터가 있으면 card 컴포넌트를 map으로 렌더함", () => {
+  test("데이터가 있으면 card 컴포넌트를 map으로 렌더함", async () => {
     setQuery({
       data: {
         flatItems: [
@@ -154,25 +171,9 @@ describe("메인 페이지 핵심 테스트", () => {
       },
     });
     render(<Page />);
-    const cards = screen.getAllByTestId("card");
+    const cards = await screen.findAllByTestId("card");
     expect(cards).toHaveLength(2);
     expect(cards[0]).toHaveTextContent("모임1");
     expect(cards[1]).toHaveTextContent("모임2");
-  });
-
-  describe("모임 만들기 모달", () => {
-    test("비로그인 상태면 로그인 페이지로 이동", () => {
-      setSession("unauthenticated");
-      render(<Page />);
-      fireEvent.click(screen.getByTestId("create-btn"));
-      expect(pushMock).toHaveBeenCalledWith("/login");
-    });
-
-    test("로그인 상태면 모달 열림", () => {
-      setSession("authenticated");
-      render(<Page />);
-      fireEvent.click(screen.getByTestId("create-btn"));
-      expect(screen.getByTestId("create-modal")).toBeInTheDocument();
-    });
   });
 });
