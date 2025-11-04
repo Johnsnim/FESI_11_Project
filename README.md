@@ -1,4 +1,4 @@
-# TEAM4 – 같이달램
+![Image](https://github.com/user-attachments/assets/fefae236-c9a5-4712-903c-8626e05861ae)
 
 <div align="center">
   <table style="border:none;">
