@@ -1,8 +1,26 @@
 import * as React from "react";
 import Image from "next/image";
 import type { Gathering } from "@/shared/services/gathering/gathering.service";
-import { useGatheringParticipantsQuery } from "@/shared/services/gathering/use-gathering-queries";
 import ProgressBar from "@/shared/components/progressbar";
+
+type Participant = {
+  userId: number;
+  gatheringId: number;
+  joinedAt: string;
+  User: {
+    id: number;
+    email: string;
+    name: string | null;
+    companyName: string | null;
+    image: string | null;
+  };
+};
+
+type ParticipantsProps = {
+  data: Gathering;
+  participants: Participant[];
+  isLoading: boolean;
+};
 
 function InitialsBubble({ name }: { name: string }) {
   const text = (name ?? "").trim();
@@ -23,17 +41,11 @@ function InitialsBubble({ name }: { name: string }) {
   );
 }
 
-export default function Participants({ data }: { data: Gathering }) {
-  const {
-    data: participants = [],
-    isLoading,
-    isError,
-  } = useGatheringParticipantsQuery(data.id, {
-    limit: 12,
-    sortBy: "joinedAt",
-    sortOrder: "desc",
-  });
-
+export default function Participants({
+  data,
+  participants,
+  isLoading,
+}: ParticipantsProps) {
   const MAX_AVATARS = 4;
   const visible = participants.slice(0, MAX_AVATARS);
   const extra = Math.max(0, data.participantCount - visible.length);
@@ -57,8 +69,6 @@ export default function Participants({ data }: { data: Gathering }) {
                   className="h-7 w-7 animate-pulse rounded-full bg-zinc-200 ring-2 ring-white"
                 />
               ))
-            ) : isError ? (
-              <div className="text-xs text-zinc-500">참여자 불러오기 실패</div>
             ) : (
               <>
                 {visible.map((p) => {
