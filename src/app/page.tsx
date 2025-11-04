@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { Suspense, useMemo, useState, useCallback } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 import Banner from "@/features/main/components/banner";
 import ButtonPlus from "@/shared/components/btnPlus";
@@ -16,7 +17,10 @@ import { useTabFilters } from "@/shared/hooks/use-tab-filters";
 import { useUrlFilters } from "@/shared/hooks/use-url-filters";
 import type { GatheringType } from "@/shared/services/gathering/endpoints";
 import { MainPageSortBy } from "@/shared/services/gathering/gathering.service";
-import { useGatheringsInfiniteQuery } from "@/shared/services/gathering/use-gathering-queries";
+import {
+  useGatheringsInfiniteQuery,
+  gatheringKeys,
+} from "@/shared/services/gathering/use-gathering-queries";
 import { LoaderCircle } from "lucide-react";
 import { confirm } from "@/shared/store/alert-store";
 
@@ -68,6 +72,7 @@ function MainPageContent() {
   const [modalKey, setModalKey] = useState(0);
   const router = useRouter();
   const { status } = useSession();
+  const queryClient = useQueryClient();
 
   const {
     currentTab,
@@ -151,11 +156,32 @@ function MainPageContent() {
     setModalOpen(open);
   }, []);
 
-  const handleComplete = useCallback(() => {
+  const refetchGatheringLists = useCallback(async () => {
+    await queryClient.invalidateQueries({
+      queryKey: gatheringKeys.lists(),
+      exact: false,
+      refetchType: "active",
+    });
+
+    await queryClient.resetQueries({
+      queryKey: gatheringKeys.lists(),
+      exact: false,
+    });
+
+    queryClient.removeQueries({
+      queryKey: gatheringKeys.lists(),
+      exact: false,
+      type: "inactive",
+    });
+  }, [queryClient]);
+
+  const handleComplete = useCallback(async () => {
     setModalOpen(false);
-    router.refresh();
+
+    await refetchGatheringLists();
+
     setModalKey((k) => k + 1);
-  }, []);
+  }, [refetchGatheringLists]);
 
   return (
     <div className="w-full pb-20 md:px-5 lg:mx-5 lg:mt-10 lg:px-0">
