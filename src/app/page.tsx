@@ -153,6 +153,7 @@ function MainPageContent() {
 
   const handleComplete = useCallback(() => {
     setModalOpen(false);
+    router.refresh();
     setModalKey((k) => k + 1);
   }, []);
 

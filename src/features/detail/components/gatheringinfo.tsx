@@ -16,8 +16,8 @@ type Props = {
   isJoined: boolean;
   isWished: boolean;
   onWishToggle: () => void;
-  onJoin: () => void;
-  onLeave: () => void;
+  onJoin: () => void; // 내부에서 가드만 하고 호출
+  onLeave: () => void; // 내부에서 그대로 호출
   joining?: boolean;
   leaving?: boolean;
 };
@@ -53,6 +53,12 @@ export default function GatheringInfo({
   const myId = getUserId(session?.user as SessionUserWithId);
   const isMadeByMe = myId !== null && data.createdBy === myId;
 
+  const queryClient = useQueryClient();
+  const [canceling, setCanceling] = useState(false);
+
+  const [locallyCanceled, setLocallyCanceled] = useState(false);
+
+  const now = Date.now();
   const { dateLabel, timeLabel, tagText, joinDisabled } = useMemo(() => {
     const start = new Date(data.dateTime);
     const dateLabel = `${start.getMonth() + 1}월 ${start.getDate()}일`;
@@ -65,34 +71,33 @@ export default function GatheringInfo({
       .replace(/^0/, "");
 
     const regEnd = data.registrationEnd ? new Date(data.registrationEnd) : null;
-    const isToday =
-      regEnd && new Date().toDateString() === new Date(regEnd).toDateString();
+    const isCanceledNow = !!data.canceledAt || locallyCanceled;
+    const isRegClosed = regEnd ? regEnd.getTime() < now : false;
+    const isEventPast = start.getTime() < now;
 
-    const regEndTime = regEnd
-      ? regEnd
-          .toLocaleTimeString("ko-KR", {
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: false,
-          })
-          .replace(/^0/, "")
-      : null;
+    const joinDisabled = isCanceledNow || isRegClosed || isEventPast;
 
-    const tagText = regEndTime
-      ? `${isToday ? "오늘 " : ""}${regEndTime} 마감`
-      : "마감일 미정";
-
-    const joinDisabled =
-      !!data.canceledAt ||
-      (data.registrationEnd
-        ? new Date(data.registrationEnd).getTime() < Date.now()
-        : false);
+    let tagText: string;
+    if (isCanceledNow) {
+      tagText = "취소됨";
+    } else if (isRegClosed) {
+      tagText = "모집 마감";
+    } else if (regEnd) {
+      const isToday = new Date().toDateString() === regEnd.toDateString();
+      const regEndTime = regEnd
+        .toLocaleTimeString("ko-KR", {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+        })
+        .replace(/^0/, "");
+      tagText = `${isToday ? "오늘 " : ""}${regEndTime} 마감`;
+    } else {
+      tagText = "마감일 미정";
+    }
 
     return { dateLabel, timeLabel, tagText, joinDisabled };
-  }, [data]);
-
-  const queryClient = useQueryClient();
-  const [canceling, setCanceling] = useState(false);
+  }, [data, locallyCanceled, now]);
 
   function getErrorMessage(err: unknown): string {
     const e = err as {
@@ -106,39 +111,56 @@ export default function GatheringInfo({
 
   async function handleCancel() {
     if (canceling) return;
-    
+    if (!isMadeByMe) return;
+
     confirm(
       "정말로 이 모임을 취소하시겠어요?\n취소 후에는 되돌릴 수 없어요.",
       async () => {
         try {
           setCanceling(true);
+
           await gatheringService.cancel(data.id);
+
+          setLocallyCanceled(true);
+
           await Promise.all([
             queryClient.invalidateQueries({
               queryKey: ["gathering-detail", data.id],
             }),
             queryClient.invalidateQueries({ queryKey: ["gathering-list"] }),
             queryClient.invalidateQueries({ queryKey: ["joined-list"] }),
+            queryClient.invalidateQueries({ queryKey: ["wish-list"] }),
           ]);
+
+          router.refresh();
+
+          alert("모임을 취소했습니다.");
         } catch (err: unknown) {
           alert(getErrorMessage(err));
         } finally {
           setCanceling(false);
         }
-      }
+      },
     );
   }
 
   function handleJoinClick() {
     if (status !== "authenticated") {
-      confirm(
-        "로그인이 필요한 서비스입니다.",
-        () => {
-          router.push("/login");
-        }
+      confirm("로그인이 필요한 서비스입니다.", () => {
+        router.push("/login");
+      });
+      return;
+    }
+
+    if (joinDisabled) {
+      alert(
+        locallyCanceled || data.canceledAt
+          ? "취소된 모임입니다."
+          : "모집이 마감되었거나 이미 시작/종료된 모임입니다.",
       );
       return;
     }
+
     onJoin();
   }
 
@@ -161,7 +183,6 @@ export default function GatheringInfo({
       </p>
 
       <div className="flex items-center gap-1">
-        {/* 찜하기 버튼 - props로 받은 상태와 핸들러 사용 */}
         <WishButton isWished={isWished} onClick={onWishToggle} />
 
         {isMadeByMe ? (
@@ -173,6 +194,7 @@ export default function GatheringInfo({
             >
               {canceling ? "취소 중..." : "취소하기"}
             </button>
+
             <button
               disabled={joinDisabled}
               className={`inline-flex h-11 w-full items-center justify-center rounded-xl px-5 text-white ${
@@ -180,6 +202,14 @@ export default function GatheringInfo({
                   ? "cursor-not-allowed bg-zinc-300"
                   : "bg-emerald-500 hover:bg-emerald-600"
               }`}
+              onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(window.location.href);
+                  alert("현재 페이지 링크가 클립보드에 복사되었습니다.");
+                } catch {
+                  alert("링크 복사에 실패했습니다.");
+                }
+              }}
             >
               공유하기
             </button>
