@@ -32,9 +32,9 @@
 | **마이페이지** | 프로필 수정, 내가 신청한/만든 모임 및 리뷰 관리, 별점 인터랙션 효과 |
 | **모든 리뷰 페이지** | 전체 평점 통계 및 개별 리뷰 조회, 필터/정렬, 무한 스크롤 기반 로딩 |
 
-> ✨ 전반적인 UI에 *Framer Motion*으로 부드러운 전환 및 시각적 피드백 애니메이션을 적용하고
+> ✨ 전반적인 UI에 **Framer Motion**으로 부드러운 전환 및 시각적 피드백 애니메이션을 적용하고
 > 
-> *Skeleton UI*를 적용하여 레이아웃 시프트 같은 UX까지 고려했습니다. 
+> **Skeleton UI**를 적용하여 레이아웃 시프트 같은 UX까지 고려했습니다. 
 
 ---
 
@@ -42,8 +42,8 @@
 
 ![Image](https://github.com/user-attachments/assets/e7e8944a-23f1-43da-b05a-c9bddce12f3d)
 
-- **FE**: Next.js 15(App Router), React 18, TypeScript, TailwindCSS, shadcn/ui, lucide-react
-- **상태/데이터**: TanStack Query(∞ query, 캐싱), 커스텀 훅(use-infinite-scroll, use-url-filters 등)
+- **FE**: Next.js 15(App Router), React 18, TypeScript, TailwindCSS, Zod, shadcn/ui, lucide-react
+- **상태/데이터**: TanStack Query(무한 스크롤, 캐싱), 커스텀 훅(use-infinite-scroll, use-url-filters 등)
 - **인증**: NextAuth
 - **테스트**: Jest, React Testing Library, jest-environment-jsdom
 - **배포/호스팅**: Vercel
@@ -51,5 +51,21 @@
 
 ---
 
-## 📂 폴더 구조(요지)
+![Image](https://github.com/user-attachments/assets/15d46551-bac8-47b8-b104-cd0136cd241c)
 
+
+### 📦 npm 스크립트
+| 단계 | 명령어 | 설명 |
+|---|---|---|
+| 의존성 설치 | `npm ci` | lockfile 기준으로 깔끔 설치 |
+| 개발 서버 실행 | `npm run dev` | http://localhost:3000 |
+| 형식/품질 점검(선택) | `npm run lint` / `npm run typecheck` | ESLint / TypeScript 검사 |
+| 단위 테스트(선택) | `npm test` | Jest 실행 |
+| 프로덕션 빌드 | `npm run build` | 최적화된 빌드 생성 |
+| 로컬 프로덕션 실행 | `npm start` | 빌드 산출물 실행 |
+---
+
+
+![Image](https://github.com/user-attachments/assets/fc0ca779-6d7d-49cc-b745-cb301b4b4ad5)
+![Image](https://github.com/user-attachments/assets/95a47c5e-7761-4a30-8c48-dcf01202c080)
+![Image](https://github.com/user-attachments/assets/f1699691-236d-453e-9a1c-9296aef45431)
