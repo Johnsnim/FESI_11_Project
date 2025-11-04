@@ -7,14 +7,15 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Tag } from "@/shared/components/tag";
 import { Chip } from "@/shared/components/chip";
 import { gatheringService } from "@/shared/services/gathering/gathering.service";
-import { useWishlist } from "@/shared/hooks/use-wishlist"; // 경로는 프로젝트 구조에 맞게 수정
 import type { Gathering } from "@/shared/services/gathering/gathering.service";
 import WishButton from "@/shared/components/wish-button";
-import { confirm } from "@/shared/store/alert-store";
+import { alert, confirm } from "@/shared/store/alert-store";
 
 type Props = {
   data: Gathering;
   isJoined: boolean;
+  isWished: boolean;
+  onWishToggle: () => void;
   onJoin: () => void;
   onLeave: () => void;
   joining?: boolean;
@@ -40,6 +41,8 @@ function getUserId(u: SessionUserWithId): number | null {
 export default function GatheringInfo({
   data,
   isJoined,
+  isWished,
+  onWishToggle,
   onJoin,
   onLeave,
   joining = false,
@@ -49,9 +52,6 @@ export default function GatheringInfo({
   const { data: session, status } = useSession();
   const myId = getUserId(session?.user as SessionUserWithId);
   const isMadeByMe = myId !== null && data.createdBy === myId;
-
-  // 찜하기 기능 추가
-  const { isWished, toggleWish } = useWishlist(data.id);
 
   const { dateLabel, timeLabel, tagText, joinDisabled } = useMemo(() => {
     const start = new Date(data.dateTime);
@@ -106,37 +106,38 @@ export default function GatheringInfo({
 
   async function handleCancel() {
     if (canceling) return;
-    const ok = window.confirm(
-      "정말로 이 모임을 취소하시겠어요? 취소 후에는 되돌릴 수 없어요.",
+    
+    confirm(
+      "정말로 이 모임을 취소하시겠어요?\n취소 후에는 되돌릴 수 없어요.",
+      async () => {
+        try {
+          setCanceling(true);
+          await gatheringService.cancel(data.id);
+          await Promise.all([
+            queryClient.invalidateQueries({
+              queryKey: ["gathering-detail", data.id],
+            }),
+            queryClient.invalidateQueries({ queryKey: ["gathering-list"] }),
+            queryClient.invalidateQueries({ queryKey: ["joined-list"] }),
+          ]);
+        } catch (err: unknown) {
+          alert(getErrorMessage(err));
+        } finally {
+          setCanceling(false);
+        }
+      }
     );
-    if (!ok) return;
-
-    try {
-      setCanceling(true);
-      await gatheringService.cancel(data.id);
-      await Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: ["gathering-detail", data.id],
-        }),
-        queryClient.invalidateQueries({ queryKey: ["gathering-list"] }),
-        queryClient.invalidateQueries({ queryKey: ["joined-list"] }),
-      ]);
-    } catch (err: unknown) {
-      alert(getErrorMessage(err));
-    } finally {
-      setCanceling(false);
-    }
   }
 
   function handleJoinClick() {
     if (status !== "authenticated") {
       confirm(
-             "로그인이 필요한 서비스입니다.",
-             () => {
-               router.push("/login");
-             }
-           );
-           return;
+        "로그인이 필요한 서비스입니다.",
+        () => {
+          router.push("/login");
+        }
+      );
+      return;
     }
     onJoin();
   }
@@ -160,8 +161,8 @@ export default function GatheringInfo({
       </p>
 
       <div className="flex items-center gap-1">
-        {/* 찜하기 버튼 - 기능 연동 */}
-        <WishButton isWished={isWished} onClick={toggleWish} />
+        {/* 찜하기 버튼 - props로 받은 상태와 핸들러 사용 */}
+        <WishButton isWished={isWished} onClick={onWishToggle} />
 
         {isMadeByMe ? (
           <div className="flex h-full w-full gap-2 pl-2">

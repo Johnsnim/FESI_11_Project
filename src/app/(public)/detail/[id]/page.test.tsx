@@ -3,25 +3,34 @@ import { render } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import DetailPage from "./page";
 
+type GIProps = {
+  data?: unknown;
+  isJoined: boolean;
+  onJoin: () => void;
+  onLeave: () => void;
+  joining?: boolean;
+  leaving?: boolean;
+};
+
 const useGatheringDetailQueryMock = jest.fn();
 const useJoinedGatheringsQueryMock = jest.fn();
 const useJoinGatheringMutationMock = jest.fn();
 const useLeaveGatheringMutationMock = jest.fn();
 
-const GI = jest.fn((_p: any) => null);
+const GI = jest.fn((_p: GIProps) => null);
 
 jest.mock("next/navigation", () => ({
   useParams: () => ({ id: "1" }),
 }));
 
 jest.mock("@/shared/services/gathering/use-gathering-queries", () => ({
-  useGatheringDetailQuery: (...args: any[]) =>
+  useGatheringDetailQuery: (...args: unknown[]) =>
     useGatheringDetailQueryMock(...args),
-  useJoinedGatheringsQuery: (...args: any[]) =>
+  useJoinedGatheringsQuery: (...args: unknown[]) =>
     useJoinedGatheringsQueryMock(...args),
-  useJoinGatheringMutation: (...args: any[]) =>
+  useJoinGatheringMutation: (...args: unknown[]) =>
     useJoinGatheringMutationMock(...args),
-  useLeaveGatheringMutation: (...args: any[]) =>
+  useLeaveGatheringMutation: (...args: unknown[]) =>
     useLeaveGatheringMutationMock(...args),
 }));
 
@@ -39,7 +48,7 @@ jest.mock("@/shared/components/pagination", () => () => null);
 
 jest.mock(
   "@/features/detail/components/gatheringinfo",
-  () => (p: any) => GI(p),
+  () => (p: GIProps) => GI(p),
 );
 
 const mokedGathering = {
@@ -72,18 +81,7 @@ describe("DetailPage 핵심 동작(짧게)", () => {
 
     expect(GI).toHaveBeenCalled();
 
-    const [[props]] = GI.mock.calls as [
-      [
-        {
-          isJoined: boolean;
-          onJoin: () => void;
-          onLeave: () => void;
-          joining?: boolean;
-          leaving?: boolean;
-        },
-      ],
-    ];
-
+    const [[props]] = GI.mock.calls as [[GIProps]];
     expect(props.isJoined).toBe(false);
 
     props.onJoin();
@@ -110,7 +108,7 @@ describe("DetailPage 핵심 동작(짧게)", () => {
     render(<DetailPage />);
 
     expect(GI).toHaveBeenCalled();
-    const [[props]] = GI.mock.calls as [[{ isJoined: boolean }]];
+    const [[props]] = GI.mock.calls as [[GIProps]];
     expect(props.isJoined).toBe(true);
   });
 });

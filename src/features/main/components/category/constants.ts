@@ -1,7 +1,7 @@
 export const LOCATIONS = [
   "지역 전체",
   "홍대입구",
-  "을지로 3가",
+  "을지로3가",
   "신림",
   "건대입구",
 ] as const;
